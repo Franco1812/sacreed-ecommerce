@@ -1,0 +1,28 @@
+# dependencies
+/node_modules
+
+# build output
+/dist
+
+# prisma (cliente generado, se regenera con `npx prisma generate`)
+/src/generated
+
+# env files (nunca subir secretos reales)
+.env
+.env.*
+!.env.example
+
+# testing / coverage
+/coverage
+
+# misc
+.DS_Store
+*.pem
+*.tsbuildinfo
+
+# logs
+*.log
+
+# editor
+.vscode/*
+!.vscode/extensions.json

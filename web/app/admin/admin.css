@@ -1,0 +1,145 @@
+:root {
+  --forest: #01260e;
+  --brush: #d8d1c2;
+  --americano: #1e1d1d;
+  --gold: #b07e1e;
+  --burgundy: #45171b;
+  --matcha: #9ca763;
+  --paper: #e4ded2;
+  --hair: rgba(30, 29, 29, 0.16);
+  --display: var(--font-display), Georgia, serif;
+  --util: var(--font-util), -apple-system, Helvetica, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+input, select, textarea, button { font: inherit; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+.admin-body {
+  background: var(--paper);
+  color: var(--americano);
+  font-family: var(--util);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+h1, h2, h3 { font-family: var(--display); font-weight: 500; line-height: 1.1; }
+
+/* ---------- login ---------- */
+.admin-login {
+  max-width: 340px;
+  margin: 16vh auto;
+  padding: 40px 36px;
+  background: #fff;
+  border: 1px solid var(--hair);
+}
+.admin-login h1 { font-style: italic; font-size: 30px; margin-bottom: 24px; text-align: center; }
+.admin-login form { display: flex; flex-direction: column; gap: 12px; }
+.admin-login input {
+  padding: 12px 14px; border: 1px solid var(--hair); background: var(--paper);
+}
+.admin-login button {
+  padding: 12px; background: var(--forest); color: #fff;
+  text-transform: uppercase; letter-spacing: 0.08em; font-size: 13px;
+}
+.admin-login button:hover { background: var(--gold); }
+.admin-error { color: var(--burgundy); margin-top: 14px; font-size: 13px; text-align: center; }
+
+/* ---------- shell ---------- */
+.admin-shell { display: flex; min-height: 100vh; }
+.admin-nav {
+  width: 220px; flex-shrink: 0; background: var(--forest); color: var(--brush);
+  padding: 32px 24px; display: flex; flex-direction: column; gap: 18px;
+}
+.admin-brand {
+  font-family: var(--display); font-style: italic; font-size: 22px; color: #fff; margin-bottom: 8px;
+}
+.admin-nav a {
+  font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--brush); opacity: 0.85;
+}
+.admin-nav a:hover { opacity: 1; color: var(--gold); }
+.admin-logout { margin-top: auto; }
+.admin-logout button {
+  font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--brush); opacity: 0.6;
+}
+.admin-logout button:hover { opacity: 1; }
+
+.admin-main { flex: 1; padding: 48px 56px; max-width: 1100px; }
+.admin-main-head {
+  display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 28px; gap: 16px;
+}
+.admin-main-head h1 { font-style: italic; font-size: 34px; }
+
+/* ---------- buttons ---------- */
+.admin-btn {
+  display: inline-block; padding: 10px 22px; background: var(--forest); color: #fff;
+  text-transform: uppercase; letter-spacing: 0.08em; font-size: 12px; text-align: center;
+}
+.admin-btn:hover { background: var(--gold); }
+.admin-btn-ghost {
+  display: inline-block; padding: 9px 20px; background: transparent; color: var(--forest);
+  border: 1px solid var(--americano); text-transform: uppercase; letter-spacing: 0.08em; font-size: 12px;
+}
+.admin-btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+.admin-btn-danger { color: var(--burgundy); }
+.admin-btn-danger:hover { opacity: 0.7; }
+
+/* ---------- table ---------- */
+.admin-table { width: 100%; border-collapse: collapse; background: #fff; }
+.admin-table th {
+  text-align: left; padding: 12px 16px; font-size: 11px; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--gold); border-bottom: 1px solid var(--hair);
+}
+.admin-table td { padding: 12px 16px; border-bottom: 1px solid var(--hair); font-size: 14px; vertical-align: middle; }
+.admin-table tr:hover td { background: #faf8f4; }
+.admin-table input[type="number"] { width: 90px; padding: 7px 9px; border: 1px solid var(--hair); background: var(--paper); }
+tr.admin-stock-bajo td:first-child { border-left: 3px solid var(--burgundy); }
+
+/* ---------- forms / detail blocks ---------- */
+.admin-card { background: #fff; border: 1px solid var(--hair); padding: 28px 32px; margin-bottom: 24px; }
+.admin-block { margin-bottom: 28px; }
+.admin-block h2 {
+  font-family: var(--util); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em;
+  color: var(--gold); margin-bottom: 10px; font-weight: 500;
+}
+.admin-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.admin-field label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.7; }
+.admin-field input, .admin-field select, .admin-field textarea {
+  padding: 10px 12px; border: 1px solid var(--hair); background: var(--paper); width: 100%;
+}
+.admin-field textarea { resize: vertical; min-height: 90px; }
+.admin-row { display: flex; gap: 20px; }
+.admin-row .admin-field { flex: 1; }
+.admin-checkbox-row { display: flex; gap: 18px; align-items: center; }
+.admin-checkbox-row label { display: flex; align-items: center; gap: 6px; font-size: 14px; }
+
+.admin-repeater-item {
+  display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed var(--hair);
+}
+.admin-repeater-item > div { flex: 1; }
+.admin-add-line { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--forest); border-bottom: 1px solid var(--forest); align-self: flex-start; }
+.admin-add-line:hover { color: var(--gold); border-color: var(--gold); }
+.admin-remove-line { color: var(--burgundy); font-size: 18px; line-height: 1; padding-top: 8px; }
+
+.admin-inline-form { display: flex; gap: 8px; align-items: center; }
+
+.admin-item-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--hair); font-size: 14px; }
+.admin-total { font-weight: 500; border-bottom: none; }
+
+/* ---------- estado badge ---------- */
+.admin-badge {
+  display: inline-block; padding: 6px 16px; font-size: 12px; text-transform: uppercase;
+  letter-spacing: 0.08em; color: #fff; background: var(--americano);
+}
+.admin-badge-pendiente { background: var(--gold); }
+.admin-badge-confirmado, .admin-badge-preparacion, .admin-badge-enviado, .admin-badge-retiro, .admin-badge-entregado { background: var(--forest); }
+.admin-badge-cancelada { background: var(--burgundy); }
+
+/* ---------- galería de imágenes ---------- */
+.admin-gallery { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 18px; }
+.admin-gallery-item { position: relative; width: 120px; }
+.admin-gallery-item img { width: 120px; height: 120px; object-fit: cover; display: block; border: 1px solid var(--hair); }
+.admin-gallery-item form { margin-top: 6px; }
+.admin-gallery-item button { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--burgundy); }

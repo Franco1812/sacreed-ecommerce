@@ -1,0 +1,86 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import ProductCard from "@/components/ProductCard";
+import { getAllCombos } from "@/lib/data";
+import { comboProductos, getCombo } from "@/lib/helpers";
+import { formatPrecio, ritualLabel } from "@/lib/format";
+import { AddToCartButtonCombo } from "@/components/AddToCartButton";
+
+export async function generateStaticParams() {
+  const combos = await getAllCombos();
+  return combos.map((c) => ({ slug: c.slug }));
+}
+
+export default async function ComboPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const combo = await getCombo(slug);
+  if (!combo) notFound();
+
+  const comps = await comboProductos(combo);
+  const suma = comps.reduce((acc, p) => acc + p.precio, 0);
+
+  return (
+    <>
+      <Breadcrumbs
+        items={[
+          { label: "Inicio", href: "/" },
+          { label: "Combos Sinérgicos", href: "/combos" },
+          { label: combo.nombre },
+        ]}
+      />
+
+      <div className="combo-hero">
+        <div className="wrap combo-hero-grid">
+          <div className="combo-media-big"><span className="ph">Imagen combo<br />piezas juntas</span></div>
+          <div>
+            <span className="eyebrow" style={{ color: "var(--gold)" }}>Combo Sinérgico · {ritualLabel(combo.ritual)}</span>
+            <h1>{combo.nombre}</h1>
+            <p className="bundle-bajada">{combo.bajada}</p>
+            {!combo.copyAprobado && (
+              <p style={{ fontSize: 12, opacity: 0.6, marginTop: 8 }}>Copy propuesto — pendiente de aprobación de marca (§5.9)</p>
+            )}
+
+            <div className="combo-integrantes">
+              {comps.map((cp) => (
+                <Link href={`/producto/${cp.slug}`} className="combo-mini" key={cp.slug} title={cp.nombre}>
+                  {cp.nombre}
+                </Link>
+              ))}
+            </div>
+
+            <div className="bundle-price" style={{ margin: "22px 0" }}>
+              {formatPrecio(combo.precio)}
+              <span style={{ fontSize: 12, opacity: 0.6 }}>vs. {formatPrecio(suma)} comprando cada producto por separado (mock)</span>
+            </div>
+            <AddToCartButtonCombo slug={combo.slug} />
+            <p className="pdp-shipnote">Reparto en zona los viernes · Envío sin cargo desde $[mínimo]</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="combo-why">
+        <div className="wrap">
+          <h2>Por qué se potencian</h2>
+          <p>{combo.porQueSePotencian}</p>
+        </div>
+      </div>
+
+      <section>
+        <div className="wrap">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Productos que lo integran</span>
+              <h2 className="h-section" style={{ fontSize: "clamp(26px,3vw,38px)" }}>Cada pieza, con su propia ficha</h2>
+            </div>
+          </div>
+          <div className="rail cols-3">
+            {comps.map((cp) => (
+              <ProductCard producto={cp} key={cp.slug} />
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}

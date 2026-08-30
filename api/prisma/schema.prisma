@@ -1,0 +1,216 @@
+// Modelo de datos SACRED — calcado del brief §3 (taxonomías cruzadas, ficha
+// fija de 4 bloques, combos como productos vendibles) + §3.5 (campos completos
+// del producto) + un modelo de órdenes que el brief no especifica en detalle
+// (ver sacred_nextjs_pivot / registro del proyecto en el vault de Obsidian).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum LineaBeneficio {
+  FOCO_VITALIDAD
+  LONGEVIDAD_GLOW
+  SALUD_INTESTINAL
+  CALMA_ALQUIMICA
+}
+
+enum Ritual {
+  AM
+  PM
+}
+
+enum EstadoOrden {
+  PENDIENTE_PAGO
+  PAGO_CONFIRMADO
+  EN_PREPARACION
+  ENVIADO
+  LISTO_PARA_RETIRO
+  ENTREGADO
+  CANCELADA
+}
+
+enum MetodoEntrega {
+  ENVIO_DOMICILIO
+  RETIRO
+}
+
+enum MetodoPago {
+  TRANSFERENCIA
+  EFECTIVO
+  MERCADO_PAGO
+}
+
+/// Taxonomía A del brief: obligatoria y excluyente (un producto pertenece a
+/// una sola línea). Se modela como enum porque las 4 líneas son estructurales
+/// (definen URL y navegación, §2.1/§2.2), no contenido que el admin edite.
+model Producto {
+  id      String @id @default(cuid())
+  slug    String @unique
+  nombre  String
+
+  formulaSubtitulo String?
+  linea            LineaBeneficio
+  /// Taxonomía B del brief: no excluyente (AM, PM o ambas).
+  ritual           Ritual[]
+  /// Orden global dentro de /rituales/am y /rituales/pm (§3.2 — no alfabético ni por precio).
+  orden            Int
+  momentoSugerido  String?
+
+  // Bloques fijos de la ficha (§3.4)
+  descripcion   String  @db.Text
+  /// Bloque 1b opcional: repetidor de {ingrediente, texto}. JSON porque es una
+  /// lista chica y anidada, no amerita tabla propia.
+  laFormula     Json?
+  beneficios    String[]
+  ritualDeUso   String  @db.Text
+  ingredientes  String? @db.Text
+  notaDePureza  String? @db.Text
+
+  origen  String?
+  precio  Int
+  formato String?
+  pesoNetoGramos       Float?
+  paqueteAltoCm        Float?
+  paqueteAnchoCm       Float?
+  paqueteProfundidadCm Float?
+
+  /// §3.5: obligatorio, "con aviso de bajo stock" — el umbral vive en código
+  /// (STOCK_BAJO_UMBRAL), no en el schema, para no sumar un campo por producto.
+  stock Int @default(0)
+
+  destacado        String?
+  /// true = nombre todavía no definido por la marca (ver obs. §8.3 del brief)
+  nombrePendiente  Boolean @default(false)
+
+  seoTitulo       String?
+  seoDescripcion  String?
+
+  imagenes    Imagen[]
+  comboItems  ComboProducto[]
+  orderItems  OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// §3.3: un combo es un producto vendible en sí mismo (nombre, ficha, precio,
+/// stock propios). Reglas de precio/stock del brief: el stock de los
+/// componentes NO se descuenta automático al vender el combo (decisión ya
+/// tomada antes del pivote de stack — ver sacred_scaffolding_decisions).
+model Combo {
+  id     String @id @default(cuid())
+  slug   String @unique
+  nombre String
+  bajada String
+
+  ritual Ritual[]
+
+  porQueSePotencian String @db.Text
+  /// false = copy de §5.9, propuesta pendiente de aprobación de la marca (obs. §8.11)
+  copyAprobado      Boolean @default(false)
+
+  precio Int
+  stock  Int @default(0)
+
+  productos  ComboProducto[]
+  imagenes   Imagen[]
+  orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Relación N:N entre Combo y Producto — "productos que lo integran" (§3.3),
+/// también resuelve "Se potencia con" en la ficha de producto (§4.6).
+model ComboProducto {
+  comboId    String
+  productoId String
+  combo      Combo    @relation(fields: [comboId], references: [id], onDelete: Cascade)
+  producto   Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+
+  @@id([comboId, productoId])
+}
+
+/// Galería de fotos (§3.5: mínimo 3 por producto, con alt text obligatorio).
+/// Los archivos en sí viven en Supabase Storage; acá solo la URL y el orden.
+model Imagen {
+  id    String @id @default(cuid())
+  url   String
+  alt   String
+  orden Int    @default(0)
+
+  productoId String?
+  producto   Producto? @relation(fields: [productoId], references: [id], onDelete: Cascade)
+  comboId    String?
+  combo      Combo?    @relation(fields: [comboId], references: [id], onDelete: Cascade)
+}
+
+/// El brief no define un flujo de estados de orden — este es el que traía el
+/// plan anterior al pivote de stack. Confirmar con la marca si sirve tal cual.
+model Order {
+  id     String      @id @default(cuid())
+  numero Int         @unique @default(autoincrement())
+  estado EstadoOrden @default(PENDIENTE_PAGO)
+
+  metodoEntrega MetodoEntrega
+  /// Fase actual: solo TRANSFERENCIA/EFECTIVO, confirmación manual por Cintia
+  /// desde el admin. MERCADO_PAGO queda en el enum para cuando se sume después.
+  metodoPago    MetodoPago
+
+  // Datos de contacto y envío (§4.9 — checkout sin cuenta obligatoria)
+  nombre       String
+  apellido     String
+  email        String
+  telefono     String
+  dni          String?
+  calle        String?
+  numeroDom    String?
+  piso         String?
+  localidad    String?
+  provincia    String?
+  codigoPostal String?
+  /// Para la zona de reparto propio: barrio elegido de lista cerrada (§6.4.1)
+  barrioZona   String?
+  notas        String?
+
+  subtotal   Int
+  costoEnvio Int @default(0)
+  total      Int
+
+  items OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Snapshot de nombre/precio al momento de la compra — si el producto cambia
+/// de precio o se borra después, el pedido histórico no debe cambiar.
+model OrderItem {
+  id       String @id @default(cuid())
+  orderId  String
+  order    Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productoId String?
+  producto   Producto? @relation(fields: [productoId], references: [id])
+  comboId    String?
+  combo      Combo?    @relation(fields: [comboId], references: [id])
+
+  nombre         String
+  precioUnitario Int
+  cantidad       Int
+}
+
+/// §3.3: lista de espera de "avisarme cuando haya stock" para combos con un
+/// componente agotado.
+model AvisoStock {
+  id         String   @id @default(cuid())
+  productoId String?
+  comboId    String?
+  contacto   String
+  createdAt  DateTime @default(now())
+}
