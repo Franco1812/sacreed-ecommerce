@@ -24,6 +24,10 @@ export const metadata: Metadata = {
   description: "Alacena funcional · Buenos Aires",
 };
 
+// El catálogo vive en una base real vía la API — no tiene sentido pre-renderizar
+// en build time (ni siquiera es posible: la API no está levantada durante el build).
+export const dynamic = "force-dynamic";
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [productos, combos] = await Promise.all([getAllProductos(), getAllCombos()]);
 
