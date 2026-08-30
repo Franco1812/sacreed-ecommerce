@@ -2,15 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import ProductCard from "@/components/ProductCard";
-import { getAllCombos } from "@/lib/data";
 import { comboProductos, getCombo } from "@/lib/helpers";
 import { formatPrecio, ritualLabel } from "@/lib/format";
 import { AddToCartButtonCombo } from "@/components/AddToCartButton";
-
-export async function generateStaticParams() {
-  const combos = await getAllCombos();
-  return combos.map((c) => ({ slug: c.slug }));
-}
 
 export default async function ComboPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

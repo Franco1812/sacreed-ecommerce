@@ -6,14 +6,8 @@ import ComboCard from "@/components/ComboCard";
 import PdpBlock from "@/components/PdpBlock";
 import { AddToCartButtonProducto } from "@/components/AddToCartButton";
 import { LINEAS } from "@/lib/mock-data";
-import { getAllProductos } from "@/lib/data";
 import { combosParaProducto, getProducto, relacionadosMismaLinea } from "@/lib/helpers";
 import { formatPrecio, ritualLabel } from "@/lib/format";
-
-export async function generateStaticParams() {
-  const productos = await getAllProductos();
-  return productos.map((p) => ({ slug: p.slug }));
-}
 
 export default async function ProductoPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
