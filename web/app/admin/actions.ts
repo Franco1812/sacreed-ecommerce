@@ -2,7 +2,11 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { revalidatePath, revalidateTag } from "next/cache";
+// updateTag y no revalidateTag(tag, "max"): con "max" el primer request después
+// de guardar se sirve stale a propósito, así que Cintia guardaba, entraba al
+// sitio y veía el contenido viejo. updateTag expira la entrada de una y sólo
+// se puede usar desde Server Actions, que es justo lo que hay acá.
+import { revalidatePath, updateTag } from "next/cache";
 import { timingSafeEqual } from "crypto";
 import { ADMIN_SESSION_COOKIE, createAdminSessionToken } from "@/lib/admin-auth";
 import { adminApiFetch, mensajeDeError } from "@/lib/admin-api";
@@ -44,7 +48,7 @@ export async function logout() {
 export async function actualizarProducto(slug: string, data: { precio?: number; stock?: number }) {
   const res = await adminApiFetch(`/productos/${slug}`, { method: "PATCH", body: JSON.stringify(data) });
   if (!res.ok) return { ok: false, error: "No se pudo actualizar el producto." };
-  revalidateTag("productos", "max");
+  updateTag("productos");
   revalidatePath("/admin/productos");
   return { ok: true };
 }
@@ -52,7 +56,7 @@ export async function actualizarProducto(slug: string, data: { precio?: number; 
 export async function actualizarCombo(slug: string, data: { precio?: number; stock?: number }) {
   const res = await adminApiFetch(`/combos/${slug}`, { method: "PATCH", body: JSON.stringify(data) });
   if (!res.ok) return { ok: false, error: "No se pudo actualizar el combo." };
-  revalidateTag("combos", "max");
+  updateTag("combos");
   revalidatePath("/admin/combos");
   return { ok: true };
 }
@@ -64,15 +68,15 @@ export async function actualizarEstadoPedido(numero: number, estado: string) {
   revalidatePath(`/admin/pedidos/${numero}`);
   revalidatePath("/admin/pedidos");
   revalidatePath("/admin");
-  revalidateTag("productos", "max");
-  revalidateTag("combos", "max");
+  updateTag("productos");
+  updateTag("combos");
   return { ok: true };
 }
 
 export async function actualizarContenidoHome(data: Record<string, string>) {
   const res = await adminApiFetch("/contenido/home", { method: "PATCH", body: JSON.stringify(data) });
   if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
-  revalidateTag("contenido", "max");
+  updateTag("contenido");
   revalidatePath("/admin/contenido");
   return { ok: true };
 }
@@ -80,7 +84,7 @@ export async function actualizarContenidoHome(data: Record<string, string>) {
 export async function actualizarLinea(id: string, data: { nombre?: string; texto?: string }) {
   const res = await adminApiFetch(`/contenido/lineas/${id}`, { method: "PATCH", body: JSON.stringify(data) });
   if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
-  revalidateTag("contenido", "max");
+  updateTag("contenido");
   revalidatePath("/admin/contenido");
   return { ok: true };
 }
@@ -144,7 +148,7 @@ function toProductoDto(data: ProductoFormValues) {
 export async function crearProducto(data: ProductoFormValues) {
   const res = await adminApiFetch("/productos", { method: "POST", body: JSON.stringify(toProductoDto(data)) });
   if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
-  revalidateTag("productos", "max");
+  updateTag("productos");
   revalidatePath("/admin/productos");
   return { ok: true, slug: data.slug };
 }
@@ -152,7 +156,7 @@ export async function crearProducto(data: ProductoFormValues) {
 export async function actualizarProductoCompleto(slug: string, data: ProductoFormValues) {
   const res = await adminApiFetch(`/productos/${slug}`, { method: "PATCH", body: JSON.stringify(toProductoDto(data)) });
   if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
-  revalidateTag("productos", "max");
+  updateTag("productos");
   revalidatePath("/admin/productos");
   revalidatePath(`/admin/productos/${slug}/editar`);
   return { ok: true, slug };
@@ -161,7 +165,7 @@ export async function actualizarProductoCompleto(slug: string, data: ProductoFor
 export async function subirImagenProducto(slug: string, formData: FormData) {
   const res = await adminApiFetch(`/productos/${slug}/imagenes`, { method: "POST", body: formData });
   if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
-  revalidateTag("productos", "max");
+  updateTag("productos");
   revalidatePath(`/admin/productos/${slug}/editar`);
   return { ok: true };
 }
@@ -169,7 +173,7 @@ export async function subirImagenProducto(slug: string, formData: FormData) {
 export async function eliminarImagenProducto(slug: string, imagenId: string) {
   const res = await adminApiFetch(`/productos/${slug}/imagenes/${imagenId}`, { method: "DELETE" });
   if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
-  revalidateTag("productos", "max");
+  updateTag("productos");
   revalidatePath(`/admin/productos/${slug}/editar`);
   return { ok: true };
 }
@@ -191,7 +195,7 @@ function toComboDto(data: ComboFormValues) {
 export async function crearCombo(data: ComboFormValues) {
   const res = await adminApiFetch("/combos", { method: "POST", body: JSON.stringify(toComboDto(data)) });
   if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
-  revalidateTag("combos", "max");
+  updateTag("combos");
   revalidatePath("/admin/combos");
   return { ok: true, slug: data.slug };
 }
@@ -199,7 +203,7 @@ export async function crearCombo(data: ComboFormValues) {
 export async function actualizarComboCompleto(slug: string, data: ComboFormValues) {
   const res = await adminApiFetch(`/combos/${slug}`, { method: "PATCH", body: JSON.stringify(toComboDto(data)) });
   if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
-  revalidateTag("combos", "max");
+  updateTag("combos");
   revalidatePath("/admin/combos");
   revalidatePath(`/admin/combos/${slug}/editar`);
   return { ok: true, slug };
@@ -208,7 +212,7 @@ export async function actualizarComboCompleto(slug: string, data: ComboFormValue
 export async function subirImagenCombo(slug: string, formData: FormData) {
   const res = await adminApiFetch(`/combos/${slug}/imagenes`, { method: "POST", body: formData });
   if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
-  revalidateTag("combos", "max");
+  updateTag("combos");
   revalidatePath(`/admin/combos/${slug}/editar`);
   return { ok: true };
 }
@@ -216,7 +220,7 @@ export async function subirImagenCombo(slug: string, formData: FormData) {
 export async function eliminarImagenCombo(slug: string, imagenId: string) {
   const res = await adminApiFetch(`/combos/${slug}/imagenes/${imagenId}`, { method: "DELETE" });
   if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
-  revalidateTag("combos", "max");
+  updateTag("combos");
   revalidatePath(`/admin/combos/${slug}/editar`);
   return { ok: true };
 }
