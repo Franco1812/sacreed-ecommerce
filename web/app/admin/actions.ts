@@ -69,6 +69,22 @@ export async function actualizarEstadoPedido(numero: number, estado: string) {
   return { ok: true };
 }
 
+export async function actualizarContenidoHome(data: Record<string, string>) {
+  const res = await adminApiFetch("/contenido/home", { method: "PATCH", body: JSON.stringify(data) });
+  if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
+  revalidateTag("contenido", "max");
+  revalidatePath("/admin/contenido");
+  return { ok: true };
+}
+
+export async function actualizarLinea(id: string, data: { nombre?: string; texto?: string }) {
+  const res = await adminApiFetch(`/contenido/lineas/${id}`, { method: "PATCH", body: JSON.stringify(data) });
+  if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
+  revalidateTag("contenido", "max");
+  revalidatePath("/admin/contenido");
+  return { ok: true };
+}
+
 export async function subirComprobantePedido(numero: number, formData: FormData) {
   const res = await adminApiFetch(`/pedidos/${numero}/imagenes`, { method: "POST", body: formData });
   if (!res.ok) return { ok: false, error: await mensajeDeError(res) };

@@ -20,7 +20,7 @@
  */
 import { cache } from "react";
 import { unstable_cache } from "next/cache";
-import type { Combo, FormulaItem, ImagenItem, LineaSlug, Producto, RitualModo } from "./types";
+import type { Combo, ContenidoHome, FormulaItem, ImagenItem, Linea, LineaSlug, Producto, RitualModo } from "./types";
 
 const API_URL = process.env.API_URL ?? "http://localhost:4000";
 
@@ -148,5 +148,37 @@ export const getAllCombos = cache(
     },
     ["combos"],
     { tags: ["combos"], revalidate: CACHE_REVALIDATE_SEGUNDOS }
+  )
+);
+
+interface LineaDb {
+  id: LineaBeneficioDb;
+  nombre: string;
+  texto: string;
+  orden: number;
+}
+
+export const getLineas = cache(
+  unstable_cache(
+    async (): Promise<Linea[]> => {
+      const res = await fetch(`${API_URL}/contenido/lineas`);
+      if (!res.ok) throw new Error(`GET /contenido/lineas: ${res.status}`);
+      const rows: LineaDb[] = await res.json();
+      return rows.map((l) => ({ id: l.id, slug: LINEA_TO_SLUG[l.id], nombre: l.nombre, texto: l.texto }));
+    },
+    ["lineas"],
+    { tags: ["contenido"], revalidate: CACHE_REVALIDATE_SEGUNDOS }
+  )
+);
+
+export const getContenidoHome = cache(
+  unstable_cache(
+    async (): Promise<ContenidoHome> => {
+      const res = await fetch(`${API_URL}/contenido/home`);
+      if (!res.ok) throw new Error(`GET /contenido/home: ${res.status}`);
+      return res.json();
+    },
+    ["contenido-home"],
+    { tags: ["contenido"], revalidate: CACHE_REVALIDATE_SEGUNDOS }
   )
 );

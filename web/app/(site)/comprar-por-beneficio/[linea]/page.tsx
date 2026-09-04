@@ -2,13 +2,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import ProductCard from "@/components/ProductCard";
-import { LINEAS } from "@/lib/mock-data";
+import { getLineas } from "@/lib/data";
 import { productosPorLinea } from "@/lib/helpers";
 import type { RitualModo } from "@/lib/types";
 
-export function generateStaticParams() {
-  return Object.keys(LINEAS).map((linea) => ({ linea }));
-}
+// Sin generateStaticParams a propósito: las líneas ahora salen de la API, que
+// no está levantada durante el build (ver el layout de (site), que fuerza
+// rendering dinámico por la misma razón).
 
 export default async function CategoriaPage({
   params,
@@ -19,7 +19,8 @@ export default async function CategoriaPage({
 }) {
   const { linea: slug } = await params;
   const { ritual } = await searchParams;
-  const linea = LINEAS[slug as keyof typeof LINEAS];
+  const lineas = await getLineas();
+  const linea = lineas.find((l) => l.slug === slug);
   if (!linea) notFound();
 
   let productos = await productosPorLinea(slug);
@@ -28,7 +29,7 @@ export default async function CategoriaPage({
     productos = productos.filter((p) => p.ritual.includes(filtroRitual));
   }
 
-  const otras = Object.entries(LINEAS).filter(([k]) => k !== slug);
+  const otras = lineas.filter((l) => l.slug !== slug);
 
   return (
     <>
@@ -67,8 +68,8 @@ export default async function CategoriaPage({
           )}
 
           <div className="cat-crosslinks">
-            {otras.map(([oslug, ol]) => (
-              <Link href={`/comprar-por-beneficio/${oslug}`} key={oslug}>{ol.nombre}</Link>
+            {otras.map((ol) => (
+              <Link href={`/comprar-por-beneficio/${ol.slug}`} key={ol.slug}>{ol.nombre}</Link>
             ))}
           </div>
         </div>

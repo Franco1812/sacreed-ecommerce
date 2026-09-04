@@ -209,6 +209,10 @@ tr.admin-stock-bajo td:first-child { box-shadow: inset 3px 0 0 var(--burgundy); 
 .admin-remove-line { color: var(--burgundy); font-size: 19px; line-height: 1; padding-top: 8px; opacity: 0.7; }
 .admin-remove-line:hover { opacity: 1; }
 
+.admin-linea-item { padding: 18px 0; border-bottom: 1px dashed var(--hair); }
+.admin-linea-item:first-of-type { padding-top: 0; }
+.admin-linea-item:last-of-type { border-bottom: 0; padding-bottom: 0; }
+
 .admin-inline-form { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .admin-inline-form select {
   padding: 10px 12px; border: 1px solid var(--hair); background: var(--paper);

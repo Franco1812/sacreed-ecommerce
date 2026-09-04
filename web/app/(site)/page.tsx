@@ -2,16 +2,27 @@ import Link from "next/link";
 import RitualToggle from "@/components/RitualToggle";
 import HeroCarousel from "@/components/HeroCarousel";
 import { ComboBundle } from "@/components/ComboCard";
-import { LINEAS } from "@/lib/mock-data";
 import { productosPorRitual } from "@/lib/helpers";
-import { getAllCombos, getAllProductos } from "@/lib/data";
+import { getAllCombos, getAllProductos, getContenidoHome, getLineas } from "@/lib/data";
+
+/** El copy editable se guarda con saltos de línea reales; acá se vuelven <br>. */
+function conSaltos(texto: string) {
+  return texto.split("\n").map((linea, i) => (
+    <span key={i}>
+      {i > 0 && <br />}
+      {linea}
+    </span>
+  ));
+}
 
 export default async function HomePage() {
-  const [combos, productos, am, pm] = await Promise.all([
+  const [combos, productos, am, pm, contenido, lineas] = await Promise.all([
     getAllCombos(),
     getAllProductos(),
     productosPorRitual("am"),
     productosPorRitual("pm"),
+    getContenidoHome(),
+    getLineas(),
   ]);
   const combosDestacados = combos.slice(0, 3);
   const amTop = am.slice(0, 3);
@@ -24,15 +35,15 @@ export default async function HomePage() {
       <div className="hero anchor">
         <div className="wrap hero-grid">
           <div>
-            <span className="eyebrow">Alacena funcional · Buenos Aires</span>
+            <span className="eyebrow">{contenido.heroEyebrow}</span>
             <h1 className="h-display">
-              Delegá<br />lo complejo.<br />
-              <em>Quedáte con<br />lo sagrado.</em>
+              {conSaltos(contenido.heroTitulo)}<br />
+              <em>{conSaltos(contenido.heroTituloEnfasis)}</em>
             </h1>
-            <p className="hero-sub">Ingredientes funcionales elegidos uno por uno, con origen declarado y sin relleno. [Copy de hero pendiente de aprobación de marca — ver §7]</p>
+            <p className="hero-sub">{contenido.heroBajada}</p>
             <div className="hero-actions">
-              <Link href="/comprar-por-beneficio" className="btn btn-solid">Comprar por beneficio</Link>
-              <Link href="/rituales" className="btn btn-ghost">Armar mi ritual</Link>
+              <Link href={contenido.heroCta1Href} className="btn btn-solid">{contenido.heroCta1Label}</Link>
+              <Link href={contenido.heroCta2Href} className="btn btn-ghost">{contenido.heroCta2Label}</Link>
             </div>
           </div>
           <HeroCarousel imagenes={fotosHero} />
@@ -52,16 +63,16 @@ export default async function HomePage() {
         <div className="wrap">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Entrada principal a la tienda</span>
-              <h2 className="h-section">Comprá por beneficio</h2>
+              <span className="eyebrow">{contenido.beneficiosEyebrow}</span>
+              <h2 className="h-section">{contenido.beneficiosTitulo}</h2>
             </div>
             <Link href="/comprar-por-beneficio" className="link-all">Ver todo</Link>
           </div>
           <div className="benefits">
-            {Object.entries(LINEAS).map(([slug, l]) => {
-              const count = productos.filter((p) => p.linea === slug).length;
+            {lineas.map((l) => {
+              const count = productos.filter((p) => p.linea === l.slug).length;
               return (
-                <Link href={`/comprar-por-beneficio/${slug}`} className="benefit" key={slug}>
+                <Link href={`/comprar-por-beneficio/${l.slug}`} className="benefit" key={l.slug}>
                   <div>
                     <div className="benefit-name">{l.nombre}</div>
                     <p className="benefit-desc">{l.texto}</p>

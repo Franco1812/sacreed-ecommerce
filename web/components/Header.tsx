@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { LINEAS } from "@/lib/mock-data";
 import { useCart } from "@/lib/cart-context";
+import type { Linea } from "@/lib/types";
 
-export default function Header() {
+export default function Header({ lineas }: { lineas: Linea[] }) {
   const { totalItems } = useCart();
 
   return (
@@ -27,8 +27,8 @@ export default function Header() {
                 <div>
                   <h5>Por beneficio</h5>
                   <ul>
-                    {Object.entries(LINEAS).map(([slug, l]) => (
-                      <li key={slug}><Link href={`/comprar-por-beneficio/${slug}`}>{l.nombre}</Link></li>
+                    {lineas.map((l) => (
+                      <li key={l.slug}><Link href={`/comprar-por-beneficio/${l.slug}`}>{l.nombre}</Link></li>
                     ))}
                   </ul>
                 </div>

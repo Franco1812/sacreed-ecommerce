@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { LINEAS } from "@/lib/mock-data";
+import type { Linea } from "@/lib/types";
 
-export default function Footer() {
+export default function Footer({ lineas }: { lineas: Linea[] }) {
   return (
     <>
       <div className="news anchor">
@@ -27,8 +27,8 @@ export default function Footer() {
           <div>
             <h5>Comprar</h5>
             <ul>
-              {Object.entries(LINEAS).map(([slug, l]) => (
-                <li key={slug}><Link href={`/comprar-por-beneficio/${slug}`}>{l.nombre}</Link></li>
+              {lineas.map((l) => (
+                <li key={l.slug}><Link href={`/comprar-por-beneficio/${l.slug}`}>{l.nombre}</Link></li>
               ))}
               <li><Link href="/rituales">Rituales AM / PM</Link></li>
               <li><Link href="/combos">Combos Sinérgicos</Link></li>
