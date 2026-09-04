@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { SupabaseStorageService } from '../storage/supabase-storage.service.js';
 import type { EstadoOrden, MetodoEntrega, MetodoPago } from '../generated/prisma/client.js';
 import { BARRIOS_ZONA_MOCK, COSTO_ENVIO_ZONA_MOCK, ENVIO_GRATIS_ZONA_MOCK } from './pedidos.constants.js';
 import type { CrearPedidoDto } from './dto/crear-pedido.dto.js';
@@ -8,7 +9,10 @@ export type CrearPedidoResult = { ok: true; numero: number } | { ok: false; erro
 
 @Injectable()
 export class PedidosService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storage: SupabaseStorageService
+  ) {}
 
   /**
    * Lee precio/stock DIRECTO de la base (nunca confiar en lo que mande el
@@ -90,7 +94,7 @@ export class PedidosService {
   async findByNumero(numero: number) {
     const pedido = await this.prisma.order.findUnique({
       where: { numero },
-      include: { items: true },
+      include: { items: true, imagenes: true },
     });
     if (!pedido) throw new NotFoundException();
     return pedido;
@@ -127,5 +131,23 @@ export class PedidosService {
       }
       return tx.order.update({ where: { numero }, data: { estado }, include: { items: true } });
     });
+  }
+
+  async agregarComprobante(numero: number, file: Express.Multer.File) {
+    const pedido = await this.prisma.order.findUnique({ where: { numero } });
+    if (!pedido) throw new NotFoundException();
+
+    const url = await this.storage.upload(`pedido-${numero}`, file);
+    return this.prisma.imagen.create({
+      data: { url, alt: 'Comprobante de pago', orderId: pedido.id },
+    });
+  }
+
+  async eliminarComprobante(numero: number, imagenId: string) {
+    const imagen = await this.prisma.imagen.findFirst({ where: { id: imagenId, order: { numero } } });
+    if (!imagen) throw new NotFoundException();
+
+    await this.storage.remove(imagen.url);
+    await this.prisma.imagen.delete({ where: { id: imagenId } });
   }
 }

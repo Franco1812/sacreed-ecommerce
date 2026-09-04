@@ -148,6 +148,8 @@ model Imagen {
   producto   Producto? @relation(fields: [productoId], references: [id], onDelete: Cascade)
   comboId    String?
   combo      Combo?    @relation(fields: [comboId], references: [id], onDelete: Cascade)
+  orderId    String?
+  order      Order?    @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
 /// El brief no define un flujo de estados de orden — este es el que traía el
@@ -182,7 +184,9 @@ model Order {
   costoEnvio Int @default(0)
   total      Int
 
-  items OrderItem[]
+  items    OrderItem[]
+  /// Comprobantes de pago que Cintia sube a mano al confirmar una transferencia (§ninguno en el brief — necesidad real detectada en uso).
+  imagenes Imagen[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

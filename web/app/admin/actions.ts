@@ -63,8 +63,23 @@ export async function actualizarEstadoPedido(numero: number, estado: string) {
   // Confirmar el pago puede descontar stock (ver PedidosService en api/) — invalidamos catálogo también.
   revalidatePath(`/admin/pedidos/${numero}`);
   revalidatePath("/admin/pedidos");
+  revalidatePath("/admin");
   revalidateTag("productos", "max");
   revalidateTag("combos", "max");
+  return { ok: true };
+}
+
+export async function subirComprobantePedido(numero: number, formData: FormData) {
+  const res = await adminApiFetch(`/pedidos/${numero}/imagenes`, { method: "POST", body: formData });
+  if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
+  revalidatePath(`/admin/pedidos/${numero}`);
+  return { ok: true };
+}
+
+export async function eliminarComprobantePedido(numero: number, imagenId: string) {
+  const res = await adminApiFetch(`/pedidos/${numero}/imagenes/${imagenId}`, { method: "DELETE" });
+  if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
+  revalidatePath(`/admin/pedidos/${numero}`);
   return { ok: true };
 }
 
