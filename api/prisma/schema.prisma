@@ -209,6 +209,41 @@ model OrderItem {
   cantidad       Int
 }
 
+/// Copy editable de cada línea de beneficio. La línea en sí es estructural
+/// (el enum LineaBeneficio define URL y navegación, ver §2.1/§2.2); lo que el
+/// admin edita es cómo se llama y cómo se describe en la tienda. Antes vivía
+/// hardcodeado en web/lib/mock-data.ts.
+model Linea {
+  id     LineaBeneficio @id
+  nombre String
+  texto  String         @db.Text
+  orden  Int            @default(0)
+
+  updatedAt DateTime @updatedAt
+}
+
+/// Copy del home editable desde el admin — fila única (id fijo "home").
+/// Si no existe, la API la crea con los valores que estaban hardcodeados en
+/// web/app/(site)/page.tsx (ver contenido.defaults.ts).
+model ContenidoHome {
+  id String @id @default("home")
+
+  heroEyebrow       String
+  heroTitulo        String @db.Text
+  /// Segunda mitad del título, la que va en itálica y color de acento.
+  heroTituloEnfasis String @db.Text
+  heroBajada        String @db.Text
+  heroCta1Label     String
+  heroCta1Href      String
+  heroCta2Label     String
+  heroCta2Href      String
+
+  beneficiosEyebrow String
+  beneficiosTitulo  String
+
+  updatedAt DateTime @updatedAt
+}
+
 /// §3.3: lista de espera de "avisarme cuando haya stock" para combos con un
 /// componente agotado.
 model AvisoStock {
