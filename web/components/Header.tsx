@@ -62,6 +62,7 @@ export default function Header() {
 
           <div className="nav-right">
             <Link href="/nuestro-origen" className="nav-link">Nuestro Origen</Link>
+            <Link href="/admin/login" className="icon-btn">Ingresar</Link>
             <Link href="/carrito" className="icon-btn cart">Carrito <span className="cart-count">{totalItems}</span></Link>
           </div>
         </div>
