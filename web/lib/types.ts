@@ -11,6 +11,30 @@ export interface FormulaItem {
   texto: string;
 }
 
+/** Copy de una línea de beneficio, editable desde el admin (antes vivía en mock-data.ts). */
+export interface Linea {
+  /** valor del enum en la base (FOCO_VITALIDAD) — es el id que espera la API */
+  id: string;
+  /** el mismo dato en formato URL (foco-vitalidad) */
+  slug: LineaSlug;
+  nombre: string;
+  texto: string;
+}
+
+/** Copy del home, editable desde el admin. */
+export interface ContenidoHome {
+  heroEyebrow: string;
+  heroTitulo: string;
+  heroTituloEnfasis: string;
+  heroBajada: string;
+  heroCta1Label: string;
+  heroCta1Href: string;
+  heroCta2Label: string;
+  heroCta2Href: string;
+  beneficiosEyebrow: string;
+  beneficiosTitulo: string;
+}
+
 export interface ImagenItem {
   url: string;
   alt: string;

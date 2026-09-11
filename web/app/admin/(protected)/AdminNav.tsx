@@ -8,6 +8,7 @@ const ITEMS = [
   { href: "/admin/pedidos", label: "Pedidos" },
   { href: "/admin/productos", label: "Productos" },
   { href: "/admin/combos", label: "Combos" },
+  { href: "/admin/contenido", label: "Contenido" },
 ];
 
 export function AdminNav({ pedidosPendientes }: { pedidosPendientes?: number }) {

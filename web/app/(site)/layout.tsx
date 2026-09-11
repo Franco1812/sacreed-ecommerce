@@ -1,22 +1,16 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Jost } from "next/font/google";
+import { Instrument_Sans } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { CartProvider } from "@/lib/cart-context";
-import { getAllCombos, getAllProductos } from "@/lib/data";
+import { getAllCombos, getAllProductos, getLineas } from "@/lib/data";
 
-const display = Cormorant_Garamond({
+// Una sola familia para todo el sitio: grotesca, sin serif ni itálicas.
+const sans = Instrument_Sans({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
-  style: ["normal", "italic"],
-  variable: "--font-display",
-});
-
-const util = Jost({
-  subsets: ["latin"],
-  weight: ["300", "400", "500"],
-  variable: "--font-util",
+  weight: ["400", "500", "600"],
+  variable: "--font-sans",
 });
 
 export const metadata: Metadata = {
@@ -29,15 +23,15 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [productos, combos] = await Promise.all([getAllProductos(), getAllCombos()]);
+  const [productos, combos, lineas] = await Promise.all([getAllProductos(), getAllCombos(), getLineas()]);
 
   return (
-    <html lang="es-AR" className={`${display.variable} ${util.variable}`}>
+    <html lang="es-AR" className={sans.variable}>
       <body>
         <CartProvider productos={productos} combos={combos}>
-          <Header />
+          <Header lineas={lineas} />
           {children}
-          <Footer />
+          <Footer lineas={lineas} />
         </CartProvider>
       </body>
     </html>

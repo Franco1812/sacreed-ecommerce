@@ -1,12 +1,11 @@
 import Link from "next/link";
 import Breadcrumbs from "@/components/Breadcrumbs";
-import { LINEAS } from "@/lib/mock-data";
-import { getAllProductos } from "@/lib/data";
+import { getAllProductos, getContenidoHome, getLineas } from "@/lib/data";
 
 export const metadata = { title: "Comprá por Beneficio — SACRED Wellness Club" };
 
 export default async function ComprarPorBeneficioPage() {
-  const productos = await getAllProductos();
+  const [productos, lineas, contenido] = await Promise.all([getAllProductos(), getLineas(), getContenidoHome()]);
   return (
     <>
       <Breadcrumbs items={[{ label: "Inicio", href: "/" }, { label: "Comprar por Beneficio" }]} />
@@ -15,15 +14,15 @@ export default async function ComprarPorBeneficioPage() {
         <div className="wrap">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Entrada principal a la tienda</span>
-              <h2 className="h-section">Comprá por beneficio</h2>
+              <span className="eyebrow">{contenido.beneficiosEyebrow}</span>
+              <h2 className="h-section">{contenido.beneficiosTitulo}</h2>
             </div>
           </div>
           <div className="cat-index-grid">
-            {Object.entries(LINEAS).map(([slug, l]) => {
-              const count = productos.filter((p) => p.linea === slug).length;
+            {lineas.map((l) => {
+              const count = productos.filter((p) => p.linea === l.slug).length;
               return (
-                <Link href={`/comprar-por-beneficio/${slug}`} className="cat-index-card" key={slug}>
+                <Link href={`/comprar-por-beneficio/${l.slug}`} className="cat-index-card" key={l.slug}>
                   <h3>{l.nombre}</h3>
                   <p>{l.texto}</p>
                   <span className="benefit-count" style={{ display: "block", marginTop: 16 }}>

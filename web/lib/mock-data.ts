@@ -1,10 +1,13 @@
-import type { LineaSlug, RitualModo } from "./types";
+import type { RitualModo } from "./types";
 
 /**
- * Copy fijo de UI (líneas, rituales) y constantes mock de envío en zona.
+ * Copy fijo de UI (rituales) y constantes mock de envío en zona.
  * El catálogo completo (17 productos + 8 combos) vive ahora en
  * api/prisma/seed-data.ts — es input del seed, no del frontend, desde que
  * el backend pasó a ser una API NestJS separada.
+ *
+ * Las líneas de beneficio salían de acá hasta que se volvieron editables:
+ * ahora viven en la tabla Linea y se leen con getLineas() (lib/data.ts).
  */
 
 /** MOCK — el brief deja este monto como definición pendiente de la marca (§7, item 2) */
@@ -26,25 +29,6 @@ export const BARRIOS_ZONA_MOCK = [
   "Ezeiza",
   "Longchamps",
 ] as const;
-
-export const LINEAS: Record<LineaSlug, { nombre: string; texto: string }> = {
-  "foco-vitalidad": {
-    nombre: "Foco & Vitalidad",
-    texto: "Plantas maestras y adaptógenos formulados para autorregular el sistema endocrino, despejar la mente y activar una fuerza vital pura y constante.",
-  },
-  "longevidad-glow": {
-    nombre: "Longevidad & Glow",
-    texto: "Elixires celulares diseñados para encender la luz de la piel desde adentro, proteger la matriz celular y rejuvenecer los tejidos con la fuerza de flores y hongos sagrados.",
-  },
-  "salud-intestinal": {
-    nombre: "Salud Intestinal & Microbiota Sagrada",
-    texto: "Nutrición viva, enzimas y botánica digestiva para cuidar tu segundo cerebro, desinflamar el cuerpo y cultivar un ecosistema interno próspero.",
-  },
-  "calma-alquimica": {
-    nombre: "Calma Alquímica & Cortisol",
-    texto: "Botánica adaptógena y tónicos de restauración formulados para desacelerar la mente, regular el sistema nervioso y reconectar con la paz interior.",
-  },
-};
 
 export const RITUALES: Record<RitualModo, { titulo: string; texto: string }> = {
   am: {

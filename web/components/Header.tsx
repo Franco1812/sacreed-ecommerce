@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { LINEAS } from "@/lib/mock-data";
 import { useCart } from "@/lib/cart-context";
+import type { Linea } from "@/lib/types";
 
-export default function Header() {
+export default function Header({ lineas }: { lineas: Linea[] }) {
   const { totalItems } = useCart();
 
   return (
@@ -12,7 +12,7 @@ export default function Header() {
       <div className="mock-banner">🧪 Prototipo de UI — datos e imágenes de muestra, no reflejan precios ni fotos reales</div>
 
       <div className="ticker">
-        Reparto propio en la zona todos los viernes · Envío sin cargo desde $[mínimo] <span>·</span> Entrega en Canning y zona sur <span>·</span> 3 cuotas sin interés
+        Reparto propio en la zona todos los viernes · Envío sin cargo desde $[mínimo] <span>·</span> Entrega en Canning y zona sur <span>·</span> 15% de descuento pagando por transferencia
       </div>
 
       <header>
@@ -27,8 +27,8 @@ export default function Header() {
                 <div>
                   <h5>Por beneficio</h5>
                   <ul>
-                    {Object.entries(LINEAS).map(([slug, l]) => (
-                      <li key={slug}><Link href={`/comprar-por-beneficio/${slug}`}>{l.nombre}</Link></li>
+                    {lineas.map((l) => (
+                      <li key={l.slug}><Link href={`/comprar-por-beneficio/${l.slug}`}>{l.nombre}</Link></li>
                     ))}
                   </ul>
                 </div>

@@ -5,7 +5,7 @@ import ProductCard from "@/components/ProductCard";
 import ComboCard from "@/components/ComboCard";
 import PdpBlock from "@/components/PdpBlock";
 import { AddToCartButtonProducto } from "@/components/AddToCartButton";
-import { LINEAS } from "@/lib/mock-data";
+import { getLineas } from "@/lib/data";
 import { combosParaProducto, getProducto, relacionadosMismaLinea } from "@/lib/helpers";
 import { formatPrecio, ritualLabel } from "@/lib/format";
 
@@ -14,11 +14,14 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
   const p = await getProducto(slug);
   if (!p) notFound();
 
-  const linea = LINEAS[p.linea];
-  const [combos, relacionados] = await Promise.all([
+  const [combos, relacionados, lineas] = await Promise.all([
     combosParaProducto(slug),
     relacionadosMismaLinea(slug, 4),
+    getLineas(),
   ]);
+  // La API garantiza una fila por cada valor del enum, así que el find siempre
+  // encuentra; el fallback es sólo para no romper tipos.
+  const lineaNombre = lineas.find((l) => l.slug === p.linea)?.nombre ?? "";
   const stockBajo = p.stock <= 15;
   const fotos = p.imagenes ?? [];
 
@@ -27,7 +30,7 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
       <Breadcrumbs
         items={[
           { label: "Inicio", href: "/" },
-          { label: linea.nombre, href: `/comprar-por-beneficio/${p.linea}` },
+          { label: lineaNombre, href: `/comprar-por-beneficio/${p.linea}` },
           { label: p.nombre },
         ]}
       />
@@ -57,7 +60,7 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
 
           {/* Columna derecha: info de compra */}
           <div className="pdp-info">
-            <span className="pdp-tag">{ritualLabel(p.ritual)} · {linea.nombre}</span>
+            <span className="pdp-tag">{ritualLabel(p.ritual)} · {lineaNombre}</span>
             <h1>{p.nombre}{p.nombrePendiente && <span style={{ fontSize: 14, opacity: 0.6 }}> (nombre pendiente §8.3)</span>}</h1>
             {p.formulaSubtitulo && <p className="pdp-subtitulo">{p.formulaSubtitulo}</p>}
 
@@ -106,7 +109,7 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
               {p.ingredientes ? (
                 <p>{p.ingredientes}</p>
               ) : (
-                <p style={{ opacity: 0.6, fontStyle: "italic" }}>[PENDIENTE — la marca debe redactar este bloque. Ver observación 8.4 del brief]</p>
+                <p style={{ opacity: 0.6 }}>[PENDIENTE — la marca debe redactar este bloque. Ver observación 8.4 del brief]</p>
               )}
               {p.notaDePureza && <p className="pdp-nota-pureza">Nota de pureza: {p.notaDePureza}</p>}
             </PdpBlock>
