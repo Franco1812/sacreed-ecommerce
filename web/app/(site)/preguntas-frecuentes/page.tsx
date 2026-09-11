@@ -9,7 +9,7 @@ const FAQ_MOCK = [
   },
   {
     pregunta: "¿Qué medios de pago aceptan?",
-    respuesta: "Mercado Pago (tarjeta en cuotas o dinero en cuenta) y transferencia bancaria con descuento. El detalle final se confirma en el checkout.",
+    respuesta: "Mercado Pago (tarjeta en cuotas o dinero en cuenta) y transferencia bancaria con 15% de descuento. El detalle final se confirma en el checkout.",
   },
   {
     pregunta: "¿Puedo devolver un producto si no me convenció?",
