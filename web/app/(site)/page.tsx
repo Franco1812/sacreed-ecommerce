@@ -115,7 +115,7 @@ export default async function HomePage() {
           <span className="eyebrow" style={{ color: "var(--gold)" }}>La marca</span>
           <h2 className="h-section" style={{ margin: "16px 0 28px" }}>Nuestro Origen</h2>
           <p className="prose" style={{ margin: "0 auto 22px", textAlign: "center" }}>No nos propusimos crear una marca más de productos naturales.</p>
-          <p style={{ fontFamily: "var(--display)", fontStyle: "italic", fontSize: "clamp(22px,3vw,30px)", fontWeight: 300, lineHeight: 1.4, margin: "0 auto 26px", maxWidth: "38ch" }}>
+          <p style={{ fontSize: "clamp(21px,2.8vw,29px)", fontWeight: 500, letterSpacing: "-0.028em", lineHeight: 1.3, margin: "0 auto 26px", maxWidth: "38ch" }}>
             ¿Cómo podemos hacer de un simple momento una experiencia de bienestar profunda, que forme parte de la vida cotidiana sin esfuerzo?
           </p>
           <Link href="/nuestro-origen" className="link-all">Conocer nuestro origen</Link>

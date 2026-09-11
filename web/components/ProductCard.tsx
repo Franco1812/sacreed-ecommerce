@@ -20,7 +20,7 @@ export default function ProductCard({ producto }: { producto: Producto }) {
         <span className="card-tag">{ritualLabel(producto.ritual)}</span>
         <h3><Link href={`/producto/${producto.slug}`}>{producto.nombre}</Link></h3>
         {producto.formulaSubtitulo && (
-          <p className="card-benefit" style={{ fontStyle: "italic" }}>{producto.formulaSubtitulo}</p>
+          <p className="card-benefit">{producto.formulaSubtitulo}</p>
         )}
         <div className="card-foot">
           <span className="price">{formatPrecio(producto.precio)}</span>

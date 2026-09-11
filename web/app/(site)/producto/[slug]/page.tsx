@@ -109,7 +109,7 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
               {p.ingredientes ? (
                 <p>{p.ingredientes}</p>
               ) : (
-                <p style={{ opacity: 0.6, fontStyle: "italic" }}>[PENDIENTE — la marca debe redactar este bloque. Ver observación 8.4 del brief]</p>
+                <p style={{ opacity: 0.6 }}>[PENDIENTE — la marca debe redactar este bloque. Ver observación 8.4 del brief]</p>
               )}
               {p.notaDePureza && <p className="pdp-nota-pureza">Nota de pureza: {p.notaDePureza}</p>}
             </PdpBlock>
