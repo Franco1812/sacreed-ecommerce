@@ -10,3 +10,7 @@
 
 # estado local de Claude Code, no es parte del proyecto
 /.claude/
+
+# logs de los servidores de desarrollo levantados en la raiz
+/api-dev.log
+/web-dev.log
