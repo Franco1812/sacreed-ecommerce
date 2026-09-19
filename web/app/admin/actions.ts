@@ -89,6 +89,30 @@ export async function actualizarLinea(id: string, data: { nombre?: string; texto
   return { ok: true };
 }
 
+export async function subirImagenHero(formData: FormData) {
+  const res = await adminApiFetch("/contenido/hero-imagenes", { method: "POST", body: formData });
+  if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
+  updateTag("contenido");
+  revalidatePath("/admin/contenido");
+  return { ok: true };
+}
+
+export async function eliminarImagenHero(imagenId: string) {
+  const res = await adminApiFetch(`/contenido/hero-imagenes/${imagenId}`, { method: "DELETE" });
+  if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
+  updateTag("contenido");
+  revalidatePath("/admin/contenido");
+  return { ok: true };
+}
+
+export async function ordenarImagenesHero(ids: string[]) {
+  const res = await adminApiFetch("/contenido/hero-imagenes/orden", { method: "PATCH", body: JSON.stringify({ ids }) });
+  if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
+  updateTag("contenido");
+  revalidatePath("/admin/contenido");
+  return { ok: true };
+}
+
 export async function subirComprobantePedido(numero: number, formData: FormData) {
   const res = await adminApiFetch(`/pedidos/${numero}/imagenes`, { method: "POST", body: formData });
   if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
