@@ -15,7 +15,7 @@ export interface CrearPedidoInput {
   email: string;
   telefono: string;
   dni: string;
-  metodoEntrega: "ENVIO_DOMICILIO" | "RETIRO";
+  metodoEntrega: "ENVIO_DOMICILIO";
   calle: string;
   numeroDom: string;
   piso: string;
@@ -23,7 +23,7 @@ export interface CrearPedidoInput {
   provincia: string;
   codigoPostal: string;
   barrioZona: string;
-  metodoPago: "TRANSFERENCIA" | "EFECTIVO";
+  metodoPago: "TRANSFERENCIA";
   notas: string;
 }
 

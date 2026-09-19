@@ -36,6 +36,7 @@ interface ProductoDb {
   nombrePendiente: boolean;
   seoTitulo: string | null;
   seoDescripcion: string | null;
+  vendidos: number | null;
   imagenes: ImagenDb[];
 }
 
@@ -73,6 +74,7 @@ function toFormValues(p: ProductoDb): ProductoFormValues {
     nombrePendiente: p.nombrePendiente,
     seoTitulo: p.seoTitulo ?? "",
     seoDescripcion: p.seoDescripcion ?? "",
+    vendidos: p.vendidos != null ? String(p.vendidos) : "",
   };
 }
 

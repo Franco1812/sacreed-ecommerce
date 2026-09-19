@@ -44,3 +44,24 @@ export async function comboProductos(combo: Combo): Promise<Producto[]> {
     .map((slug) => productos.find((p) => p.slug === slug))
     .filter((p): p is Producto => Boolean(p));
 }
+
+export interface ProductoConVentas {
+  producto: Producto;
+  vendidos: number;
+}
+
+/**
+ * Curado a mano desde el admin (campo "Vendidos" en la ficha de producto) —
+ * no hay todavía un conteo real derivado de pedidos (eso vive en OrderItem,
+ * que recién se está armando en el checkout). Devuelve los productos con
+ * `vendidos` cargado (> 0), ordenados de mayor a menor. Si Cintia no cargó
+ * ninguno todavía, devuelve un array vacío y la sección no se muestra.
+ */
+export async function productosMasVendidos(limit = 4): Promise<ProductoConVentas[]> {
+  const productos = await getAllProductos();
+  return productos
+    .filter((p): p is Producto & { vendidos: number } => Boolean(p.vendidos && p.vendidos > 0))
+    .sort((a, b) => b.vendidos - a.vendidos)
+    .slice(0, limit)
+    .map((producto) => ({ producto, vendidos: producto.vendidos }));
+}

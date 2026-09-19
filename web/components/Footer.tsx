@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import type { Linea } from "@/lib/types";
 
@@ -21,7 +22,7 @@ export default function Footer({ lineas }: { lineas: Linea[] }) {
       <footer>
         <div className="wrap foot-grid">
           <div>
-            <span className="wordmark" style={{ color: "var(--brush)" }}>Sacred</span>
+            <Image src="/logo-badge-v3.png" alt="SACRED Wellness Club" width={480} height={463} className="brand-badge foot-badge" />
             <p className="tag">Tu cuerpo cambia cuando cambia tu alacena.</p>
           </div>
           <div>

@@ -9,8 +9,11 @@ import { formatPrecio } from "@/lib/format";
 import { BARRIOS_ZONA_MOCK, COSTO_ENVIO_ZONA_MOCK, ENVIO_GRATIS_ZONA_MOCK } from "@/lib/mock-data";
 import { crearPedido } from "./actions";
 
-type MetodoEntrega = "ENVIO_DOMICILIO" | "RETIRO";
-type MetodoPago = "TRANSFERENCIA" | "EFECTIVO";
+// Única opción habilitada hoy en el checkout (§ decisión 2026-09-19: se sacaron
+// retiro personal y pago en efectivo — quedan solo en pedidos históricos, ver
+// app/(site)/pedido/[numero]/page.tsx, que todavía los sabe mostrar).
+const METODO_ENTREGA = "ENVIO_DOMICILIO" as const;
+const METODO_PAGO = "TRANSFERENCIA" as const;
 
 const CAMPOS_INICIALES = {
   nombre: "",
@@ -32,8 +35,6 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { items, subtotal, getProducto, getCombo, clear } = useCart();
   const [campos, setCampos] = useState(CAMPOS_INICIALES);
-  const [metodoEntrega, setMetodoEntrega] = useState<MetodoEntrega>("ENVIO_DOMICILIO");
-  const [metodoPago, setMetodoPago] = useState<MetodoPago>("TRANSFERENCIA");
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,10 +50,9 @@ export default function CheckoutPage() {
     [items, getProducto, getCombo]
   );
 
-  const enZona = metodoEntrega === "ENVIO_DOMICILIO" && (BARRIOS_ZONA_MOCK as readonly string[]).includes(campos.barrioZona);
-  const costoEnvio =
-    metodoEntrega === "RETIRO" || subtotal >= ENVIO_GRATIS_ZONA_MOCK ? 0 : enZona ? COSTO_ENVIO_ZONA_MOCK : 0;
-  const fueraDeZona = metodoEntrega === "ENVIO_DOMICILIO" && campos.barrioZona !== "" && !enZona;
+  const enZona = (BARRIOS_ZONA_MOCK as readonly string[]).includes(campos.barrioZona);
+  const costoEnvio = subtotal >= ENVIO_GRATIS_ZONA_MOCK ? 0 : enZona ? COSTO_ENVIO_ZONA_MOCK : 0;
+  const fueraDeZona = campos.barrioZona !== "" && !enZona;
   const total = subtotal + costoEnvio;
 
   function campo(nombre: keyof typeof CAMPOS_INICIALES) {
@@ -73,8 +73,8 @@ export default function CheckoutPage() {
       items: items.map(({ slug, tipo, cantidad }) => ({ slug, tipo, cantidad })),
       ...campos,
       barrioZona: campos.barrioZona === "fuera-de-zona" ? "" : campos.barrioZona,
-      metodoEntrega,
-      metodoPago,
+      metodoEntrega: METODO_ENTREGA,
+      metodoPago: METODO_PAGO,
     });
 
     if (!resultado.ok) {
@@ -125,78 +125,33 @@ export default function CheckoutPage() {
 
               <div className="form-section">
                 <h2>Entrega</h2>
-                <div className="radio-cards" style={{ marginBottom: 20 }}>
-                  <label className="radio-card">
-                    <input
-                      type="radio"
-                      name="metodoEntrega"
-                      checked={metodoEntrega === "ENVIO_DOMICILIO"}
-                      onChange={() => setMetodoEntrega("ENVIO_DOMICILIO")}
-                    />
-                    Envío a domicilio
-                  </label>
-                  <label className="radio-card">
-                    <input
-                      type="radio"
-                      name="metodoEntrega"
-                      checked={metodoEntrega === "RETIRO"}
-                      onChange={() => setMetodoEntrega("RETIRO")}
-                    />
-                    Retiro
-                  </label>
+                <p className="field-note" style={{ marginBottom: 20 }}>Envío a domicilio — reparto propio en zona los viernes, o Correo Argentino/Andreani fuera de zona.</p>
+                <div className="field-grid">
+                  <div className="field span-2">
+                    <label htmlFor="barrioZona">Barrio (zona de reparto propio)</label>
+                    <select id="barrioZona" {...campo("barrioZona")}>
+                      <option value="">Elegí tu barrio…</option>
+                      {BARRIOS_ZONA_MOCK.map((b) => <option key={b} value={b}>{b}</option>)}
+                      <option value="fuera-de-zona">Fuera de esta zona (resto del país)</option>
+                    </select>
+                  </div>
+                  <div className="field"><label htmlFor="calle">Calle</label><input id="calle" required {...campo("calle")} /></div>
+                  <div className="field"><label htmlFor="numeroDom">Número</label><input id="numeroDom" required {...campo("numeroDom")} /></div>
+                  <div className="field"><label htmlFor="piso">Piso / depto (opcional)</label><input id="piso" {...campo("piso")} /></div>
+                  <div className="field"><label htmlFor="localidad">Localidad</label><input id="localidad" required {...campo("localidad")} /></div>
+                  <div className="field"><label htmlFor="provincia">Provincia</label><input id="provincia" required {...campo("provincia")} /></div>
+                  <div className="field"><label htmlFor="codigoPostal">Código postal</label><input id="codigoPostal" required {...campo("codigoPostal")} /></div>
                 </div>
-
-                {metodoEntrega === "ENVIO_DOMICILIO" ? (
-                  <>
-                    <div className="field-grid">
-                      <div className="field span-2">
-                        <label htmlFor="barrioZona">Barrio (zona de reparto propio)</label>
-                        <select id="barrioZona" {...campo("barrioZona")}>
-                          <option value="">Elegí tu barrio…</option>
-                          {BARRIOS_ZONA_MOCK.map((b) => <option key={b} value={b}>{b}</option>)}
-                          <option value="fuera-de-zona">Fuera de esta zona (resto del país)</option>
-                        </select>
-                      </div>
-                      <div className="field"><label htmlFor="calle">Calle</label><input id="calle" required {...campo("calle")} /></div>
-                      <div className="field"><label htmlFor="numeroDom">Número</label><input id="numeroDom" required {...campo("numeroDom")} /></div>
-                      <div className="field"><label htmlFor="piso">Piso / depto (opcional)</label><input id="piso" {...campo("piso")} /></div>
-                      <div className="field"><label htmlFor="localidad">Localidad</label><input id="localidad" required {...campo("localidad")} /></div>
-                      <div className="field"><label htmlFor="provincia">Provincia</label><input id="provincia" required {...campo("provincia")} /></div>
-                      <div className="field"><label htmlFor="codigoPostal">Código postal</label><input id="codigoPostal" required {...campo("codigoPostal")} /></div>
-                    </div>
-                    {fueraDeZona && (
-                      <p className="field-note" style={{ marginTop: 14 }}>
-                        Fuera de la zona de reparto propio despachamos por Correo Argentino o Andreani — el costo se cotiza por código postal (todavía pendiente de definir del lado de la marca). Te lo confirmamos por email antes de coordinar el pago.
-                      </p>
-                    )}
-                  </>
-                ) : (
-                  <p className="field-note">Te vamos a contactar por WhatsApp o email para coordinar el punto y horario de retiro.</p>
+                {fueraDeZona && (
+                  <p className="field-note" style={{ marginTop: 14 }}>
+                    Fuera de la zona de reparto propio despachamos por Correo Argentino o Andreani — el costo se cotiza por código postal (todavía pendiente de definir del lado de la marca). Te lo confirmamos por email antes de coordinar el pago.
+                  </p>
                 )}
               </div>
 
               <div className="form-section">
                 <h2>Pago</h2>
-                <div className="radio-cards">
-                  <label className="radio-card">
-                    <input
-                      type="radio"
-                      name="metodoPago"
-                      checked={metodoPago === "TRANSFERENCIA"}
-                      onChange={() => setMetodoPago("TRANSFERENCIA")}
-                    />
-                    Transferencia bancaria
-                  </label>
-                  <label className="radio-card">
-                    <input
-                      type="radio"
-                      name="metodoPago"
-                      checked={metodoPago === "EFECTIVO"}
-                      onChange={() => setMetodoPago("EFECTIVO")}
-                    />
-                    Efectivo
-                  </label>
-                </div>
+                <p className="field-note">Transferencia bancaria — te enviamos los datos por email o WhatsApp para coordinarlo.</p>
                 <p className="field-note" style={{ marginTop: 14 }}>
                   El pago se confirma a mano una vez que lo recibimos — tu pedido queda &ldquo;Pendiente de pago&rdquo; hasta entonces.
                 </p>
@@ -228,7 +183,7 @@ export default function CheckoutPage() {
               </div>
               <div className="checkout-summary-row">
                 <span>Envío</span>
-                <span>{costoEnvio === 0 ? (metodoEntrega === "RETIRO" ? "—" : "Sin cargo") : formatPrecio(costoEnvio)}</span>
+                <span>{costoEnvio === 0 ? "Sin cargo" : formatPrecio(costoEnvio)}</span>
               </div>
               <div className="checkout-summary-total">
                 <span>Total</span>

@@ -27,6 +27,7 @@ const inicial: ProductoFormValues = {
   nombrePendiente: false,
   seoTitulo: "",
   seoDescripcion: "",
+  vendidos: "",
 };
 
 export default function NuevoProductoPage() {

@@ -66,6 +66,8 @@ export interface Producto {
   destacado?: string;
   /** true = nombre del producto todavía no definido por la marca (ver obs. §8.3) */
   nombrePendiente?: boolean;
+  /** Cargado a mano desde el admin — controla la sección "Los más vendidos" de la home (ver productosMasVendidos en lib/helpers.ts). undefined/0 = no aparece ahí. */
+  vendidos?: number;
   /** vacío/ausente = sin fotos cargadas todavía, la UI cae al placeholder */
   imagenes?: ImagenItem[];
 }

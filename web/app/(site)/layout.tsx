@@ -1,16 +1,30 @@
 import type { Metadata } from "next";
-import { Instrument_Sans } from "next/font/google";
+import { Instrument_Sans, Newsreader, Courier_Prime } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { CartProvider } from "@/lib/cart-context";
 import { getAllCombos, getAllProductos, getLineas } from "@/lib/data";
 
-// Una sola familia para todo el sitio: grotesca, sin serif ni itálicas.
+// Tres roles, como en la referencia (Moon Juice): sans para cuerpo/nav,
+// serif editorial para títulos, mono tipo máquina de escribir para etiquetas tracked/uppercase.
 const sans = Instrument_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   variable: "--font-sans",
+});
+
+const serif = Newsreader({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  style: ["normal", "italic"],
+  variable: "--font-serif",
+});
+
+const mono = Courier_Prime({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  variable: "--font-mono",
 });
 
 export const metadata: Metadata = {
@@ -26,7 +40,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const [productos, combos, lineas] = await Promise.all([getAllProductos(), getAllCombos(), getLineas()]);
 
   return (
-    <html lang="es-AR" className={sans.variable}>
+    <html lang="es-AR" className={`${sans.variable} ${serif.variable} ${mono.variable}`}>
       <body>
         <CartProvider productos={productos} combos={combos}>
           <Header lineas={lineas} />

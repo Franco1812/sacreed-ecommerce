@@ -87,6 +87,14 @@ model Producto {
   /// true = nombre todavía no definido por la marca (ver obs. §8.3 del brief)
   nombrePendiente  Boolean @default(false)
 
+  /// Cantidad "vendidos" para la sección Más Vendidos de la home — hoy la carga
+  /// Cintia a mano desde el admin (no hay todavía un conteo real derivado de
+  /// OrderItem). null/0 = no aparece en la sección. Cuando haya pedidos reales
+  /// de sobra, esto se puede recalcular con un cron en vez de cargarse a mano.
+  vendidos Int?
+
+
+
   seoTitulo       String?
   seoDescripcion  String?
 

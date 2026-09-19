@@ -34,6 +34,7 @@ export interface ProductoFormValues {
   nombrePendiente: boolean;
   seoTitulo: string;
   seoDescripcion: string;
+  vendidos: string;
 }
 
 export interface ImagenValue {
@@ -291,6 +292,12 @@ export function ProductoForm({
             <label>Destacado (opcional, ej. &quot;Más vendido&quot;)</label>
             <input value={values.destacado} onChange={(e) => set("destacado", e.target.value)} />
           </div>
+          <div className="admin-field">
+            <label>Vendidos (opcional — controla la sección &quot;Los más vendidos&quot; de la home; vacío = no aparece ahí)</label>
+            <input type="number" min={0} value={values.vendidos} onChange={(e) => set("vendidos", e.target.value)} />
+          </div>
+        </div>
+        <div className="admin-row">
           <div className="admin-field">
             <label>SEO título (opcional)</label>
             <input value={values.seoTitulo} onChange={(e) => set("seoTitulo", e.target.value)} />

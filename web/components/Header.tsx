@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/lib/cart-context";
 import type { Linea } from "@/lib/types";
@@ -52,12 +53,8 @@ export default function Header({ lineas }: { lineas: Linea[] }) {
             <Link href="/combos" className="nav-link">Combos Sinérgicos</Link>
           </nav>
 
-          <Link href="/" className="brandmark" aria-label="SACRED — inicio">
-            <svg viewBox="0 0 24 30" fill="none" aria-hidden="true">
-              <path d="M12 1c3.4 4.6 6.6 7.4 6.6 12.2 0 3.9-2.9 6.9-6.6 6.9s-6.6-3-6.6-6.9C5.4 8.4 8.6 5.6 12 1z" stroke="#B07E1E" strokeWidth="1.1"/>
-              <path d="M4 23h16M8.5 26.5h7M11 29.5h2" stroke="#B07E1E" strokeWidth="1.1" strokeLinecap="square"/>
-            </svg>
-            <span className="wordmark">Sacred</span>
+          <Link href="/" className="brandmark" aria-label="SACRED Wellness Club — inicio">
+            <Image src="/logo-badge-v3.png" alt="SACRED Wellness Club" width={480} height={463} priority className="brand-badge" />
           </Link>
 
           <div className="nav-right">

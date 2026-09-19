@@ -133,4 +133,9 @@ export class ProductoDto {
   @IsOptional()
   @IsString()
   seoDescripcion?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  vendidos?: number;
 }

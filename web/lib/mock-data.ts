@@ -17,17 +17,13 @@ export const ENVIO_GRATIS_ZONA_MOCK = 60000;
 export const COSTO_ENVIO_ZONA_MOCK = 3500;
 
 /**
- * MOCK — "Elegís tu barrio de una lista cerrada en el checkout" (ver /envios),
- * pero el brief no define esa lista todavía (§7). Arranco con la zona que ya
- * se menciona en el sitio (Canning y zona sur, ver Header).
+ * "Elegís tu barrio de una lista cerrada en el checkout" (ver /envios).
+ * Lista acotada a la zona de reparto propio real (decisión 2026-09-19).
  */
 export const BARRIOS_ZONA_MOCK = [
   "Canning",
-  "Adrogué",
-  "Monte Grande",
-  "Glew",
   "Ezeiza",
-  "Longchamps",
+  "San Vicente",
 ] as const;
 
 export const RITUALES: Record<RitualModo, { titulo: string; texto: string }> = {
