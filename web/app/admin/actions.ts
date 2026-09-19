@@ -142,6 +142,7 @@ function toProductoDto(data: ProductoFormValues) {
     nombrePendiente: data.nombrePendiente,
     seoTitulo: strOrUndefined(data.seoTitulo),
     seoDescripcion: strOrUndefined(data.seoDescripcion),
+    vendidos: numOrUndefined(data.vendidos),
   };
 }
 

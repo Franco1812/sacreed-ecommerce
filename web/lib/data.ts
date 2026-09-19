@@ -53,6 +53,7 @@ interface ProductoDb {
   stock: number;
   destacado: string | null;
   nombrePendiente: boolean;
+  vendidos: number | null;
   imagenes: ImagenDb[];
 }
 
@@ -103,6 +104,7 @@ function mapProducto(p: ProductoDb): Producto {
     stock: p.stock,
     destacado: p.destacado ?? undefined,
     nombrePendiente: p.nombrePendiente,
+    vendidos: p.vendidos ?? undefined,
     imagenes: mapImagenes(p.imagenes),
   };
 }

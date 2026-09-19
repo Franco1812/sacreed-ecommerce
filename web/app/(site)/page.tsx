@@ -1,8 +1,9 @@
 import Link from "next/link";
 import RitualToggle from "@/components/RitualToggle";
 import HeroCarousel from "@/components/HeroCarousel";
+import ProductCard from "@/components/ProductCard";
 import { ComboBundle } from "@/components/ComboCard";
-import { productosPorRitual } from "@/lib/helpers";
+import { productosMasVendidos, productosPorRitual } from "@/lib/helpers";
 import { getAllCombos, getAllProductos, getContenidoHome, getLineas } from "@/lib/data";
 
 /** El copy editable se guarda con saltos de línea reales; acá se vuelven <br>. */
@@ -16,18 +17,24 @@ function conSaltos(texto: string) {
 }
 
 export default async function HomePage() {
-  const [combos, productos, am, pm, contenido, lineas] = await Promise.all([
+  const [combos, productos, am, pm, contenido, lineas, masVendidos] = await Promise.all([
     getAllCombos(),
     getAllProductos(),
     productosPorRitual("am"),
     productosPorRitual("pm"),
     getContenidoHome(),
     getLineas(),
+    productosMasVendidos(4),
   ]);
   const combosDestacados = combos.slice(0, 3);
   const amTop = am.slice(0, 3);
   const pmTop = pm.slice(0, 3);
-  const fotosHero = productos.flatMap((p) => p.imagenes ?? []).slice(0, 5);
+  const fotosHero = [
+    { url: "/hero/hero-1.jpeg", alt: "Medicina viva, belleza interior y experiencias sagradas de autocuidado" },
+    { url: "/hero/hero-2.jpeg", alt: "Sacred PM Routine" },
+    { url: "/hero/hero-3.jpeg", alt: "Ritual de bienestar SACRED" },
+    { url: "/hero/hero-4.jpeg", alt: "El bienestar no es perfección" },
+  ];
 
   return (
     <>
@@ -58,7 +65,33 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* BLOQUE 3 — Comprar por Beneficio */}
+      {/* BLOQUE 3 — Los más vendidos (curado a mano desde el admin, ver productosMasVendidos en lib/helpers.ts) */}
+      {masVendidos.length > 0 && (
+        <section id="mas-vendidos" className="anchor">
+          <div className="wrap">
+            <div className="section-head">
+              <div>
+                <span className="eyebrow">Lo que más se repite</span>
+                <h2 className="h-section">Los más vendidos</h2>
+              </div>
+              <Link href="/comprar-por-beneficio" className="link-all">Ver todo</Link>
+            </div>
+            <div className="rail">
+              {masVendidos.map(({ producto, vendidos }, i) => (
+                <ProductCard
+                  producto={producto}
+                  key={producto.slug}
+                  badge={i === 0 ? "Más vendido" : undefined}
+                  badgeGold={i === 0}
+                  meta={`+${vendidos} vendidos`}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* BLOQUE 4 — Comprar por Beneficio */}
       <section id="beneficios" className="anchor">
         <div className="wrap">
           <div className="section-head">
@@ -85,10 +118,10 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* BLOQUE 4 — Rituales AM / PM */}
+      {/* BLOQUE 5 — Rituales AM / PM */}
       <RitualToggle am={amTop} pm={pmTop} />
 
-      {/* BLOQUE 5 — Combos Sinérgicos */}
+      {/* BLOQUE 6 — Combos Sinérgicos */}
       <section id="combos" className="bundles anchor">
         <div className="wrap">
           <div className="section-head">
@@ -109,7 +142,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* BLOQUE 6 — Nuestro Origen */}
+      {/* BLOQUE 7 — Nuestro Origen */}
       <section className="anchor">
         <div className="wrap" style={{ maxWidth: 820, textAlign: "center" }}>
           <span className="eyebrow" style={{ color: "var(--gold)" }}>La marca</span>
