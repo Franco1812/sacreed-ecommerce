@@ -74,7 +74,6 @@ function toFormValues(p: ProductoDb): ProductoFormValues {
     nombrePendiente: p.nombrePendiente,
     seoTitulo: p.seoTitulo ?? "",
     seoDescripcion: p.seoDescripcion ?? "",
-    vendidos: p.vendidos != null ? String(p.vendidos) : "",
   };
 }
 

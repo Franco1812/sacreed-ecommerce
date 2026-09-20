@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 export interface FormulaItem {
@@ -34,7 +34,6 @@ export interface ProductoFormValues {
   nombrePendiente: boolean;
   seoTitulo: string;
   seoDescripcion: string;
-  vendidos: string;
 }
 
 export interface ImagenValue {
@@ -81,9 +80,21 @@ export function ProductoForm({
   const [archivo, setArchivo] = useState<File | null>(null);
   const [alt, setAlt] = useState("");
   const router = useRouter();
+  const [guardado, setGuardado] = useState(() => JSON.stringify(initial));
+  const [recienGuardado, setRecienGuardado] = useState(false);
+  const sinGuardar = JSON.stringify(values) !== guardado;
+
+  // Avisa antes de cerrar la pestaña si hay cambios sin guardar.
+  useEffect(() => {
+    if (!sinGuardar) return;
+    const avisar = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener("beforeunload", avisar);
+    return () => window.removeEventListener("beforeunload", avisar);
+  }, [sinGuardar]);
 
   function set<K extends keyof ProductoFormValues>(key: K, value: ProductoFormValues[K]) {
     setValues((v) => ({ ...v, [key]: value }));
+    setError(null);
   }
 
   function handleNombreChange(nombre: string) {
@@ -101,6 +112,12 @@ export function ProductoForm({
       const res = await onGuardar(values);
       if (!res.ok) {
         setError(res.error ?? "No se pudo guardar.");
+        return;
+      }
+      if (modoEdicion) {
+        setGuardado(JSON.stringify(values));
+        setRecienGuardado(true);
+        router.refresh();
         return;
       }
       router.push(`/admin/productos/${res.slug ?? values.slug}/editar`);
@@ -134,7 +151,54 @@ export function ProductoForm({
   }
 
   return (
-    <div className="admin-card">
+    <div className="pf">
+      {modoEdicion ? (
+        <div className="admin-block">
+          <div className="ce-card-head">
+            <h2>Fotos</h2>
+            <span className="ce-tag">Se aplican al instante</span>
+          </div>
+          <p className="ce-card-sub">La primera es la que se ve en las tarjetas del sitio. Conviene tener al menos 3.</p>
+          {imagenes && imagenes.length > 0 ? (
+            <div className="ce-fotos">
+              {imagenes.map((img, i) => (
+                <figure className="ce-foto" key={img.id}>
+                  <div className="ce-foto-img">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- galería de admin, no vale la pena next/image acá */}
+                    <img src={img.url} alt={img.alt} />
+                    {i === 0 && <span className="ce-foto-badge">Principal</span>}
+                  </div>
+                  <div className="ce-foto-actions">
+                    <button type="button" className="ce-foto-quitar" style={{ marginLeft: 0 }} onClick={() => eliminarImagen(img.id)} disabled={pending}>Quitar</button>
+                  </div>
+                </figure>
+              ))}
+            </div>
+          ) : (
+            <p className="ce-vacio">Este producto todavía no tiene fotos.</p>
+          )}
+          <div className="ce-subir">
+            <h3>Agregar una foto</h3>
+            <div className="admin-row">
+              <div className="admin-field">
+                <label>Archivo</label>
+                <input type="file" accept="image/*" onChange={(e) => setArchivo(e.target.files?.[0] ?? null)} />
+              </div>
+              <div className="admin-field">
+                <label>Qué se ve en la foto</label>
+                <input value={alt} onChange={(e) => setAlt(e.target.value)} placeholder="Ej: Bolsa de matcha premium sobre fondo verde" />
+              </div>
+            </div>
+            <button type="button" className="admin-btn-ghost" onClick={subirImagen} disabled={pending || !archivo}>Subir foto</button>
+          </div>
+        </div>
+      ) : (
+        <div className="admin-block">
+          <h2>Fotos</h2>
+          <p className="ce-card-sub" style={{ marginBottom: 0 }}>Las fotos se suben después de crear el producto, en la pantalla de edición.</p>
+        </div>
+      )}
+
       <div className="admin-block">
         <h2>Identidad</h2>
         <div className="admin-row">
@@ -265,24 +329,27 @@ export function ProductoForm({
             <input value={values.formato} onChange={(e) => set("formato", e.target.value)} />
           </div>
         </div>
-        <div className="admin-row">
-          <div className="admin-field">
-            <label>Peso neto en gramos (opcional)</label>
-            <input type="number" value={values.pesoNetoGramos} onChange={(e) => set("pesoNetoGramos", e.target.value)} />
+        <details className="pf-mas">
+          <summary>Peso y medidas del paquete (opcional)</summary>
+          <div className="admin-row">
+            <div className="admin-field">
+              <label>Peso neto en gramos</label>
+              <input type="number" value={values.pesoNetoGramos} onChange={(e) => set("pesoNetoGramos", e.target.value)} />
+            </div>
+            <div className="admin-field">
+              <label>Alto (cm)</label>
+              <input type="number" value={values.paqueteAltoCm} onChange={(e) => set("paqueteAltoCm", e.target.value)} />
+            </div>
+            <div className="admin-field">
+              <label>Ancho (cm)</label>
+              <input type="number" value={values.paqueteAnchoCm} onChange={(e) => set("paqueteAnchoCm", e.target.value)} />
+            </div>
+            <div className="admin-field">
+              <label>Profundidad (cm)</label>
+              <input type="number" value={values.paqueteProfundidadCm} onChange={(e) => set("paqueteProfundidadCm", e.target.value)} />
+            </div>
           </div>
-          <div className="admin-field">
-            <label>Paquete alto cm (opcional)</label>
-            <input type="number" value={values.paqueteAltoCm} onChange={(e) => set("paqueteAltoCm", e.target.value)} />
-          </div>
-          <div className="admin-field">
-            <label>Paquete ancho cm (opcional)</label>
-            <input type="number" value={values.paqueteAnchoCm} onChange={(e) => set("paqueteAnchoCm", e.target.value)} />
-          </div>
-          <div className="admin-field">
-            <label>Paquete profundidad cm (opcional)</label>
-            <input type="number" value={values.paqueteProfundidadCm} onChange={(e) => set("paqueteProfundidadCm", e.target.value)} />
-          </div>
-        </div>
+        </details>
       </div>
 
       <div className="admin-block">
@@ -292,11 +359,9 @@ export function ProductoForm({
             <label>Destacado (opcional, ej. &quot;Más vendido&quot;)</label>
             <input value={values.destacado} onChange={(e) => set("destacado", e.target.value)} />
           </div>
-          <div className="admin-field">
-            <label>Vendidos (opcional — controla la sección &quot;Los más vendidos&quot; de la home; vacío = no aparece ahí)</label>
-            <input type="number" min={0} value={values.vendidos} onChange={(e) => set("vendidos", e.target.value)} />
-          </div>
         </div>
+        <details className="pf-mas">
+          <summary>Título y descripción para Google (opcional)</summary>
         <div className="admin-row">
           <div className="admin-field">
             <label>SEO título (opcional)</label>
@@ -307,6 +372,7 @@ export function ProductoForm({
           <label>SEO descripción (opcional)</label>
           <input value={values.seoDescripcion} onChange={(e) => set("seoDescripcion", e.target.value)} />
         </div>
+        </details>
         <div className="admin-checkbox-row">
           <label>
             <input type="checkbox" checked={values.nombrePendiente} onChange={(e) => set("nombrePendiente", e.target.checked)} />
@@ -315,36 +381,26 @@ export function ProductoForm({
         </div>
       </div>
 
-      {modoEdicion && (
-        <div className="admin-block">
-          <h2>Fotos</h2>
-          <div className="admin-gallery">
-            {imagenes?.map((img) => (
-              <div className="admin-gallery-item" key={img.id}>
-                {/* eslint-disable-next-line @next/next/no-img-element -- galería de admin, no vale la pena next/image acá */}
-                <img src={img.url} alt={img.alt} />
-                <button type="button" onClick={() => eliminarImagen(img.id)} disabled={pending}>Quitar</button>
-              </div>
-            ))}
-          </div>
-          <div className="admin-row">
-            <div className="admin-field">
-              <label>Archivo</label>
-              <input type="file" accept="image/*" onChange={(e) => setArchivo(e.target.files?.[0] ?? null)} />
-            </div>
-            <div className="admin-field">
-              <label>Alt (descripción de la foto)</label>
-              <input value={alt} onChange={(e) => setAlt(e.target.value)} />
-            </div>
-          </div>
-          <button type="button" className="admin-btn-ghost" onClick={subirImagen} disabled={pending || !archivo}>Subir foto</button>
-        </div>
-      )}
 
-      {error && <p className="admin-error">{error}</p>}
-      <button type="button" className="admin-btn" onClick={submit} disabled={pending}>
-        {modoEdicion ? "Guardar cambios" : "Crear producto"}
-      </button>
+      <div className="ce-savebar">
+        <span className="ce-estado" data-tono={pending ? "info" : error ? "error" : modoEdicion && sinGuardar ? "aviso" : recienGuardado && !sinGuardar ? "ok" : "info"} role="status" aria-live="polite">
+          {pending
+            ? "Guardando…"
+            : error
+              ? error
+              : !modoEdicion
+                ? "Completá los datos y creá el producto."
+                : sinGuardar
+                  ? "Tenés cambios sin guardar"
+                  : recienGuardado
+                    ? "✓ Guardado. Ya se ve en el sitio."
+                    : "Todo guardado"}
+        </span>
+        {modoEdicion && <a href={`/producto/${values.slug}`} target="_blank" rel="noreferrer" className="ce-ver-sitio">Ver en el sitio ↗</a>}
+        <button type="button" className="admin-btn" onClick={submit} disabled={pending || (modoEdicion && !sinGuardar)}>
+          {pending ? "Guardando…" : modoEdicion ? "Guardar cambios" : "Crear producto"}
+        </button>
+      </div>
     </div>
   );
 }

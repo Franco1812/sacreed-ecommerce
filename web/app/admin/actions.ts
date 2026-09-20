@@ -73,18 +73,25 @@ export async function actualizarEstadoPedido(numero: number, estado: string) {
   return { ok: true };
 }
 
-export async function actualizarContenidoHome(data: Record<string, string>) {
-  const res = await adminApiFetch("/contenido/home", { method: "PATCH", body: JSON.stringify(data) });
-  if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
-  updateTag("contenido");
-  revalidatePath("/admin/contenido");
-  return { ok: true };
-}
+/** Guarda de una vez los textos de la portada, las 4 líneas y la lista de más vendidos; corta en el primer error. */
+export async function guardarContenido(
+  home: Record<string, string>,
+  lineas: { id: string; nombre: string; texto: string }[],
+  masVendidos: { slug: string; vendidos: number | null }[]
+) {
+  const resHome = await adminApiFetch("/contenido/home", { method: "PATCH", body: JSON.stringify(home) });
+  if (!resHome.ok) return { ok: false, error: await mensajeDeError(resHome) };
 
-export async function actualizarLinea(id: string, data: { nombre?: string; texto?: string }) {
-  const res = await adminApiFetch(`/contenido/lineas/${id}`, { method: "PATCH", body: JSON.stringify(data) });
-  if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
+  for (const { id, nombre, texto } of lineas) {
+    const res = await adminApiFetch(`/contenido/lineas/${id}`, { method: "PATCH", body: JSON.stringify({ nombre, texto }) });
+    if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
+  }
+
+  const resMasVendidos = await adminApiFetch("/contenido/mas-vendidos", { method: "PUT", body: JSON.stringify({ items: masVendidos }) });
+  if (!resMasVendidos.ok) return { ok: false, error: await mensajeDeError(resMasVendidos) };
+
   updateTag("contenido");
+  updateTag("productos");
   revalidatePath("/admin/contenido");
   return { ok: true };
 }
@@ -166,7 +173,6 @@ function toProductoDto(data: ProductoFormValues) {
     nombrePendiente: data.nombrePendiente,
     seoTitulo: strOrUndefined(data.seoTitulo),
     seoDescripcion: strOrUndefined(data.seoDescripcion),
-    vendidos: numOrUndefined(data.vendidos),
   };
 }
 
