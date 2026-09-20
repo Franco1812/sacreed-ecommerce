@@ -173,6 +173,18 @@ export const getLineas = cache(
   )
 );
 
+export const getHeroImagenes = cache(
+  unstable_cache(
+    async (): Promise<ImagenItem[]> => {
+      const res = await fetch(`${API_URL}/contenido/hero-imagenes`);
+      if (!res.ok) throw new Error(`GET /contenido/hero-imagenes: ${res.status}`);
+      return mapImagenes(await res.json());
+    },
+    ["hero-imagenes"],
+    { tags: ["contenido"], revalidate: CACHE_REVALIDATE_SEGUNDOS }
+  )
+);
+
 export const getContenidoHome = cache(
   unstable_cache(
     async (): Promise<ContenidoHome> => {

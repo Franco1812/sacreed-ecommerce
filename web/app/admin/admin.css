@@ -286,3 +286,7 @@ tr.admin-stock-bajo td:first-child { box-shadow: inset 3px 0 0 var(--burgundy); 
 .admin-gallery-item form { margin-top: 7px; }
 .admin-gallery-item button { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--burgundy); }
 .admin-gallery-item button:hover { opacity: 0.7; }
+.admin-gallery-actions { display: flex; align-items: center; gap: 8px; margin-top: 7px; }
+.admin-gallery-actions span { font-size: 11px; opacity: 0.6; min-width: 10px; text-align: center; }
+.admin-gallery-actions button:disabled { opacity: 0.3; cursor: default; }
+.admin-gallery-actions .admin-gallery-quitar { margin-left: auto; }
