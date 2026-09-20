@@ -8,13 +8,7 @@ export default function Footer() {
     <>
       <div className="news anchor">
         <div className="wrap">
-          <span className="eyebrow" style={{ color: "var(--gold)" }}>Una carta cada quince días</span>
           <h2>Sumate al Club de la Pausa Consciente</h2>
-          <form onSubmit={(e) => e.preventDefault()}>
-            <input type="email" placeholder="tu@email.com" aria-label="Email" />
-            <button type="submit">Suscribirme</button>
-          </form>
-          <small>Sin spam. Te podés dar de baja cuando quieras.</small>
         </div>
       </div>
 
