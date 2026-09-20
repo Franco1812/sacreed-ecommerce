@@ -53,13 +53,6 @@ h1,h2,h3,h4{font-family:var(--serif);font-weight:500;line-height:1.06;letter-spa
 .h-section{font-size:clamp(27px,3.6vw,44px);font-weight:500;letter-spacing:-.028em;line-height:1.08}
 .prose{font-size:clamp(16px,1.35vw,18px);line-height:1.7;max-width:66ch}
 
-/* ---------- banner de prototipo (solo mock) ---------- */
-.mock-banner{
-  background:#F6F1E3;color:#6F5312;text-align:center;
-  font-size:12px;letter-spacing:.01em;padding:9px 16px;
-  border-bottom:1px solid rgba(111,83,18,.14);
-}
-
 /* ---------- barra de anuncio ---------- */
 .ticker{
   background:var(--forest);color:var(--brush);

@@ -1,5 +1,6 @@
 import { adminApiFetch } from "@/lib/admin-api";
 import { actualizarContenidoHome, actualizarLinea } from "../../actions";
+import HeroFotos, { type HeroFotoValue } from "./HeroFotos";
 
 interface ContenidoHomeDb {
   heroEyebrow: string;
@@ -39,6 +40,12 @@ async function getContenido(): Promise<ContenidoHomeDb> {
   return res.json();
 }
 
+async function getHeroImagenes(): Promise<HeroFotoValue[]> {
+  const res = await adminApiFetch("/contenido/hero-imagenes");
+  if (!res.ok) throw new Error(`GET /contenido/hero-imagenes: ${res.status}`);
+  return res.json();
+}
+
 async function getLineas(): Promise<LineaDb[]> {
   const res = await adminApiFetch("/contenido/lineas");
   if (!res.ok) throw new Error(`GET /contenido/lineas: ${res.status}`);
@@ -62,13 +69,16 @@ async function guardar(formData: FormData) {
 }
 
 export default async function AdminContenidoPage() {
-  const [contenido, lineas] = await Promise.all([getContenido(), getLineas()]);
+  const [contenido, lineas, heroImagenes] = await Promise.all([getContenido(), getLineas(), getHeroImagenes()]);
 
   return (
     <>
       <div className="admin-main-head">
         <h1>Contenido del sitio</h1>
       </div>
+
+      {/* Fuera del <form>: sube/quita/reordena por su cuenta, no depende del botón "Guardar cambios". */}
+      <HeroFotos imagenes={heroImagenes} />
 
       <form action={guardar}>
         <div className="admin-card">

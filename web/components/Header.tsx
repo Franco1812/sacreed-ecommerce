@@ -10,8 +10,6 @@ export default function Header({ lineas }: { lineas: Linea[] }) {
 
   return (
     <>
-      <div className="mock-banner">🧪 Prototipo de UI — datos e imágenes de muestra, no reflejan precios ni fotos reales</div>
-
       <div className="ticker">
         Reparto propio en la zona todos los viernes · Envío sin cargo desde $[mínimo] <span>·</span> Entrega en Canning y zona sur <span>·</span> 15% de descuento pagando por transferencia
       </div>

@@ -4,7 +4,7 @@ import HeroCarousel from "@/components/HeroCarousel";
 import ProductCard from "@/components/ProductCard";
 import { ComboBundle } from "@/components/ComboCard";
 import { productosMasVendidos, productosPorRitual } from "@/lib/helpers";
-import { getAllCombos, getAllProductos, getContenidoHome, getLineas } from "@/lib/data";
+import { getAllCombos, getAllProductos, getContenidoHome, getHeroImagenes, getLineas } from "@/lib/data";
 
 /** El copy editable se guarda con saltos de línea reales; acá se vuelven <br>. */
 function conSaltos(texto: string) {
@@ -17,7 +17,7 @@ function conSaltos(texto: string) {
 }
 
 export default async function HomePage() {
-  const [combos, productos, am, pm, contenido, lineas, masVendidos] = await Promise.all([
+  const [combos, productos, am, pm, contenido, lineas, masVendidos, fotosHero] = await Promise.all([
     getAllCombos(),
     getAllProductos(),
     productosPorRitual("am"),
@@ -25,16 +25,11 @@ export default async function HomePage() {
     getContenidoHome(),
     getLineas(),
     productosMasVendidos(4),
+    getHeroImagenes(),
   ]);
   const combosDestacados = combos.slice(0, 3);
   const amTop = am.slice(0, 3);
   const pmTop = pm.slice(0, 3);
-  const fotosHero = [
-    { url: "/hero/hero-1.jpeg", alt: "Medicina viva, belleza interior y experiencias sagradas de autocuidado" },
-    { url: "/hero/hero-2.jpeg", alt: "Sacred PM Routine" },
-    { url: "/hero/hero-3.jpeg", alt: "Ritual de bienestar SACRED" },
-    { url: "/hero/hero-4.jpeg", alt: "El bienestar no es perfección" },
-  ];
 
   return (
     <>
