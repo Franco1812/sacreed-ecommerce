@@ -252,6 +252,16 @@ model ContenidoHome {
   updatedAt DateTime @updatedAt
 }
 
+/// Fotos del carrusel de la portada, editables desde el admin. Lista suelta
+/// (sin dueño): el carrusel muestra todas, en orden ascendente. Las 4 filas
+/// iniciales apuntan a web/public/hero/ (ver la migración hero_imagenes).
+model HeroImagen {
+  id    String @id @default(cuid())
+  url   String
+  alt   String
+  orden Int    @default(0)
+}
+
 /// §3.3: lista de espera de "avisarme cuando haya stock" para combos con un
 /// componente agotado.
 model AvisoStock {
