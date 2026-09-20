@@ -45,7 +45,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <CartProvider productos={productos} combos={combos}>
           <Header lineas={lineas} />
           {children}
-          <Footer lineas={lineas} />
+          <Footer />
         </CartProvider>
       </body>
     </html>

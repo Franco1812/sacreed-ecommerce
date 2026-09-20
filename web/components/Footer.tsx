@@ -2,9 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import type { Linea } from "@/lib/types";
 
-export default function Footer({ lineas }: { lineas: Linea[] }) {
+export default function Footer() {
   return (
     <>
       <div className="news anchor">
@@ -24,16 +23,6 @@ export default function Footer({ lineas }: { lineas: Linea[] }) {
           <div>
             <Image src="/logo-badge-v3.png" alt="SACRED Wellness Club" width={480} height={463} className="brand-badge foot-badge" />
             <p className="tag">Tu cuerpo cambia cuando cambia tu alacena.</p>
-          </div>
-          <div>
-            <h5>Comprar</h5>
-            <ul>
-              {lineas.map((l) => (
-                <li key={l.slug}><Link href={`/comprar-por-beneficio/${l.slug}`}>{l.nombre}</Link></li>
-              ))}
-              <li><Link href="/rituales">Rituales AM / PM</Link></li>
-              <li><Link href="/combos">Combos Sinérgicos</Link></li>
-            </ul>
           </div>
           <div>
             <h5>Marca</h5>
