@@ -33,6 +33,8 @@ export interface ContenidoHome {
   heroCta2Href: string;
   beneficiosEyebrow: string;
   beneficiosTitulo: string;
+  masVendidosEyebrow: string;
+  masVendidosTitulo: string;
 }
 
 export interface ImagenItem {
@@ -66,7 +68,7 @@ export interface Producto {
   destacado?: string;
   /** true = nombre del producto todavía no definido por la marca (ver obs. §8.3) */
   nombrePendiente?: boolean;
-  /** Cargado a mano desde el admin — controla la sección "Los más vendidos" de la home (ver productosMasVendidos en lib/helpers.ts). undefined/0 = no aparece ahí. */
+  /** Número opcional del "+N vendidos" en la tarjeta de "Los más vendidos" (se carga en Contenido → Más vendidos). undefined/0 = sin número. */
   vendidos?: number;
   /** vacío/ausente = sin fotos cargadas todavía, la UI cae al placeholder */
   imagenes?: ImagenItem[];

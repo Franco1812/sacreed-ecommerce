@@ -101,6 +101,7 @@ model Producto {
   imagenes    Imagen[]
   comboItems  ComboProducto[]
   orderItems  OrderItem[]
+  masVendido  MasVendido?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -249,7 +250,21 @@ model ContenidoHome {
   beneficiosEyebrow String
   beneficiosTitulo  String
 
+  masVendidosEyebrow String @default("Lo que más se repite")
+  masVendidosTitulo  String @default("Los más vendidos")
+
   updatedAt DateTime @updatedAt
+}
+
+/// Productos de la sección "Los más vendidos" de la portada, armada a mano desde
+/// el admin: qué productos y en qué orden (orden ascendente). Un producto solo
+/// puede aparecer una vez. El "+N vendidos" que se muestra en la tarjeta sigue
+/// siendo Producto.vendidos (opcional).
+model MasVendido {
+  id         String   @id @default(cuid())
+  orden      Int      @default(0)
+  productoId String   @unique
+  producto   Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
 }
 
 /// Fotos del carrusel de la portada, editables desde el admin. Lista suelta

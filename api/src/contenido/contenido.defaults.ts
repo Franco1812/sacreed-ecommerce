@@ -20,6 +20,8 @@ export const HOME_DEFAULT = {
   heroCta2Href: '/rituales',
   beneficiosEyebrow: 'Entrada principal a la tienda',
   beneficiosTitulo: 'Comprá por beneficio',
+  masVendidosEyebrow: 'Lo que más se repite',
+  masVendidosTitulo: 'Los más vendidos',
 };
 
 export const LINEAS_DEFAULT: { id: LineaBeneficio; nombre: string; texto: string; orden: number }[] = [
