@@ -3,7 +3,10 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { SupabaseStorageService } from '../storage/supabase-storage.service.js';
 import type { LineaBeneficio } from '../generated/prisma/client.js';
 import { HOME_DEFAULT, LINEAS_DEFAULT } from './contenido.defaults.js';
-import type { ContenidoHomeDto, LineaDto } from './dto/contenido.dto.js';
+import type { ContenidoHomeDto, LineaDto, MasVendidosDto } from './dto/contenido.dto.js';
+
+/** Cuántos productos entran en la sección: más que eso ya no cabe bien en la fila de la portada. */
+export const MAS_VENDIDOS_MAX = 8;
 
 const LINEAS_VALIDAS = new Set<string>(LINEAS_DEFAULT.map((l) => l.id));
 
@@ -48,6 +51,37 @@ export class ContenidoService {
     if (!LINEAS_VALIDAS.has(id)) throw new NotFoundException();
     await this.getLineas();
     return this.prisma.linea.update({ where: { id: id as LineaBeneficio }, data: dto });
+  }
+
+  /** Público: lo lee la portada. Devuelve solo slug + número, la ficha completa ya la tiene el catálogo. */
+  async getMasVendidos() {
+    const filas = await this.prisma.masVendido.findMany({
+      orderBy: { orden: 'asc' },
+      include: { producto: { select: { slug: true, vendidos: true } } },
+    });
+    return filas.map((f) => ({ slug: f.producto.slug, vendidos: f.producto.vendidos }));
+  }
+
+  /** Reemplaza la lista entera (qué productos y en qué orden) y actualiza el "+N vendidos" de cada uno. */
+  async reemplazarMasVendidos(dto: MasVendidosDto) {
+    const items = dto.items;
+    if (!items.every((i) => i && typeof i.slug === 'string' && (i.vendidos == null || (Number.isInteger(i.vendidos) && i.vendidos >= 0)))) {
+      throw new BadRequestException('Cada producto necesita un slug y, si lleva número de vendidos, un entero mayor o igual a 0.');
+    }
+    if (items.length > MAS_VENDIDOS_MAX) throw new BadRequestException(`Pueden ser hasta ${MAS_VENDIDOS_MAX} productos.`);
+    if (new Set(items.map((i) => i.slug)).size !== items.length) throw new BadRequestException('Un producto no puede repetirse.');
+
+    const productos = await this.prisma.producto.findMany({ where: { slug: { in: items.map((i) => i.slug) } }, select: { id: true, slug: true } });
+    const idPorSlug = new Map(productos.map((p) => [p.slug, p.id]));
+    const faltante = items.find((i) => !idPorSlug.has(i.slug));
+    if (faltante) throw new BadRequestException(`No existe el producto "${faltante.slug}".`);
+
+    await this.prisma.$transaction([
+      this.prisma.masVendido.deleteMany(),
+      this.prisma.masVendido.createMany({ data: items.map((i, orden) => ({ orden, productoId: idPorSlug.get(i.slug)! })) }),
+      ...items.map((i) => this.prisma.producto.update({ where: { id: idPorSlug.get(i.slug)! }, data: { vendidos: i.vendidos ?? null } })),
+    ]);
+    return this.getMasVendidos();
   }
 
   getHeroImagenes() {

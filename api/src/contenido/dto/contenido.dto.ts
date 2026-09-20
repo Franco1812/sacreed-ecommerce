@@ -12,6 +12,8 @@ export class ContenidoHomeDto {
   @IsOptional() @IsString() heroCta2Href?: string;
   @IsOptional() @IsString() beneficiosEyebrow?: string;
   @IsOptional() @IsString() beneficiosTitulo?: string;
+  @IsOptional() @IsString() masVendidosEyebrow?: string;
+  @IsOptional() @IsString() masVendidosTitulo?: string;
 }
 
 export class LineaDto {
@@ -23,4 +25,13 @@ export class LineaDto {
 /** Orden completo del carrusel: todos los ids de las fotos, en el orden en que deben mostrarse. */
 export class OrdenHeroImagenesDto {
   @IsArray() @ArrayNotEmpty() @IsString({ each: true }) ids!: string[];
+}
+
+/**
+ * Lista completa de "Los más vendidos", en el orden en que se muestra. `vendidos`
+ * es el número opcional del "+N vendidos" de la tarjeta (null/ausente = sin número).
+ * Los items se validan a mano en el servicio (ValidationPipe no baja a objetos anidados sin class-transformer).
+ */
+export class MasVendidosDto {
+  @IsArray() items!: { slug: string; vendidos?: number | null }[];
 }

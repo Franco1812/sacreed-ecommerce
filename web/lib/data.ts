@@ -185,6 +185,19 @@ export const getHeroImagenes = cache(
   )
 );
 
+/** Slugs de "Los más vendidos" en el orden que armó el admin, con el número opcional del "+N vendidos". */
+export const getMasVendidos = cache(
+  unstable_cache(
+    async (): Promise<{ slug: string; vendidos: number | null }[]> => {
+      const res = await fetch(`${API_URL}/contenido/mas-vendidos`);
+      if (!res.ok) throw new Error(`GET /contenido/mas-vendidos: ${res.status}`);
+      return res.json();
+    },
+    ["mas-vendidos"],
+    { tags: ["contenido"], revalidate: CACHE_REVALIDATE_SEGUNDOS }
+  )
+);
+
 export const getContenidoHome = cache(
   unstable_cache(
     async (): Promise<ContenidoHome> => {

@@ -24,7 +24,7 @@ export default async function HomePage() {
     productosPorRitual("pm"),
     getContenidoHome(),
     getLineas(),
-    productosMasVendidos(4),
+    productosMasVendidos(),
     getHeroImagenes(),
   ]);
   const combosDestacados = combos.slice(0, 3);
@@ -60,14 +60,14 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* BLOQUE 3 — Los más vendidos (curado a mano desde el admin, ver productosMasVendidos en lib/helpers.ts) */}
+      {/* BLOQUE 3 — Los más vendidos (lista armada a mano desde el admin, ver productosMasVendidos en lib/helpers.ts) */}
       {masVendidos.length > 0 && (
         <section id="mas-vendidos" className="anchor">
           <div className="wrap">
             <div className="section-head">
               <div>
-                <span className="eyebrow">Lo que más se repite</span>
-                <h2 className="h-section">Los más vendidos</h2>
+                <span className="eyebrow">{contenido.masVendidosEyebrow}</span>
+                <h2 className="h-section">{contenido.masVendidosTitulo}</h2>
               </div>
               <Link href="/comprar-por-beneficio" className="link-all">Ver todo</Link>
             </div>
@@ -78,7 +78,7 @@ export default async function HomePage() {
                   key={producto.slug}
                   badge={i === 0 ? "Más vendido" : undefined}
                   badgeGold={i === 0}
-                  meta={`+${vendidos} vendidos`}
+                  meta={vendidos ? `+${vendidos} vendidos` : ""}
                 />
               ))}
             </div>

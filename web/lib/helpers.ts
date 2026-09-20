@@ -1,4 +1,4 @@
-import { getAllCombos, getAllProductos } from "./data";
+import { getAllCombos, getAllProductos, getMasVendidos } from "./data";
 import type { Combo, Producto, RitualModo } from "./types";
 
 export async function getProducto(slug: string): Promise<Producto | undefined> {
@@ -47,21 +47,20 @@ export async function comboProductos(combo: Combo): Promise<Producto[]> {
 
 export interface ProductoConVentas {
   producto: Producto;
-  vendidos: number;
+  /** "+N vendidos" de la tarjeta; undefined = sin número. */
+  vendidos?: number;
 }
 
 /**
- * Curado a mano desde el admin (campo "Vendidos" en la ficha de producto) —
- * no hay todavía un conteo real derivado de pedidos (eso vive en OrderItem,
- * que recién se está armando en el checkout). Devuelve los productos con
- * `vendidos` cargado (> 0), ordenados de mayor a menor. Si Cintia no cargó
- * ninguno todavía, devuelve un array vacío y la sección no se muestra.
+ * Lista armada a mano desde el admin (Contenido → Más vendidos): qué productos
+ * y en qué orden. No hay conteo real de ventas derivado de pedidos, así que el
+ * "+N vendidos" es un número opcional que carga Cintia. Si la lista está vacía,
+ * la sección no se muestra.
  */
-export async function productosMasVendidos(limit = 4): Promise<ProductoConVentas[]> {
-  const productos = await getAllProductos();
-  return productos
-    .filter((p): p is Producto & { vendidos: number } => Boolean(p.vendidos && p.vendidos > 0))
-    .sort((a, b) => b.vendidos - a.vendidos)
-    .slice(0, limit)
-    .map((producto) => ({ producto, vendidos: producto.vendidos }));
+export async function productosMasVendidos(): Promise<ProductoConVentas[]> {
+  const [lista, productos] = await Promise.all([getMasVendidos(), getAllProductos()]);
+  return lista.flatMap(({ slug, vendidos }) => {
+    const producto = productos.find((p) => p.slug === slug);
+    return producto ? [{ producto, vendidos: vendidos && vendidos > 0 ? vendidos : undefined }] : [];
+  });
 }

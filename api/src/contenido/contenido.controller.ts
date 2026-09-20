@@ -1,8 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { InternalApiKeyGuard } from '../common/internal-api-key.guard.js';
 import { ContenidoService } from './contenido.service.js';
-import { ContenidoHomeDto, LineaDto, OrdenHeroImagenesDto } from './dto/contenido.dto.js';
+import { ContenidoHomeDto, LineaDto, MasVendidosDto, OrdenHeroImagenesDto } from './dto/contenido.dto.js';
 
 @Controller('contenido')
 export class ContenidoController {
@@ -28,6 +28,17 @@ export class ContenidoController {
   @UseGuards(InternalApiKeyGuard)
   actualizarLinea(@Param('id') id: string, @Body() dto: LineaDto) {
     return this.contenidoService.actualizarLinea(id, dto);
+  }
+
+  @Get('mas-vendidos')
+  getMasVendidos() {
+    return this.contenidoService.getMasVendidos();
+  }
+
+  @Put('mas-vendidos')
+  @UseGuards(InternalApiKeyGuard)
+  reemplazarMasVendidos(@Body() dto: MasVendidosDto) {
+    return this.contenidoService.reemplazarMasVendidos(dto);
   }
 
   @Get('hero-imagenes')
