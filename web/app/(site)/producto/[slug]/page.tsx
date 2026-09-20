@@ -118,7 +118,7 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
           {/* Zona inferior */}
           {combos.length > 0 && (
             <div className="pdp-cross pdp-cross-section">
-              <h2>Se potencia con</h2>
+              <h2>Combinalo con</h2>
               <div className="rail cols-3">
                 {combos.map((combo) => (
                   <ComboCard combo={combo} key={combo.slug} />
