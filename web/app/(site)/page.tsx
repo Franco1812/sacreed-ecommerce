@@ -1,10 +1,11 @@
 import Link from "next/link";
-import RitualToggle from "@/components/RitualToggle";
+import Carousel from "@/components/Carousel";
+import ComboCard from "@/components/ComboCard";
 import HeroCarousel from "@/components/HeroCarousel";
+import Icon, { type IconName } from "@/components/Icons";
 import ProductCard from "@/components/ProductCard";
-import { ComboBundle } from "@/components/ComboCard";
-import { productosMasVendidos, productosPorRitual } from "@/lib/helpers";
-import { getAllCombos, getAllProductos, getContenidoHome, getHeroImagenes, getLineas } from "@/lib/data";
+import { productosMasVendidos } from "@/lib/helpers";
+import { getAllCombos, getContenidoHome, getHeroImagenes } from "@/lib/data";
 
 /** El copy editable se guarda con saltos de línea reales; acá se vuelven <br>. */
 function conSaltos(texto: string) {
@@ -16,137 +17,121 @@ function conSaltos(texto: string) {
   ));
 }
 
+const ATRIBUTOS: { icono: IconName; texto: string }[] = [
+  { icono: "pin", texto: "100% trazable" },
+  { icono: "leaf", texto: "Sin rellenos ni ingredientes innecesarios" },
+  { icono: "sparkle", texto: "Upgrade de bienestar" },
+  { icono: "clock", texto: "Slow living" },
+];
+
+const PILARES = [
+  { titulo: "Origen trazable", texto: "Sabemos de dónde viene cada ingrediente y lo contamos en la ficha de cada producto." },
+  { titulo: "Sin rellenos", texto: "Solo lo que cumple una función. Nada de ingredientes innecesarios." },
+  { titulo: "Upgrade de bienestar", texto: "Pequeños rituales, de la mañana a la noche, que se integran a tu día sin esfuerzo." },
+];
+
 export default async function HomePage() {
-  const [combos, productos, am, pm, contenido, lineas, masVendidos, fotosHero] = await Promise.all([
+  const [combos, contenido, masVendidos, fotosHero] = await Promise.all([
     getAllCombos(),
-    getAllProductos(),
-    productosPorRitual("am"),
-    productosPorRitual("pm"),
     getContenidoHome(),
-    getLineas(),
     productosMasVendidos(),
     getHeroImagenes(),
   ]);
-  const combosDestacados = combos.slice(0, 3);
-  const amTop = am.slice(0, 3);
-  const pmTop = pm.slice(0, 3);
 
   return (
     <>
-      {/* BLOQUE 1 — Hero */}
+      {/* BLOQUE 1 — Hero: foto a ancho completo, texto blanco a la izquierda, un solo botón */}
       <div className="hero anchor">
-        <div className="wrap hero-grid">
-          <div>
-            <span className="eyebrow">{contenido.heroEyebrow}</span>
+        <HeroCarousel imagenes={fotosHero} />
+        <div className="hero-scrim" aria-hidden="true"></div>
+        <div className="wrap hero-inner">
+          <div className="hero-copy">
+            {contenido.heroEyebrow && <span className="tag-accent">{contenido.heroEyebrow}</span>}
             <h1 className="h-display">
               {conSaltos(contenido.heroTitulo)}<br />
-              <em>{conSaltos(contenido.heroTituloEnfasis)}</em>
+              {conSaltos(contenido.heroTituloEnfasis)}
             </h1>
             <p className="hero-sub">{contenido.heroBajada}</p>
-            <div className="hero-actions">
-              <Link href={contenido.heroCta1Href} className="btn btn-solid">{contenido.heroCta1Label}</Link>
-              <Link href={contenido.heroCta2Href} className="btn btn-ghost">{contenido.heroCta2Label}</Link>
-            </div>
+            <Link href={contenido.heroCta1Href} className="btn btn-light">{contenido.heroCta1Label}</Link>
           </div>
-          <HeroCarousel imagenes={fotosHero} />
         </div>
       </div>
 
-      {/* BLOQUE 2 — Cinta infinita */}
+      {/* BLOQUE 2 — Franja de atributos en movimiento continuo */}
       <div className="marquee anchor">
         <div className="marquee-track">
-          <span>100% TRAZABLE ✦ SIN RELLENOS NI INGREDIENTES INNECESARIOS ✦ UPGRADE DE BIENESTAR ✦ SLOW LIVING ✦</span>
-          <span aria-hidden="true">100% TRAZABLE ✦ SIN RELLENOS NI INGREDIENTES INNECESARIOS ✦ UPGRADE DE BIENESTAR ✦ SLOW LIVING ✦</span>
+          {[0, 1].map((copia) => (
+            <div className="marquee-group" key={copia} aria-hidden={copia === 1 ? true : undefined}>
+              {[...ATRIBUTOS, ...ATRIBUTOS].map((a, i) => (
+                <span key={i}>
+                  <Icon name={a.icono} size={24} />
+                  {a.texto}
+                </span>
+              ))}
+            </div>
+          ))}
         </div>
       </div>
 
       {/* BLOQUE 3 — Los más vendidos (lista armada a mano desde el admin, ver productosMasVendidos en lib/helpers.ts) */}
       {masVendidos.length > 0 && (
         <section id="mas-vendidos" className="anchor">
-          <div className="wrap">
-            <div className="section-head">
-              <div>
-                <span className="eyebrow">{contenido.masVendidosEyebrow}</span>
-                <h2 className="h-section">{contenido.masVendidosTitulo}</h2>
-              </div>
-              <Link href="/comprar-por-beneficio" className="link-all">Ver todo</Link>
-            </div>
-            <div className="rail">
-              {masVendidos.map(({ producto, vendidos }, i) => (
-                <ProductCard
-                  producto={producto}
-                  key={producto.slug}
-                  badge={i === 0 ? "Más vendido" : undefined}
-                  badgeGold={i === 0}
-                  meta={vendidos ? `+${vendidos} vendidos` : ""}
-                />
-              ))}
-            </div>
+          <div className="section-head">
+            <h2 className="h-section">{contenido.masVendidosTitulo}</h2>
+            <Link href="/comprar-por-beneficio" className="link-all">Ver todo</Link>
           </div>
+          <Carousel label={contenido.masVendidosTitulo}>
+            {masVendidos.map(({ producto }, i) => (
+              <ProductCard producto={producto} key={producto.slug} badge={i === 0 ? "Más vendido" : undefined} />
+            ))}
+          </Carousel>
         </section>
       )}
 
-      {/* BLOQUE 4 — Comprar por Beneficio */}
-      <section id="beneficios" className="anchor">
+      {/* BLOQUE 4 — Pilares de marca (reemplaza el bloque "Nuestro Origen" de solo texto) */}
+      <section className="pilares bg-band anchor">
         <div className="wrap">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">{contenido.beneficiosEyebrow}</span>
-              <h2 className="h-section">{contenido.beneficiosTitulo}</h2>
-            </div>
-            <Link href="/comprar-por-beneficio" className="link-all">Ver todo</Link>
+          <div className="pilares-head">
+            <h2 className="h-section">Nuestro Origen</h2>
+            <p>No nos propusimos crear una marca más de productos naturales. ¿Cómo podemos hacer de un simple momento una experiencia de bienestar profunda, que forme parte de la vida cotidiana sin esfuerzo?</p>
+            <Link href="/nuestro-origen" className="btn btn-ghost">Aprender más</Link>
           </div>
-          <div className="benefits">
-            {lineas.map((l) => {
-              const count = productos.filter((p) => p.linea === l.slug).length;
-              return (
-                <Link href={`/comprar-por-beneficio/${l.slug}`} className="benefit" key={l.slug}>
-                  <div>
-                    <div className="benefit-name">{l.nombre}</div>
-                    <p className="benefit-desc">{l.texto}</p>
-                  </div>
-                  <span className="benefit-count">{count} producto{count === 1 ? "" : "s"}</span>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* BLOQUE 5 — Rituales AM / PM */}
-      <RitualToggle am={amTop} pm={pmTop} />
-
-      {/* BLOQUE 6 — Combos Sinérgicos */}
-      <section id="combos" className="bundles anchor">
-        <div className="wrap">
-          <div className="section-head">
-            <div>
-              <span className="eyebrow">Sinergias</span>
-              <h2 className="h-section">Combos Sinérgicos</h2>
-            </div>
-            <Link href="/combos" className="link-all">Ver todos los combos</Link>
-          </div>
-          <p className="prose" style={{ marginBottom: 40, opacity: 0.85 }}>
-            Propuestas de combinaciones alquímicas de productos para potenciar resultados nutricionales y sensoriales. Cuando dos o tres alimentos se consumen juntos, la absorción y el efecto bioactivo se multiplican, eso es la sinergia.
-          </p>
-          <div className="bundle-grid cols-1-35">
-            {combosDestacados.map((combo) => (
-              <ComboBundle combo={combo} key={combo.slug} />
+          <div className="pilares-grid">
+            {PILARES.map((p) => (
+              <div key={p.titulo}>
+                <h3>{p.titulo}</h3>
+                <p>{p.texto}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* BLOQUE 7 — Nuestro Origen */}
-      <section className="anchor">
-        <div className="wrap" style={{ maxWidth: 820, textAlign: "center" }}>
-          <span className="eyebrow" style={{ color: "var(--gold)" }}>La marca</span>
-          <h2 className="h-section" style={{ margin: "16px 0 28px" }}>Nuestro Origen</h2>
-          <p className="prose" style={{ margin: "0 auto 22px", textAlign: "center" }}>No nos propusimos crear una marca más de productos naturales.</p>
-          <p style={{ fontSize: "clamp(21px,2.8vw,29px)", fontWeight: 500, letterSpacing: "-0.028em", lineHeight: 1.3, margin: "0 auto 26px", maxWidth: "38ch" }}>
-            ¿Cómo podemos hacer de un simple momento una experiencia de bienestar profunda, que forme parte de la vida cotidiana sin esfuerzo?
-          </p>
-          <Link href="/nuestro-origen" className="link-all">Conocer nuestro origen</Link>
+      {/* BLOQUE 5 — Combos Sinérgicos: mismo carrusel que los más vendidos */}
+      {combos.length > 0 && (
+        <section id="combos" className="anchor">
+          <div className="section-head">
+            <h2 className="h-section">Combos Sinérgicos</h2>
+            <Link href="/combos" className="link-all">Ver todo</Link>
+          </div>
+          <Carousel label="Combos Sinérgicos">
+            {combos.map((combo) => (
+              <ComboCard combo={combo} key={combo.slug} />
+            ))}
+          </Carousel>
+        </section>
+      )}
+
+      {/* BLOQUE 6 — Banner "Armá tu ritual" (lleva al selector AM/PM). Color liso hasta tener una foto propia del banner. */}
+      <section id="ritual" className="anchor">
+        <div className="wrap">
+          <div className="banner">
+            <div className="banner-inner">
+              <h2 className="h-section">Armá tu ritual</h2>
+              <p>El día tiene dos mitades. Elegí tu momento: mañana o noche.</p>
+              <Link href="/rituales" className="btn btn-outline-light">Elegir mi ritual</Link>
+            </div>
+          </div>
         </div>
       </section>
     </>

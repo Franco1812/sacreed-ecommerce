@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import ProductCard from "@/components/ProductCard";
 import { comboProductos, getCombo } from "@/lib/helpers";
-import { formatPrecio, ritualLabel } from "@/lib/format";
+import { formatPrecio } from "@/lib/format";
 import { AddToCartButtonCombo } from "@/components/AddToCartButton";
 
 export default async function ComboPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -28,7 +28,6 @@ export default async function ComboPage({ params }: { params: Promise<{ slug: st
         <div className="wrap combo-hero-grid">
           <div className="combo-media-big"><span className="ph">Imagen combo<br />piezas juntas</span></div>
           <div>
-            <span className="eyebrow" style={{ color: "var(--gold)" }}>Combo Sinérgico · {ritualLabel(combo.ritual)}</span>
             <h1>{combo.nombre}</h1>
             <p className="bundle-bajada">{combo.bajada}</p>
             {!combo.copyAprobado && (
@@ -64,7 +63,6 @@ export default async function ComboPage({ params }: { params: Promise<{ slug: st
         <div className="wrap">
           <div className="section-head">
             <div>
-              <span className="eyebrow">Productos que lo integran</span>
               <h2 className="h-section" style={{ fontSize: "clamp(26px,3vw,38px)" }}>Cada pieza, con su propia ficha</h2>
             </div>
           </div>

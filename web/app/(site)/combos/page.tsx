@@ -14,7 +14,6 @@ export default async function CombosIndexPage() {
         <div className="wrap">
           <div className="section-head" style={{ borderColor: "var(--hair)" }}>
             <div>
-              <span className="eyebrow">Armados para que no tengas que pensarlo</span>
               <h1 className="h-section">Combos Sinérgicos</h1>
             </div>
           </div>

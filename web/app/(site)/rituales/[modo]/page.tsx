@@ -32,7 +32,6 @@ export default async function RitualPage({ params }: { params: Promise<{ modo: s
 
       <div className={`ritual-page ${modo === "pm" ? "pm" : ""}`}>
         <div className="wrap" style={{ textAlign: "center", maxWidth: 760 }}>
-          <span className="eyebrow" style={{ color: "var(--gold)" }}>{modo === "am" ? "☀ Mañana" : "☾ Noche"}</span>
           <h1 className="h-section" style={{ margin: "16px 0 20px" }}>{r.titulo}</h1>
           <p className="prose" style={{ margin: "0 auto", textAlign: "center", opacity: 0.85 }}>{r.texto}</p>
           <div style={{ marginTop: 30 }}>

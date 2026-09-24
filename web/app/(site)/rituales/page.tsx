@@ -13,7 +13,6 @@ export default async function RitualesIndexPage() {
 
       <section>
         <div className="wrap" style={{ textAlign: "center", maxWidth: 760 }}>
-          <span className="eyebrow" style={{ color: "var(--gold)" }}>El día tiene dos mitades</span>
           <h1 className="h-section" style={{ margin: "16px 0 20px" }}>Elegí tu ritual</h1>
           <p className="prose" style={{ margin: "0 auto", textAlign: "center" }}>
             Diseñada para acompañar la curva biológica del día: desde el encendido consciente de la mañana hasta el descanso restaurador de la noche.
