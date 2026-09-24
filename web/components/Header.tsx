@@ -39,7 +39,7 @@ export default function Header({
   combos: Combo[];
   masVendidos: Producto[];
 }) {
-  const { totalItems } = useCart();
+  const { totalItems, abrir } = useCart();
   const [menuAbierto, setMenuAbierto] = useState(false);
   const cerrar = () => setMenuAbierto(false);
 
@@ -111,10 +111,15 @@ export default function Header({
             <Link href="/admin/login" className="icon-btn" aria-label="Mi cuenta">
               <Icon name="user" />
             </Link>
-            <Link href="/carrito" className="icon-btn cart" aria-label={`Carrito, ${totalItems} ${totalItems === 1 ? "producto" : "productos"}`}>
+            <button
+              type="button"
+              className="icon-btn cart"
+              aria-label={`Abrir carrito, ${totalItems} ${totalItems === 1 ? "producto" : "productos"}`}
+              onClick={abrir}
+            >
               <Icon name="bag" />
               {totalItems > 0 && <span className="cart-dot" aria-hidden="true"></span>}
-            </Link>
+            </button>
           </div>
         </div>
 

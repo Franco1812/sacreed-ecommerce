@@ -271,41 +271,89 @@ section,.section-block{padding:clamp(48px,6vw,72px) 0}
 .combo-why h2{font-size:32px;font-weight:500;margin-bottom:20px}
 .combo-why p{max-width:70ch;font-size:16.5px;line-height:1.75}
 
-/* ---------- ficha de producto ---------- */
-.pdp{padding:clamp(40px,6vw,70px) 0}
-.pdp-grid{display:grid;grid-template-columns:.9fr 1fr;gap:clamp(30px,5vw,64px)}
-.pdp-gallery{position:sticky;top:100px;align-self:start}
-.pdp-gallery-main{aspect-ratio:1/1;background:var(--sand);display:grid;place-items:center;margin-bottom:12px}
-.pdp-gallery-thumbs{display:flex;gap:10px}
-.pdp-gallery-thumbs div{width:64px;height:64px;background:var(--sand);border:1px solid var(--hair);display:grid;place-items:center}
-.pdp-origen{display:inline-block;font-family:var(--mono);font-size:11px;text-transform:uppercase;color:var(--gold);border:1px solid rgba(138,100,20,.4);padding:5px 10px;margin-bottom:14px}
-.pdp-tag{font-size:13px;color:rgba(26,28,24,.55)}
-.pdp-info h1{font-size:clamp(28px,3.4vw,32px);font-weight:500;margin:8px 0 4px}
-.pdp-subtitulo{color:rgba(26,28,24,.6);font-size:16px;margin-bottom:18px}
-.pdp-price-row{display:flex;align-items:baseline;gap:14px;margin:18px 0}
+/* ---------- ficha de producto: dos columnas 55/45, columna derecha fija ---------- */
+.pdp{padding:clamp(20px,3vw,32px) 0 clamp(40px,5vw,64px)}
+.pdp-grid{display:grid;grid-template-columns:55fr 45fr;gap:clamp(24px,4vw,56px);align-items:start}
+.pdp-photos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pdp-photo{position:relative;aspect-ratio:1/1;background:var(--band);overflow:hidden}
+.pdp-photo:first-child{grid-column:1/-1}
+.pdp-info{position:sticky;top:calc(var(--header-h) + 24px)}
+.pdp-info .tag-accent{margin-bottom:14px}
+.pdp-info h1{font-size:32px;line-height:35px;font-weight:500;margin:0 0 10px}
+.pdp-price-row{display:flex;align-items:baseline;gap:12px;margin-bottom:12px}
 .pdp-price-row .price{font-size:24px;font-weight:500}
-.pdp-meta{font-size:13.5px;color:rgba(26,28,24,.6);margin-bottom:22px}
-.qty-row{display:flex;align-items:center;gap:16px;margin-bottom:18px}
-.qty-select{border:1px solid var(--hair-strong);background:var(--surface);padding:12px 16px;display:flex;align-items:center;gap:14px}
-.pdp-info .btn-solid{width:100%;text-align:center;padding:18px}
-.pdp-shipnote{font-size:13px;color:rgba(26,28,24,.6);margin-top:14px;line-height:1.6}
+.pdp-frase{font-family:var(--mono);font-size:14px;line-height:19px;margin-bottom:18px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+.pill{border:1px solid var(--hair-strong);border-radius:999px;font-size:13px;line-height:1;padding:9px 16px}
+.pill.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* caja de opciones de compra: fondo beige, borde negro, encabezado de acento */
+.buy-options{background:var(--band);border:1px solid var(--ink);margin-bottom:18px}
+.buy-options-head{background:var(--accent);border-bottom:1px solid var(--ink);font-family:var(--mono);font-size:13px;line-height:1.2;text-transform:uppercase;padding:9px 16px}
+.buy-options ul{list-style:none;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.buy-options li{display:flex;align-items:flex-start;gap:10px;font-size:13.5px;line-height:1.4}
+.buy-options li svg{flex:none;margin-top:1px}
+
+.buy-row{display:flex;gap:12px;align-items:stretch}
+.buy-row .btn{flex:1}
+.qty-select{border:1px solid var(--ink);background:transparent;padding:0 12px;display:flex;align-items:center;justify-content:center;gap:10px;min-height:52px;min-width:104px}
+.qty-select button{display:grid;place-items:center;width:28px;height:28px}
+.qty-select.qty-small{min-height:36px;min-width:0;padding:0 6px}
+.btn-small{min-height:40px;padding:0 16px;font-size:13px}
 .stock-badge{font-size:12.5px;color:var(--burgundy);margin-top:10px}
+.pdp-shipnote{font-size:13px;color:rgba(26,28,24,.6);margin-top:14px;line-height:1.6}
 
-.pdp-blocks{margin-top:clamp(50px,6vw,80px);max-width:850px}
-.pdp-block{border-top:1px solid var(--hair);padding:26px 0}
-.pdp-block h2{font-size:17px;font-weight:500;margin-bottom:12px}
-.pdp-block.destacado{background:var(--sand);padding:26px 30px;border-top:0}
+.trust-row{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0;text-align:center}
+.trust-row li{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12.5px;line-height:1.3}
+.trust-row a{text-decoration:underline;text-underline-offset:3px}
+
+/* acordeones con + / −, línea fina entre cada uno */
+.pdp-blocks{border-top:1px solid var(--hair-strong)}
+.pdp-block{border-bottom:1px solid var(--hair-strong)}
+.pdp-block h2{font-size:16px;line-height:1.2}
+.pdp-block h2 button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px 0;font:inherit;font-weight:500;text-align:left}
+.pdp-block-content{padding:0 0 20px;font-size:14px;line-height:1.7}
 .pdp-block ul{list-style:none}
-.pdp-block ul li{position:relative;padding:6px 0 6px 22px;font-size:15.5px;line-height:1.6}
-.pdp-block ul li::before{content:"";position:absolute;left:0;top:15px;width:11px;height:1px;background:var(--hair-strong)}
-.pdp-formula-item{margin-bottom:16px}
-.pdp-formula-item strong{font-weight:500;font-size:16px;display:block;margin-bottom:3px}
-.pdp-nota-pureza{font-size:13.5px;color:rgba(26,28,24,.6);margin-top:14px;line-height:1.7}
-.accordion-trigger{display:none}
+.pdp-block ul li{position:relative;padding:4px 0 4px 20px;font-size:14px;line-height:1.6}
+.pdp-block ul li::before{content:"";position:absolute;left:0;top:14px;width:10px;height:1px;background:var(--hair-strong)}
+.pdp-formula-item{margin-bottom:14px}
+.pdp-formula-item strong{font-weight:600;display:block;margin-bottom:2px}
+.pdp-nota-pureza{font-size:13px;color:rgba(26,28,24,.6);margin-top:12px;line-height:1.7}
 
-.pdp-cross{margin-top:clamp(60px,7vw,96px)}
-.pdp-cross h2{font-size:32px;font-weight:500;margin-bottom:24px}
-.pdp-cross-section{margin-bottom:clamp(44px,5vw,70px)}
+/* "Combinalo con" */
+.together{margin-top:28px}
+.together h3{font-size:16px;font-weight:600;margin-bottom:6px}
+.together ul{list-style:none}
+.together li{display:grid;grid-template-columns:72px 1fr auto;gap:14px;align-items:center;padding:12px 0;border-top:1px solid var(--hair)}
+.together-media{position:relative;display:block;width:72px;height:72px;background:var(--band)}
+.together-info{display:flex;flex-direction:column;gap:2px}
+.together-info a{font-size:14px;font-weight:600}
+.together-info .price{font-size:14px}
+
+/* barra fija "Agregar al carrito" (solo mobile/tablet, aparece al hacer scroll) */
+.pdp-sticky-bar{display:none}
+
+/* ---------- carrito lateral ---------- */
+.drawer-root{position:fixed;inset:0;z-index:100}
+.drawer-overlay{position:absolute;inset:0;background:rgba(0,0,0,.4)}
+.drawer{position:absolute;top:0;right:0;bottom:0;width:min(440px,100%);background:var(--bg);display:flex;flex-direction:column;animation:drawer-in .25s ease-out}
+@keyframes drawer-in{from{transform:translateX(100%)}to{transform:none}}
+.drawer-head{display:flex;justify-content:space-between;align-items:center;padding:0 20px;height:var(--header-h);border-bottom:1px solid var(--hair);flex:none}
+.drawer-head h2{font-size:20px}
+.drawer-close{width:36px;height:36px;display:grid;place-items:center}
+.drawer-body{flex:1;overflow-y:auto;padding:16px 20px}
+.drawer-empty{padding:48px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:20px;font-size:15px}
+.drawer-items,.drawer-suggest ul{list-style:none}
+.drawer-item{display:grid;grid-template-columns:72px 1fr;gap:14px;padding:14px 0;border-bottom:1px solid var(--hair)}
+.drawer-item-media{position:relative;display:block;width:72px;height:72px;background:var(--band)}
+.drawer-item-info{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.drawer-item-name{font-size:14px;font-weight:600;line-height:1.3}
+.drawer-item-actions{display:flex;align-items:center;gap:14px;margin-top:6px}
+.drawer-suggest{margin-top:24px}
+.drawer-suggest h3{font-size:16px;font-weight:600;margin-bottom:4px}
+.drawer-foot{flex:none;padding:16px 20px 20px;border-top:1px solid var(--hair);display:flex;flex-direction:column;gap:12px}
+.drawer-foot .btn{width:100%;min-height:54px}
+.drawer-total{display:flex;justify-content:space-between;font-size:16px;font-weight:500}
 
 /* ---------- carrito ---------- */
 .cart-page{padding:clamp(40px,6vw,70px) 0}
@@ -434,7 +482,17 @@ footer ul a:hover{text-decoration:underline;text-underline-offset:4px}
   .foot-grid{grid-template-columns:1fr 1fr}
   .foot-news{grid-column:1/-1}
   .pdp-grid{grid-template-columns:1fr}
-  .pdp-gallery{position:static}
+  .pdp-info{position:static}
+  /* galería deslizable arriba, el resto en una columna */
+  .pdp-photos{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;gap:0;margin:0 calc(var(--gutter)*-1)}
+  .pdp-photos::-webkit-scrollbar{display:none}
+  .pdp-photo,.pdp-photo:first-child{flex:0 0 100%;scroll-snap-align:start}
+  .pdp-sticky-bar{position:fixed;left:0;right:0;bottom:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--bg);border-top:1px solid var(--hair-strong);padding:10px var(--gutter);transform:translateY(100%);visibility:hidden}
+  .pdp-sticky-bar.on{transform:none;visibility:visible}
+  .pdp-sticky-bar div{display:flex;flex-direction:column;min-width:0}
+  .pdp-sticky-bar strong{font-size:14px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pdp-sticky-bar span{font-size:14px}
+  .pdp-sticky-bar .btn{flex:none;min-height:44px;padding:0 18px}
   .combo-hero-grid{grid-template-columns:1fr}
   .carousel{--gap:20px}
   .carousel-track>*{flex-basis:calc((100% - 3*var(--gap))/3.5)}
@@ -458,12 +516,6 @@ footer ul a:hover{text-decoration:underline;text-underline-offset:4px}
   .carousel-arrow{display:none}
   .banner{min-height:320px}
   .foot-grid{grid-template-columns:1fr}
-
-  /* acordeón mobile en ficha de producto */
-  .pdp-block{cursor:pointer}
-  .pdp-block .accordion-trigger{display:block;font-size:12.5px;color:var(--forest);border-bottom:1px solid var(--forest);align-self:flex-start;margin-top:8px}
-  .pdp-block:not(.open) .pdp-block-content{display:none}
-  .pdp-block.open .accordion-trigger{display:none}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation:none!important;transition-duration:.01ms!important}

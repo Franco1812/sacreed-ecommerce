@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { useCart } from "@/lib/cart-context";
@@ -35,9 +36,10 @@ export default function CarritoPage() {
                 {items.map((item) => {
                   const data = item.tipo === "producto" ? getProducto(item.slug) : getCombo(item.slug);
                   if (!data) return null;
+                  const foto = data.imagenes?.[0];
                   return (
                     <div className="cart-item" key={`${item.tipo}-${item.slug}`}>
-                      <div className="cart-item-media"><span className="ph" style={{ fontSize: 8, padding: 2 }}>Foto</span></div>
+                      <div className="cart-item-media" style={{ position: "relative" }}>{foto && <Image src={foto.url} alt="" fill sizes="76px" style={{ objectFit: "cover" }} />}</div>
                       <div>
                         <span className="cart-item-tag">{item.tipo === "combo" ? "Combo sinérgico" : "Producto"}</span>
                         <Link

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Instrument_Sans, Courier_Prime } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
+import CartDrawer from "@/components/CartDrawer";
 import Footer from "@/components/Footer";
 import { CartProvider } from "@/lib/cart-context";
 import { getAllCombos, getAllProductos, getLineas } from "@/lib/data";
@@ -45,6 +46,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <Header lineas={lineas} combos={combos} masVendidos={masVendidos.map((m) => m.producto)} />
           {children}
           <Footer lineas={lineas} />
+          <CartDrawer />
         </CartProvider>
       </body>
     </html>

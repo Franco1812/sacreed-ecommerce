@@ -1,8 +1,8 @@
 import Link from "next/link";
+import AttributeStrip from "@/components/AttributeStrip";
 import Carousel from "@/components/Carousel";
 import ComboCard from "@/components/ComboCard";
 import HeroCarousel from "@/components/HeroCarousel";
-import Icon, { type IconName } from "@/components/Icons";
 import ProductCard from "@/components/ProductCard";
 import { productosMasVendidos } from "@/lib/helpers";
 import { getAllCombos, getContenidoHome, getHeroImagenes } from "@/lib/data";
@@ -16,13 +16,6 @@ function conSaltos(texto: string) {
     </span>
   ));
 }
-
-const ATRIBUTOS: { icono: IconName; texto: string }[] = [
-  { icono: "pin", texto: "100% trazable" },
-  { icono: "leaf", texto: "Sin rellenos ni ingredientes innecesarios" },
-  { icono: "sparkle", texto: "Upgrade de bienestar" },
-  { icono: "clock", texto: "Slow living" },
-];
 
 const PILARES = [
   { titulo: "Origen trazable", texto: "Sabemos de dónde viene cada ingrediente y lo contamos en la ficha de cada producto." },
@@ -58,20 +51,7 @@ export default async function HomePage() {
       </div>
 
       {/* BLOQUE 2 — Franja de atributos en movimiento continuo */}
-      <div className="marquee anchor">
-        <div className="marquee-track">
-          {[0, 1].map((copia) => (
-            <div className="marquee-group" key={copia} aria-hidden={copia === 1 ? true : undefined}>
-              {[...ATRIBUTOS, ...ATRIBUTOS].map((a, i) => (
-                <span key={i}>
-                  <Icon name={a.icono} size={24} />
-                  {a.texto}
-                </span>
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
+      <AttributeStrip />
 
       {/* BLOQUE 3 — Los más vendidos (lista armada a mano desde el admin, ver productosMasVendidos en lib/helpers.ts) */}
       {masVendidos.length > 0 && (

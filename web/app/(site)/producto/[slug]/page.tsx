@@ -1,13 +1,17 @@
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { AddToCartButtonProducto, AgregarMini } from "@/components/AddToCartButton";
+import AttributeStrip from "@/components/AttributeStrip";
 import Breadcrumbs from "@/components/Breadcrumbs";
-import ProductCard from "@/components/ProductCard";
-import ComboCard from "@/components/ComboCard";
+import Carousel from "@/components/Carousel";
+import Icon from "@/components/Icons";
 import PdpBlock from "@/components/PdpBlock";
-import { AddToCartButtonProducto } from "@/components/AddToCartButton";
+import ProductCard from "@/components/ProductCard";
 import { getLineas } from "@/lib/data";
 import { combosParaProducto, getProducto, relacionadosMismaLinea } from "@/lib/helpers";
-import { formatPrecio, ritualLabel } from "@/lib/format";
+import { formatPrecio } from "@/lib/format";
+import { ENVIO_GRATIS_ZONA_MOCK } from "@/lib/mock-data";
 
 export default async function ProductoPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -16,7 +20,7 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
 
   const [combos, relacionados, lineas] = await Promise.all([
     combosParaProducto(slug),
-    relacionadosMismaLinea(slug, 4),
+    relacionadosMismaLinea(slug, 8),
     getLineas(),
   ]);
   // La API garantiza una fila por cada valor del enum, así que el find siempre
@@ -24,6 +28,8 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
   const lineaNombre = lineas.find((l) => l.slug === p.linea)?.nombre ?? "";
   const stockBajo = p.stock <= 15;
   const fotos = p.imagenes ?? [];
+  const tieneFormato = p.formato && p.formato !== "PENDIENTE";
+  const tieneIngredientes = Boolean(p.ingredientes) || Boolean(p.laFormula?.length);
 
   return (
     <>
@@ -37,108 +43,137 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
 
       <div className="pdp">
         <div className="wrap pdp-grid">
-          {/* Columna izquierda: galería */}
-          <div className="pdp-gallery">
-            {p.origen && <span className="pdp-origen">Origen: {p.origen}</span>}
-            <div className="pdp-gallery-main" style={{ position: "relative", overflow: "hidden" }}>
-              {fotos[0] ? (
-                <Image src={fotos[0].url} alt={fotos[0].alt} fill sizes="(max-width: 900px) 100vw, 50vw" style={{ objectFit: "cover" }} priority />
-              ) : (
-                <span className="ph">Packshot principal<br />mínimo 3 fotos — pendiente §7 (foto de prueba pendiente)</span>
-              )}
-            </div>
-            {fotos.length > 0 && (
-              <div className="pdp-gallery-thumbs">
-                {fotos.map((foto, i) => (
-                  <div key={i} style={{ position: "relative", overflow: "hidden" }}>
-                    <Image src={foto.url} alt={foto.alt} fill sizes="64px" style={{ objectFit: "cover" }} />
-                  </div>
-                ))}
-              </div>
+          {/* Izquierda (55%): foto principal grande + grilla de 2 columnas con el resto. En mobile es una galería deslizable. */}
+          <div className="pdp-photos">
+            {fotos.length > 0 ? (
+              fotos.map((foto, i) => (
+                <div className="pdp-photo" key={foto.url}>
+                  <Image
+                    src={foto.url}
+                    alt={foto.alt}
+                    fill
+                    sizes={i === 0 ? "(max-width: 1000px) 100vw, 55vw" : "(max-width: 1000px) 100vw, 27vw"}
+                    style={{ objectFit: "cover" }}
+                    priority={i === 0}
+                  />
+                </div>
+              ))
+            ) : (
+              <div className="pdp-photo"></div>
             )}
           </div>
 
-          {/* Columna derecha: info de compra */}
+          {/* Derecha (45%): columna fija mientras se hace scroll */}
           <div className="pdp-info">
-            <span className="pdp-tag">{ritualLabel(p.ritual)} · {lineaNombre}</span>
+            <span className="tag-accent">{lineaNombre}</span>
             <h1>{p.nombre}{p.nombrePendiente && <span style={{ fontSize: 14, opacity: 0.6 }}> (nombre pendiente §8.3)</span>}</h1>
-            {p.formulaSubtitulo && <p className="pdp-subtitulo">{p.formulaSubtitulo}</p>}
 
             <div className="pdp-price-row">
               <span className="price">{formatPrecio(p.precio)}</span>
               <span style={{ fontSize: 11, opacity: 0.55 }}>precio mock</span>
             </div>
-            <p className="pdp-meta">Formato: {p.formato} · Peso neto: pendiente §7</p>
+            {p.formulaSubtitulo && <p className="pdp-frase">{p.formulaSubtitulo}</p>}
 
-            <AddToCartButtonProducto slug={p.slug} />
+            {tieneFormato && (
+              <div className="pills" role="group" aria-label="Formato">
+                <span className="pill on">{p.formato}</span>
+              </div>
+            )}
+
+            <div className="buy-options">
+              <div className="buy-options-head">Pago por transferencia -15%</div>
+              <ul>
+                <li><Icon name="check" size={16} />15% de descuento pagando por transferencia</li>
+                <li><Icon name="check" size={16} />Reparto propio en la zona los viernes</li>
+                <li><Icon name="check" size={16} />Envío sin cargo desde {formatPrecio(ENVIO_GRATIS_ZONA_MOCK)} en tu zona</li>
+              </ul>
+            </div>
+
+            <AddToCartButtonProducto slug={p.slug} nombre={p.nombre} precio={p.precio} />
             {stockBajo && <p className="stock-badge">Quedan pocas unidades (mock: {p.stock})</p>}
 
-            <p className="pdp-shipnote">Reparto en zona los viernes · Envío sin cargo desde $[mínimo]. Despachamos a todo el país por Correo Argentino y Andreani.</p>
-          </div>
-        </div>
+            <ul className="trust-row">
+              <li><Icon name="truck" size={24} /><span>Envíos a todo el país</span></li>
+              <li><Icon name="card" size={24} /><span>Pagás por transferencia</span></li>
+              <li><Icon name="refresh" size={24} /><Link href="/cambios-y-devoluciones">Cambios y devoluciones</Link></li>
+            </ul>
 
-        {/* Zona de contenido — los 4 bloques, siempre en este orden */}
-        <div className="wrap">
-          <div className="pdp-blocks">
-            <PdpBlock title="Descripción" defaultOpen>
-              <p>{p.descripcion}</p>
-            </PdpBlock>
+            <div className="pdp-blocks">
+              <PdpBlock title="Descripción" defaultOpen>
+                <p>{p.descripcion}</p>
+              </PdpBlock>
 
-            {p.laFormula && (
-              <PdpBlock title="La fórmula">
-                {p.laFormula.map((ing) => (
+              <PdpBlock title="Beneficios">
+                <ul>
+                  {p.beneficios.map((b, i) => <li key={i}>{b}</li>)}
+                </ul>
+              </PdpBlock>
+
+              <PdpBlock title="Cómo usarlo">
+                <p>{p.ritualDeUso}</p>
+              </PdpBlock>
+
+              <PdpBlock title="Ingredientes">
+                {p.laFormula?.map((ing) => (
                   <div className="pdp-formula-item" key={ing.ingrediente}>
                     <strong>{ing.ingrediente}</strong>
                     {ing.texto}
                   </div>
                 ))}
+                {p.ingredientes && <p>{p.ingredientes}</p>}
+                {!tieneIngredientes && (
+                  <p style={{ opacity: 0.6 }}>[PENDIENTE — la marca debe redactar este bloque. Ver observación 8.4 del brief]</p>
+                )}
+                {p.notaDePureza && <p className="pdp-nota-pureza">Nota de pureza: {p.notaDePureza}</p>}
               </PdpBlock>
-            )}
 
-            <PdpBlock title="Beneficios">
-              <ul>
-                {p.beneficios.map((b, i) => <li key={i}>{b}</li>)}
-              </ul>
-            </PdpBlock>
-
-            <PdpBlock title="Ritual de Uso" destacado>
-              <p>{p.ritualDeUso}</p>
-            </PdpBlock>
-
-            <PdpBlock title="Ingredientes">
-              {p.ingredientes ? (
-                <p>{p.ingredientes}</p>
-              ) : (
-                <p style={{ opacity: 0.6 }}>[PENDIENTE — la marca debe redactar este bloque. Ver observación 8.4 del brief]</p>
+              {p.origen && (
+                <PdpBlock title="Origen">
+                  <p>{p.origen}</p>
+                </PdpBlock>
               )}
-              {p.notaDePureza && <p className="pdp-nota-pureza">Nota de pureza: {p.notaDePureza}</p>}
-            </PdpBlock>
+            </div>
+
+            {combos.length > 0 && (
+              <div className="together">
+                <h3>Combinalo con</h3>
+                <ul>
+                  {combos.slice(0, 2).map((combo) => {
+                    const foto = combo.imagenes?.[0];
+                    return (
+                      <li key={combo.slug}>
+                        <Link href={`/combos/${combo.slug}`} className="together-media" tabIndex={-1} aria-hidden="true">
+                          {foto && <Image src={foto.url} alt="" fill sizes="72px" style={{ objectFit: "cover" }} />}
+                        </Link>
+                        <div className="together-info">
+                          <Link href={`/combos/${combo.slug}`}>{combo.nombre}</Link>
+                          <span className="price">{formatPrecio(combo.precio)}</span>
+                        </div>
+                        <AgregarMini slug={combo.slug} tipo="combo" />
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
           </div>
-
-          {/* Zona inferior */}
-          {combos.length > 0 && (
-            <div className="pdp-cross pdp-cross-section">
-              <h2>Se potencia con</h2>
-              <div className="rail cols-3">
-                {combos.map((combo) => (
-                  <ComboCard combo={combo} key={combo.slug} />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {relacionados.length > 0 && (
-            <div className="pdp-cross pdp-cross-section">
-              <h2>De la misma línea</h2>
-              <div className="rail cols-3">
-                {relacionados.map((rp) => (
-                  <ProductCard producto={rp} key={rp.slug} />
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
+
+      <AttributeStrip />
+
+      {relacionados.length > 0 && (
+        <section>
+          <div className="section-head">
+            <h2 className="h-section">De la misma línea</h2>
+          </div>
+          <Carousel label="De la misma línea">
+            {relacionados.map((rp) => (
+              <ProductCard producto={rp} key={rp.slug} />
+            ))}
+          </Carousel>
+        </section>
+      )}
     </>
   );
 }
