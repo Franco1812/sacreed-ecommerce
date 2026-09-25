@@ -1,4 +1,4 @@
-import { ArrayNotEmpty, IsArray, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsInt, IsNotEmpty, IsObject, IsOptional, IsString, MaxLength, Min } from 'class-validator';
 
 /** Todo opcional: el admin manda solo los campos que tocó. */
 export class ContenidoHomeDto {
@@ -25,6 +25,16 @@ export class LineaDto {
 /** Orden completo del carrusel: todos los ids de las fotos, en el orden en que deben mostrarse. */
 export class OrdenHeroImagenesDto {
   @IsArray() @ArrayNotEmpty() @IsString({ each: true }) ids!: string[];
+}
+
+/** Solo los textos que cambiaron: clave → valor nuevo. Las claves y los valores se validan contra el registro en el servicio. */
+export class TextosDto {
+  @IsObject() valores!: Record<string, string>;
+}
+
+export class PaginaDto {
+  @IsString() @IsNotEmpty() @MaxLength(120) titulo!: string;
+  @IsString() @MaxLength(60000) cuerpo!: string;
 }
 
 /**

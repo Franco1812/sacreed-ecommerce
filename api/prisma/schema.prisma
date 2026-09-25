@@ -277,6 +277,26 @@ model HeroImagen {
   orden Int    @default(0)
 }
 
+/// Textos, fotos y valores sueltos del sitio que Cintia cambió desde el admin
+/// (clave → valor). Solo guarda lo editado: lo que no está acá sale de los
+/// defaults de contenido.registro.ts. Las fotos guardan la URL pública.
+model Texto {
+  clave String @id
+  valor String @db.Text
+
+  updatedAt DateTime @updatedAt
+}
+
+/// Páginas de texto editables (Nuestro Origen, Envíos, FAQ, legales…). Igual que
+/// Texto: solo existe la fila si Cintia la editó; si no, sale de contenido.registro.ts.
+model Pagina {
+  slug   String @id
+  titulo String
+  cuerpo String @db.Text
+
+  updatedAt DateTime @updatedAt
+}
+
 /// §3.3: lista de espera de "avisarme cuando haya stock" para combos con un
 /// componente agotado.
 model AvisoStock {

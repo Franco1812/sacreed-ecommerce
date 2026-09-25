@@ -198,6 +198,57 @@ export const getMasVendidos = cache(
   )
 );
 
+/** Valores editables que también cobra el servidor: envío gratis, costo del reparto y barrios de la zona. */
+export interface Ajustes {
+  envioGratisDesde: number;
+  costoEnvioZona: number;
+  barriosZona: string[];
+}
+
+export const getAjustes = cache(
+  unstable_cache(
+    async (): Promise<Ajustes> => {
+      const res = await fetch(`${API_URL}/contenido/ajustes`);
+      if (!res.ok) throw new Error(`GET /contenido/ajustes: ${res.status}`);
+      return res.json();
+    },
+    ["ajustes"],
+    { tags: ["contenido"], revalidate: CACHE_REVALIDATE_SEGUNDOS }
+  )
+);
+
+/** Textos editables del sitio (clave → valor) tal cual los guarda la API, sin resolver las marcas {envioGratis}. Usar getTextos() de lib/textos.ts. */
+export const getTextosCrudos = cache(
+  unstable_cache(
+    async (): Promise<Record<string, string>> => {
+      const res = await fetch(`${API_URL}/contenido/textos`);
+      if (!res.ok) throw new Error(`GET /contenido/textos: ${res.status}`);
+      return res.json();
+    },
+    ["textos"],
+    { tags: ["contenido"], revalidate: CACHE_REVALIDATE_SEGUNDOS }
+  )
+);
+
+export interface PaginaTexto {
+  slug: string;
+  titulo: string;
+  cuerpo: string;
+}
+
+/** Página de texto editable (Nuestro Origen, Envíos…), sin resolver las marcas. Usar getPagina() de lib/textos.ts. */
+export const getPaginaCruda = cache(
+  unstable_cache(
+    async (slug: string): Promise<PaginaTexto> => {
+      const res = await fetch(`${API_URL}/contenido/paginas/${slug}`);
+      if (!res.ok) throw new Error(`GET /contenido/paginas/${slug}: ${res.status}`);
+      return res.json();
+    },
+    ["pagina"],
+    { tags: ["contenido"], revalidate: CACHE_REVALIDATE_SEGUNDOS }
+  )
+);
+
 export const getContenidoHome = cache(
   unstable_cache(
     async (): Promise<ContenidoHome> => {

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { formatPrecio } from "@/lib/format";
+import { getTextos } from "@/lib/textos";
 
 const API_URL = process.env.API_URL ?? "http://localhost:4000";
 
@@ -38,6 +39,16 @@ export default async function PedidoConfirmadoPage({ params }: { params: Promise
   if (!res.ok) throw new Error(`GET /pedidos/${numeroInt}: ${res.status}`);
   const pedido: PedidoDb = await res.json();
 
+  // Datos de la cuenta que carga Cintia en Admin → Envíos y pagos; lo que esté vacío no se muestra.
+  const t = await getTextos();
+  const datosCuenta = [
+    ["Titular", t["pago.titular"]],
+    ["Banco", t["pago.banco"]],
+    ["CBU / CVU", t["pago.cbu"]],
+    ["Alias", t["pago.alias"]],
+    ["CUIT / CUIL", t["pago.cuit"]],
+  ].filter(([, valor]) => valor?.trim());
+
   return (
     <>
       <Breadcrumbs items={[{ label: "Inicio", href: "/" }, { label: `Pedido #${pedido.numero}` }]} />
@@ -52,10 +63,19 @@ export default async function PedidoConfirmadoPage({ params }: { params: Promise
         <div className="confirm-block">
           <h2>Cómo pagar</h2>
           {pedido.metodoPago === "TRANSFERENCIA" ? (
-            <p>
-              Transferí el total a la cuenta de SACRED — CBU/alias todavía pendiente de que la marca lo defina.
-              Mientras tanto te contactamos por email o WhatsApp con los datos para coordinarlo.
-            </p>
+            datosCuenta.length > 0 ? (
+              <>
+                <p>Transferí el total ({formatPrecio(pedido.total)}) a esta cuenta:</p>
+                <ul className="confirm-cuenta">
+                  {datosCuenta.map(([etiqueta, valor]) => (
+                    <li key={etiqueta}><span>{etiqueta}</span><strong>{valor}</strong></li>
+                  ))}
+                </ul>
+                {t["pago.instrucciones"] && <p>{t["pago.instrucciones"]}</p>}
+              </>
+            ) : (
+              <p>Te contactamos por email o WhatsApp con los datos para transferir y coordinar el pago.</p>
+            )
           ) : (
             <p>Pagás en efectivo al momento de {pedido.metodoEntrega === "RETIRO" ? "retirar" : "recibir"} tu pedido.</p>
           )}

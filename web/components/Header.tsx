@@ -7,25 +7,20 @@ import Icon from "@/components/Icons";
 import { useCart } from "@/lib/cart-context";
 import type { Combo, Linea, Producto } from "@/lib/types";
 
-// Un solo mensaje por vez, rotando cada 5 s (referencia: Moon Juice).
-const ANUNCIOS = [
-  "Reparto propio en la zona todos los viernes",
-  "Envío sin cargo desde $[mínimo]",
-  "Entrega en Canning y zona sur",
-  "15% de descuento pagando por transferencia",
-];
-
-function BarraDeAnuncios() {
+// Un solo mensaje por vez, rotando cada 5 s (referencia: Moon Juice). Los mensajes los edita Cintia en Admin → Textos.
+function BarraDeAnuncios({ anuncios }: { anuncios: string[] }) {
   const [i, setI] = useState(0);
 
   useEffect(() => {
-    const id = setInterval(() => setI((n) => (n + 1) % ANUNCIOS.length), 5000);
+    if (anuncios.length < 2) return;
+    const id = setInterval(() => setI((n) => (n + 1) % anuncios.length), 5000);
     return () => clearInterval(id);
-  }, []);
+  }, [anuncios.length]);
 
+  if (anuncios.length === 0) return null;
   return (
     <div className="ticker" role="status" aria-live="polite">
-      {ANUNCIOS[i]}
+      {anuncios[i % anuncios.length]}
     </div>
   );
 }
@@ -34,10 +29,12 @@ export default function Header({
   lineas,
   combos,
   masVendidos,
+  anuncios,
 }: {
   lineas: Linea[];
   combos: Combo[];
   masVendidos: Producto[];
+  anuncios: string[];
 }) {
   const { totalItems, abrir } = useCart();
   const [menuAbierto, setMenuAbierto] = useState(false);
@@ -45,7 +42,7 @@ export default function Header({
 
   return (
     <>
-      <BarraDeAnuncios />
+      <BarraDeAnuncios anuncios={anuncios} />
 
       <header>
         <div className="wrap navbar">

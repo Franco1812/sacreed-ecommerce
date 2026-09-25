@@ -6,7 +6,7 @@ import { useEffect, useRef } from "react";
 import Icon from "@/components/Icons";
 import { useCart } from "@/lib/cart-context";
 import { formatPrecio } from "@/lib/format";
-import { ENVIO_GRATIS_ZONA_MOCK } from "@/lib/mock-data";
+import { useSitio } from "@/lib/sitio-context";
 
 /**
  * Carrito como panel lateral que se desliza desde la derecha (no es una página aparte).
@@ -14,6 +14,7 @@ import { ENVIO_GRATIS_ZONA_MOCK } from "@/lib/mock-data";
  */
 export default function CartDrawer() {
   const { abierto, cerrar, items, setQty, removeItem, addItem, subtotal, productos, getProducto, getCombo } = useCart();
+  const { textos: t, ajustes } = useSitio();
   const botonCerrar = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -33,8 +34,8 @@ export default function CartDrawer() {
 
   if (!abierto) return null;
 
-  const falta = Math.max(0, ENVIO_GRATIS_ZONA_MOCK - subtotal);
-  const progreso = Math.min(100, (subtotal / ENVIO_GRATIS_ZONA_MOCK) * 100);
+  const falta = Math.max(0, ajustes.envioGratisDesde - subtotal);
+  const progreso = ajustes.envioGratisDesde > 0 ? Math.min(100, (subtotal / ajustes.envioGratisDesde) * 100) : 100;
   const enCarrito = new Set(items.filter((i) => i.tipo === "producto").map((i) => i.slug));
   const sugeridos = productos
     .filter((p) => !enCarrito.has(p.slug))
@@ -54,7 +55,7 @@ export default function CartDrawer() {
 
         {items.length === 0 ? (
           <div className="drawer-empty">
-            <p>Todavía no agregaste nada. Es un buen momento para armar tu ritual.</p>
+            <p>{t["carrito.vacio"]}</p>
             <Link href="/comprar-por-beneficio" className="btn btn-solid" onClick={cerrar}>Ir a la tienda</Link>
           </div>
         ) : (
@@ -62,9 +63,7 @@ export default function CartDrawer() {
             <div className="drawer-body">
               <div className="shipping-progress">
                 <span>
-                  {falta > 0
-                    ? `Te faltan ${formatPrecio(falta)} para el envío sin cargo en tu zona.`
-                    : "Listo: tu envío en zona es sin cargo."}
+                  {falta > 0 ? t["carrito.falta"].replaceAll("{falta}", formatPrecio(falta)) : t["carrito.listo"]}
                 </span>
                 <div className="shipping-progress-bar">
                   <div className="shipping-progress-fill" style={{ width: `${progreso}%` }} />
@@ -107,7 +106,7 @@ export default function CartDrawer() {
 
               {sugeridos.length > 0 && (
                 <div className="drawer-suggest">
-                  <h3>Completalo con</h3>
+                  <h3>{t["carrito.sugeridos"]}</h3>
                   <ul>
                     {sugeridos.map((p) => {
                       const foto = p.imagenes?.[0];

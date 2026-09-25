@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { SupabaseStorageService } from '../storage/supabase-storage.service.js';
 import type { EstadoOrden, MetodoEntrega, MetodoPago } from '../generated/prisma/client.js';
-import { BARRIOS_ZONA_MOCK, COSTO_ENVIO_ZONA_MOCK, ENVIO_GRATIS_ZONA_MOCK } from './pedidos.constants.js';
+import { ContenidoService } from '../contenido/contenido.service.js';
 import type { CrearPedidoDto } from './dto/crear-pedido.dto.js';
 
 export type CrearPedidoResult = { ok: true; numero: number } | { ok: false; error: string };
@@ -11,7 +11,8 @@ export type CrearPedidoResult = { ok: true; numero: number } | { ok: false; erro
 export class PedidosService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly storage: SupabaseStorageService
+    private readonly storage: SupabaseStorageService,
+    private readonly contenido: ContenidoService
   ) {}
 
   /**
@@ -56,11 +57,13 @@ export class PedidosService {
       }
     }
 
+    // Monto de envío gratis, costo y barrios los edita Cintia desde el admin (Envíos y pagos).
+    const ajustes = await this.contenido.getAjustes();
     let costoEnvio = 0;
-    if (input.metodoEntrega === 'ENVIO_DOMICILIO' && subtotal < ENVIO_GRATIS_ZONA_MOCK) {
-      const enZona = (BARRIOS_ZONA_MOCK as readonly string[]).includes(input.barrioZona ?? '');
+    if (input.metodoEntrega === 'ENVIO_DOMICILIO' && subtotal < ajustes.envioGratisDesde) {
+      const enZona = ajustes.barriosZona.includes(input.barrioZona ?? '');
       // fuera de la zona de reparto: costo pendiente de cotización real por CP (§6.4.2) — se aclara en la confirmación.
-      if (enZona) costoEnvio = COSTO_ENVIO_ZONA_MOCK;
+      if (enZona) costoEnvio = ajustes.costoEnvioZona;
     }
 
     const order = await this.prisma.order.create({

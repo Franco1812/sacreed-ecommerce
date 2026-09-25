@@ -11,18 +11,20 @@ import ProductCard from "@/components/ProductCard";
 import { getLineas } from "@/lib/data";
 import { combosParaProducto, getProducto, relacionadosMismaLinea } from "@/lib/helpers";
 import { formatPrecio } from "@/lib/format";
-import { ENVIO_GRATIS_ZONA_MOCK } from "@/lib/mock-data";
+import { getTextos } from "@/lib/textos";
 
 export default async function ProductoPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const p = await getProducto(slug);
   if (!p) notFound();
 
-  const [combos, relacionados, lineas] = await Promise.all([
+  const [combos, relacionados, lineas, t] = await Promise.all([
     combosParaProducto(slug),
     relacionadosMismaLinea(slug, 8),
     getLineas(),
+    getTextos(),
   ]);
+  const opciones = [1, 2, 3].map((n) => t[`ficha.opciones.${n}`]).filter((o) => o?.trim());
   // La API garantiza una fila por cada valor del enum, así que el find siempre
   // encuentra; el fallback es sólo para no romper tipos.
   const lineaNombre = lineas.find((l) => l.slug === p.linea)?.nombre ?? "";
@@ -70,7 +72,6 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
 
             <div className="pdp-price-row">
               <span className="price">{formatPrecio(p.precio)}</span>
-              <span style={{ fontSize: 11, opacity: 0.55 }}>precio mock</span>
             </div>
             {p.formulaSubtitulo && <p className="pdp-frase">{p.formulaSubtitulo}</p>}
 
@@ -80,22 +81,24 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
               </div>
             )}
 
-            <div className="buy-options">
-              <div className="buy-options-head">Pago por transferencia -15%</div>
-              <ul>
-                <li><Icon name="check" size={16} />15% de descuento pagando por transferencia</li>
-                <li><Icon name="check" size={16} />Reparto propio en la zona los viernes</li>
-                <li><Icon name="check" size={16} />Envío sin cargo desde {formatPrecio(ENVIO_GRATIS_ZONA_MOCK)} en tu zona</li>
-              </ul>
-            </div>
+            {(t["ficha.opciones.titulo"] || opciones.length > 0) && (
+              <div className="buy-options">
+                {t["ficha.opciones.titulo"] && <div className="buy-options-head">{t["ficha.opciones.titulo"]}</div>}
+                <ul>
+                  {opciones.map((o) => (
+                    <li key={o}><Icon name="check" size={16} />{o}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             <AddToCartButtonProducto slug={p.slug} nombre={p.nombre} precio={p.precio} />
-            {stockBajo && <p className="stock-badge">Quedan pocas unidades (mock: {p.stock})</p>}
+            {stockBajo && <p className="stock-badge">{t["ficha.pocas-unidades"]}</p>}
 
             <ul className="trust-row">
-              <li><Icon name="truck" size={24} /><span>Envíos a todo el país</span></li>
-              <li><Icon name="card" size={24} /><span>Pagás por transferencia</span></li>
-              <li><Icon name="refresh" size={24} /><Link href="/cambios-y-devoluciones">Cambios y devoluciones</Link></li>
+              {t["ficha.confianza.1"] && <li><Icon name="truck" size={24} /><span>{t["ficha.confianza.1"]}</span></li>}
+              {t["ficha.confianza.2"] && <li><Icon name="card" size={24} /><span>{t["ficha.confianza.2"]}</span></li>}
+              {t["ficha.confianza.3"] && <li><Icon name="refresh" size={24} /><Link href="/cambios-y-devoluciones">{t["ficha.confianza.3"]}</Link></li>}
             </ul>
 
             <div className="pdp-blocks">
@@ -113,19 +116,18 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
                 <p>{p.ritualDeUso}</p>
               </PdpBlock>
 
-              <PdpBlock title="Ingredientes">
-                {p.laFormula?.map((ing) => (
-                  <div className="pdp-formula-item" key={ing.ingrediente}>
-                    <strong>{ing.ingrediente}</strong>
-                    {ing.texto}
-                  </div>
-                ))}
-                {p.ingredientes && <p>{p.ingredientes}</p>}
-                {!tieneIngredientes && (
-                  <p style={{ opacity: 0.6 }}>[PENDIENTE — la marca debe redactar este bloque. Ver observación 8.4 del brief]</p>
-                )}
-                {p.notaDePureza && <p className="pdp-nota-pureza">Nota de pureza: {p.notaDePureza}</p>}
-              </PdpBlock>
+              {(tieneIngredientes || p.notaDePureza) && (
+                <PdpBlock title="Ingredientes">
+                  {p.laFormula?.map((ing) => (
+                    <div className="pdp-formula-item" key={ing.ingrediente}>
+                      <strong>{ing.ingrediente}</strong>
+                      {ing.texto}
+                    </div>
+                  ))}
+                  {p.ingredientes && <p>{p.ingredientes}</p>}
+                  {p.notaDePureza && <p className="pdp-nota-pureza">Nota de pureza: {p.notaDePureza}</p>}
+                </PdpBlock>
+              )}
 
               {p.origen && (
                 <PdpBlock title="Origen">
@@ -136,7 +138,7 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
 
             {combos.length > 0 && (
               <div className="together">
-                <h3>Combinalo con</h3>
+                <h3>{t["ficha.combinalo"]}</h3>
                 <ul>
                   {combos.slice(0, 2).map((combo) => {
                     const foto = combo.imagenes?.[0];
@@ -165,9 +167,9 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
       {relacionados.length > 0 && (
         <section>
           <div className="section-head">
-            <h2 className="h-section">De la misma línea</h2>
+            <h2 className="h-section">{t["ficha.misma-linea"]}</h2>
           </div>
-          <Carousel label="De la misma línea">
+          <Carousel label={t["ficha.misma-linea"]}>
             {relacionados.map((rp) => (
               <ProductCard producto={rp} key={rp.slug} />
             ))}

@@ -2,19 +2,20 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import type { Textos } from "@/lib/textos";
 import type { Linea } from "@/lib/types";
 
-export default function Footer({ lineas }: { lineas: Linea[] }) {
+export default function Footer({ lineas, textos: t }: { lineas: Linea[]; textos: Textos }) {
   return (
     <footer>
       <div className="wrap foot-grid">
         <div className="foot-news">
           <Image src="/logo-badge-v3.png" alt="SACRED Wellness Club" width={480} height={463} className="brand-badge foot-badge" />
-          <h2>Sumate al Club de la Pausa Consciente</h2>
-          <p className="foot-news-lede">Una carta cada quince días. Sin spam: te podés dar de baja cuando quieras.</p>
+          <h2>{t["pie.titulo"]}</h2>
+          <p className="foot-news-lede">{t["pie.bajada"]}</p>
           <form onSubmit={(e) => e.preventDefault()}>
             <input type="email" placeholder="tu@email.com" aria-label="Email" />
-            <button type="submit" className="btn btn-solid">Suscribirme</button>
+            <button type="submit" className="btn btn-solid">{t["pie.boton"]}</button>
           </form>
         </div>
         <div>
@@ -47,10 +48,10 @@ export default function Footer({ lineas }: { lineas: Linea[] }) {
         </div>
       </div>
       <div className="wrap">
-        <p className="legal">Los productos comercializados son alimentos y suplementos dietarios. No son medicamentos y no reemplazan una alimentación variada ni el consejo de un profesional de la salud. Ante cualquier duda, consultá con tu médico o nutricionista.</p>
+        {t["pie.legal"] && <p className="legal">{t["pie.legal"]}</p>}
         <div className="foot-bottom">
-          <span>© 2026 SACRED Wellness Club</span>
-          <span>Términos · Privacidad · Botón de arrepentimiento · Defensa al consumidor</span>
+          <span>{t["pie.copyright"]}</span>
+          <span>{t["pie.linea"]}</span>
         </div>
       </div>
     </footer>

@@ -9,6 +9,9 @@ const ITEMS = [
   { href: "/admin/productos", label: "Productos" },
   { href: "/admin/combos", label: "Combos" },
   { href: "/admin/contenido", label: "Contenido" },
+  { href: "/admin/textos", label: "Textos" },
+  { href: "/admin/paginas", label: "Páginas" },
+  { href: "/admin/envios-y-pagos", label: "Envíos y pagos" },
 ];
 
 export function AdminNav({ pedidosPendientes }: { pedidosPendientes?: number }) {

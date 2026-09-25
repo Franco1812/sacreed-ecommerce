@@ -6,7 +6,7 @@ import Link from "next/link";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { useCart } from "@/lib/cart-context";
 import { formatPrecio } from "@/lib/format";
-import { BARRIOS_ZONA_MOCK, COSTO_ENVIO_ZONA_MOCK, ENVIO_GRATIS_ZONA_MOCK } from "@/lib/mock-data";
+import { useSitio } from "@/lib/sitio-context";
 import { crearPedido } from "./actions";
 
 // Única opción habilitada hoy en el checkout (§ decisión 2026-09-19: se sacaron
@@ -34,6 +34,7 @@ const CAMPOS_INICIALES = {
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, subtotal, getProducto, getCombo, clear } = useCart();
+  const { textos: t, ajustes } = useSitio();
   const [campos, setCampos] = useState(CAMPOS_INICIALES);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,8 +51,9 @@ export default function CheckoutPage() {
     [items, getProducto, getCombo]
   );
 
-  const enZona = (BARRIOS_ZONA_MOCK as readonly string[]).includes(campos.barrioZona);
-  const costoEnvio = subtotal >= ENVIO_GRATIS_ZONA_MOCK ? 0 : enZona ? COSTO_ENVIO_ZONA_MOCK : 0;
+  // Mismo cálculo que hace el servidor al crear el pedido (api/ PedidosService), con los valores que edita Cintia.
+  const enZona = ajustes.barriosZona.includes(campos.barrioZona);
+  const costoEnvio = subtotal >= ajustes.envioGratisDesde ? 0 : enZona ? ajustes.costoEnvioZona : 0;
   const fueraDeZona = campos.barrioZona !== "" && !enZona;
   const total = subtotal + costoEnvio;
 
@@ -125,13 +127,13 @@ export default function CheckoutPage() {
 
               <div className="form-section">
                 <h2>Entrega</h2>
-                <p className="field-note" style={{ marginBottom: 20 }}>Envío a domicilio — reparto propio en zona los viernes, o Correo Argentino/Andreani fuera de zona.</p>
+                {t["checkout.entrega"] && <p className="field-note" style={{ marginBottom: 20 }}>{t["checkout.entrega"]}</p>}
                 <div className="field-grid">
                   <div className="field span-2">
                     <label htmlFor="barrioZona">Barrio (zona de reparto propio)</label>
                     <select id="barrioZona" {...campo("barrioZona")}>
                       <option value="">Elegí tu barrio…</option>
-                      {BARRIOS_ZONA_MOCK.map((b) => <option key={b} value={b}>{b}</option>)}
+                      {ajustes.barriosZona.map((b) => <option key={b} value={b}>{b}</option>)}
                       <option value="fuera-de-zona">Fuera de esta zona (resto del país)</option>
                     </select>
                   </div>
@@ -142,19 +144,15 @@ export default function CheckoutPage() {
                   <div className="field"><label htmlFor="provincia">Provincia</label><input id="provincia" required {...campo("provincia")} /></div>
                   <div className="field"><label htmlFor="codigoPostal">Código postal</label><input id="codigoPostal" required {...campo("codigoPostal")} /></div>
                 </div>
-                {fueraDeZona && (
-                  <p className="field-note" style={{ marginTop: 14 }}>
-                    Fuera de la zona de reparto propio despachamos por Correo Argentino o Andreani — el costo se cotiza por código postal (todavía pendiente de definir del lado de la marca). Te lo confirmamos por email antes de coordinar el pago.
-                  </p>
+                {fueraDeZona && t["checkout.fuera-de-zona"] && (
+                  <p className="field-note" style={{ marginTop: 14 }}>{t["checkout.fuera-de-zona"]}</p>
                 )}
               </div>
 
               <div className="form-section">
                 <h2>Pago</h2>
-                <p className="field-note">Transferencia bancaria — te enviamos los datos por email o WhatsApp para coordinarlo.</p>
-                <p className="field-note" style={{ marginTop: 14 }}>
-                  El pago se confirma a mano una vez que lo recibimos — tu pedido queda &ldquo;Pendiente de pago&rdquo; hasta entonces.
-                </p>
+                {t["checkout.pago"] && <p className="field-note">{t["checkout.pago"]}</p>}
+                {t["checkout.pago-nota"] && <p className="field-note" style={{ marginTop: 14 }}>{t["checkout.pago-nota"]}</p>}
               </div>
 
               <div className="form-section">

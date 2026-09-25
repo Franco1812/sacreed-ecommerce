@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import AttributeStrip from "@/components/AttributeStrip";
 import Carousel from "@/components/Carousel";
@@ -6,6 +7,7 @@ import HeroCarousel from "@/components/HeroCarousel";
 import ProductCard from "@/components/ProductCard";
 import { productosMasVendidos } from "@/lib/helpers";
 import { getAllCombos, getContenidoHome, getHeroImagenes } from "@/lib/data";
+import { getTextos } from "@/lib/textos";
 
 /** El copy editable se guarda con saltos de línea reales; acá se vuelven <br>. */
 function conSaltos(texto: string) {
@@ -17,19 +19,18 @@ function conSaltos(texto: string) {
   ));
 }
 
-const PILARES = [
-  { titulo: "Origen trazable", texto: "Sabemos de dónde viene cada ingrediente y lo contamos en la ficha de cada producto." },
-  { titulo: "Sin rellenos", texto: "Solo lo que cumple una función. Nada de ingredientes innecesarios." },
-  { titulo: "Upgrade de bienestar", texto: "Pequeños rituales, de la mañana a la noche, que se integran a tu día sin esfuerzo." },
-];
-
 export default async function HomePage() {
-  const [combos, contenido, masVendidos, fotosHero] = await Promise.all([
+  const [combos, contenido, masVendidos, fotosHero, t] = await Promise.all([
     getAllCombos(),
     getContenidoHome(),
     productosMasVendidos(),
     getHeroImagenes(),
+    getTextos(),
   ]);
+  // Los tres pilares salen de Admin → Textos; una foto vacía = se muestra solo el texto.
+  const pilares = [1, 2, 3]
+    .map((n) => ({ titulo: t[`home.pilar.${n}.titulo`], texto: t[`home.pilar.${n}.texto`], foto: t[`home.pilar.${n}.foto`] }))
+    .filter((p) => p.titulo?.trim() || p.texto?.trim());
 
   return (
     <>
@@ -72,13 +73,18 @@ export default async function HomePage() {
       <section className="pilares bg-band anchor">
         <div className="wrap">
           <div className="pilares-head">
-            <h2 className="h-section">Nuestro Origen</h2>
-            <p>No nos propusimos crear una marca más de productos naturales. ¿Cómo podemos hacer de un simple momento una experiencia de bienestar profunda, que forme parte de la vida cotidiana sin esfuerzo?</p>
-            <Link href="/nuestro-origen" className="btn btn-ghost">Aprender más</Link>
+            <h2 className="h-section">{t["home.pilares.titulo"]}</h2>
+            <p>{t["home.pilares.texto"]}</p>
+            {t["home.pilares.boton"] && <Link href="/nuestro-origen" className="btn btn-ghost">{t["home.pilares.boton"]}</Link>}
           </div>
           <div className="pilares-grid">
-            {PILARES.map((p) => (
+            {pilares.map((p) => (
               <div key={p.titulo}>
+                {p.foto && (
+                  <div className="pilar-foto">
+                    <Image src={p.foto} alt="" fill sizes="(max-width: 900px) 100vw, 360px" style={{ objectFit: "cover" }} />
+                  </div>
+                )}
                 <h3>{p.titulo}</h3>
                 <p>{p.texto}</p>
               </div>
@@ -91,10 +97,10 @@ export default async function HomePage() {
       {combos.length > 0 && (
         <section id="combos" className="anchor">
           <div className="section-head">
-            <h2 className="h-section">Combos Sinérgicos</h2>
+            <h2 className="h-section">{t["home.combos.titulo"]}</h2>
             <Link href="/combos" className="link-all">Ver todo</Link>
           </div>
-          <Carousel label="Combos Sinérgicos">
+          <Carousel label={t["home.combos.titulo"]}>
             {combos.map((combo) => (
               <ComboCard combo={combo} key={combo.slug} />
             ))}
@@ -102,14 +108,20 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* BLOQUE 6 — Banner "Armá tu ritual" (lleva al selector AM/PM). Color liso hasta tener una foto propia del banner. */}
+      {/* BLOQUE 6 — Banner "Armá tu ritual" (lleva al selector AM/PM). Color liso hasta que Cintia suba una foto (Admin → Textos). */}
       <section id="ritual" className="anchor">
         <div className="wrap">
           <div className="banner">
+            {t["home.banner.foto"] && (
+              <>
+                <Image src={t["home.banner.foto"]} alt="" fill sizes="(max-width: 1200px) 100vw, 1140px" style={{ objectFit: "cover" }} />
+                <div className="banner-scrim" aria-hidden="true"></div>
+              </>
+            )}
             <div className="banner-inner">
-              <h2 className="h-section">Armá tu ritual</h2>
-              <p>El día tiene dos mitades. Elegí tu momento: mañana o noche.</p>
-              <Link href="/rituales" className="btn btn-outline-light">Elegir mi ritual</Link>
+              <h2 className="h-section">{t["home.banner.titulo"]}</h2>
+              <p>{t["home.banner.texto"]}</p>
+              {t["home.banner.boton"] && <Link href="/rituales" className="btn btn-outline-light">{t["home.banner.boton"]}</Link>}
             </div>
           </div>
         </div>

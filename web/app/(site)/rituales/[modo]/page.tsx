@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import ProductCard from "@/components/ProductCard";
 import ComboCard from "@/components/ComboCard";
-import { RITUALES } from "@/lib/mock-data";
 import { combosPorRitual, productosPorRitual } from "@/lib/helpers";
+import { getTextos } from "@/lib/textos";
 import type { RitualModo } from "@/lib/types";
 
 export function generateStaticParams() {
@@ -16,8 +16,8 @@ export default async function RitualPage({ params }: { params: Promise<{ modo: s
   if (raw !== "am" && raw !== "pm") notFound();
   const modo = raw as RitualModo;
 
-  const r = RITUALES[modo];
-  const [productos, combos] = await Promise.all([productosPorRitual(modo), combosPorRitual(modo)]);
+  const [productos, combos, t] = await Promise.all([productosPorRitual(modo), combosPorRitual(modo), getTextos()]);
+  const r = { titulo: t[`ritual.${modo}.titulo`], texto: t[`ritual.${modo}.texto`] };
   const otro: RitualModo = modo === "am" ? "pm" : "am";
 
   return (

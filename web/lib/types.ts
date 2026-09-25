@@ -11,7 +11,7 @@ export interface FormulaItem {
   texto: string;
 }
 
-/** Copy de una línea de beneficio, editable desde el admin (antes vivía en mock-data.ts). */
+/** Copy de una línea de beneficio, editable desde el admin (antes estaba escrito en el código). */
 export interface Linea {
   /** valor del enum en la base (FOCO_VITALIDAD) — es el id que espera la API */
   id: string;
