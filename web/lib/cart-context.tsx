@@ -15,6 +15,12 @@ interface CartContextValue {
   removeItem: (slug: string, tipo: "producto" | "combo") => void;
   setQty: (slug: string, tipo: "producto" | "combo", cantidad: number) => void;
   clear: () => void;
+  /** Panel lateral del carrito (se abre solo al agregar algo). */
+  abierto: boolean;
+  abrir: () => void;
+  cerrar: () => void;
+  /** Catálogo completo, para las sugerencias "Completalo con". */
+  productos: Producto[];
   totalItems: number;
   subtotal: number;
   getProducto: (slug: string) => Producto | undefined;
@@ -36,6 +42,9 @@ export function CartProvider({
 }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
+  const [abierto, setAbierto] = useState(false);
+  const abrir = useCallback(() => setAbierto(true), []);
+  const cerrar = useCallback(() => setAbierto(false), []);
 
   useEffect(() => {
     try {
@@ -58,6 +67,7 @@ export function CartProvider({
   }, [items, hydrated]);
 
   const addItem = useCallback((slug: string, tipo: "producto" | "combo", cantidad = 1) => {
+    setAbierto(true);
     setItems((prev) => {
       const existe = prev.find((i) => i.slug === slug && i.tipo === tipo);
       if (existe) {
@@ -93,8 +103,8 @@ export function CartProvider({
   }, [items, getProducto, getCombo]);
 
   const value = useMemo(
-    () => ({ items, addItem, removeItem, setQty, clear, totalItems, subtotal, getProducto, getCombo }),
-    [items, addItem, removeItem, setQty, clear, totalItems, subtotal, getProducto, getCombo]
+    () => ({ items, addItem, removeItem, setQty, clear, abierto, abrir, cerrar, productos, totalItems, subtotal, getProducto, getCombo }),
+    [items, addItem, removeItem, setQty, clear, abierto, abrir, cerrar, productos, totalItems, subtotal, getProducto, getCombo]
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

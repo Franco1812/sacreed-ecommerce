@@ -3,7 +3,8 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { SupabaseStorageService } from '../storage/supabase-storage.service.js';
 import type { LineaBeneficio } from '../generated/prisma/client.js';
 import { HOME_DEFAULT, LINEAS_DEFAULT } from './contenido.defaults.js';
-import type { ContenidoHomeDto, LineaDto, MasVendidosDto } from './dto/contenido.dto.js';
+import { CAMPO_POR_CLAVE, CAMPOS, GRUPOS, PAGINA_POR_SLUG, PAGINAS } from './contenido.registro.js';
+import type { ContenidoHomeDto, LineaDto, MasVendidosDto, PaginaDto } from './dto/contenido.dto.js';
 
 /** Cuántos productos entran en la sección: más que eso ya no cabe bien en la fila de la portada. */
 export const MAS_VENDIDOS_MAX = 8;
@@ -82,6 +83,127 @@ export class ContenidoService {
       ...items.map((i) => this.prisma.producto.update({ where: { id: idPorSlug.get(i.slug)! }, data: { vendidos: i.vendidos ?? null } })),
     ]);
     return this.getMasVendidos();
+  }
+
+  // ---- Textos, fotos y valores sueltos del sitio (registro en contenido.registro.ts)
+
+  /** Público: todos los textos del sitio, con lo que Cintia cambió por encima de los defaults. */
+  async getTextos(): Promise<Record<string, string>> {
+    const guardados = await this.textosGuardados();
+    return Object.fromEntries(CAMPOS.map((c) => [c.clave, guardados.get(c.clave) ?? c.porDefecto]));
+  }
+
+  /** Para el admin: cada campo con su valor actual y el original. */
+  async getCampos() {
+    const guardados = await this.textosGuardados();
+    return {
+      grupos: GRUPOS,
+      campos: CAMPOS.map((c) => ({ ...c, valor: guardados.get(c.clave) ?? c.porDefecto })),
+    };
+  }
+
+  async actualizarTextos(valores: Record<string, string>) {
+    const entradas = Object.entries(valores);
+    for (const [clave, valor] of entradas) {
+      const campo = CAMPO_POR_CLAVE.get(clave);
+      if (!campo) throw new BadRequestException(`No existe el texto "${clave}".`);
+      if (typeof valor !== 'string') throw new BadRequestException(`El texto "${campo.etiqueta}" tiene que ser texto.`);
+      if (campo.tipo === 'imagen') throw new BadRequestException('Las fotos se suben aparte.');
+      if (campo.tipo === 'numero' && !/^\d{1,9}$/.test(valor.trim())) {
+        throw new BadRequestException(`"${campo.etiqueta}" tiene que ser un número entero, sin puntos ni signos.`);
+      }
+      if (valor.length > 5000) throw new BadRequestException(`"${campo.etiqueta}" es demasiado largo.`);
+    }
+
+    await this.prisma.$transaction(
+      entradas.map(([clave, valor]) => {
+        const limpio = this.limpiar(CAMPO_POR_CLAVE.get(clave)!.tipo, valor);
+        return this.prisma.texto.upsert({ where: { clave }, create: { clave, valor: limpio }, update: { valor: limpio } });
+      })
+    );
+    return this.getTextos();
+  }
+
+  async subirImagenTexto(clave: string, file: Express.Multer.File) {
+    const campo = this.campoImagen(clave);
+    if (!file) throw new BadRequestException('Falta el archivo de la foto.');
+
+    const anterior = await this.prisma.texto.findUnique({ where: { clave } });
+    const url = await this.storage.upload(`sitio-${clave.replace(/\./g, '-')}`, file);
+    await this.prisma.texto.upsert({ where: { clave }, create: { clave, valor: url }, update: { valor: url } });
+    if (anterior?.valor) await this.storage.remove(anterior.valor);
+    return { clave: campo.clave, url };
+  }
+
+  async quitarImagenTexto(clave: string) {
+    this.campoImagen(clave);
+    const existente = await this.prisma.texto.findUnique({ where: { clave } });
+    if (!existente) return;
+    await this.storage.remove(existente.valor);
+    await this.prisma.texto.delete({ where: { clave } });
+  }
+
+  /**
+   * Valores con tipo que también usa el servidor (pedidos.service cobra el envío con
+   * estos mismos números) y el checkout. Si un valor guardado no se puede leer, cae al original.
+   */
+  async getAjustes() {
+    const t = await this.getTextos();
+    const numero = (clave: string) => {
+      const n = Number(t[clave]);
+      return Number.isFinite(n) && n >= 0 ? n : Number(CAMPO_POR_CLAVE.get(clave)!.porDefecto);
+    };
+    return {
+      envioGratisDesde: numero('envio.gratisDesde'),
+      costoEnvioZona: numero('envio.costoZona'),
+      barriosZona: t['envio.barrios'].split('\n').map((b) => b.trim()).filter(Boolean),
+    };
+  }
+
+  // ---- Páginas de texto
+
+  async getPaginas() {
+    const guardadas = new Map((await this.prisma.pagina.findMany()).map((p) => [p.slug, p]));
+    return PAGINAS.map((p) => {
+      const g = guardadas.get(p.slug);
+      return { slug: p.slug, ruta: p.ruta, titulo: g?.titulo ?? p.titulo, cuerpo: g?.cuerpo ?? p.cuerpo, editada: Boolean(g) };
+    });
+  }
+
+  async getPagina(slug: string) {
+    const original = PAGINA_POR_SLUG.get(slug);
+    if (!original) throw new NotFoundException();
+    const g = await this.prisma.pagina.findUnique({ where: { slug } });
+    return { slug, ruta: original.ruta, titulo: g?.titulo ?? original.titulo, cuerpo: g?.cuerpo ?? original.cuerpo, editada: Boolean(g) };
+  }
+
+  async guardarPagina(slug: string, dto: PaginaDto) {
+    if (!PAGINA_POR_SLUG.has(slug)) throw new NotFoundException();
+    await this.prisma.pagina.upsert({ where: { slug }, create: { slug, ...dto }, update: dto });
+    return this.getPagina(slug);
+  }
+
+  /** Vuelve la página al texto con el que venía el sitio. */
+  async restaurarPagina(slug: string) {
+    if (!PAGINA_POR_SLUG.has(slug)) throw new NotFoundException();
+    await this.prisma.pagina.deleteMany({ where: { slug } });
+    return this.getPagina(slug);
+  }
+
+  private async textosGuardados() {
+    return new Map((await this.prisma.texto.findMany()).map((t) => [t.clave, t.valor]));
+  }
+
+  private campoImagen(clave: string) {
+    const campo = CAMPO_POR_CLAVE.get(clave);
+    if (!campo || campo.tipo !== 'imagen') throw new NotFoundException();
+    return campo;
+  }
+
+  /** Una lista queda sin espacios ni renglones vacíos; el resto solo se recorta. */
+  private limpiar(tipo: string, valor: string) {
+    if (tipo === 'lista') return valor.split('\n').map((l) => l.trim()).filter(Boolean).join('\n');
+    return valor.trim();
   }
 
   getHeroImagenes() {

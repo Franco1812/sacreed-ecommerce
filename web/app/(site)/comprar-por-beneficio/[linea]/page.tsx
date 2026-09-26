@@ -43,7 +43,6 @@ export default async function CategoriaPage({
 
       <div className="cat-header">
         <div className="wrap">
-          <span className="eyebrow" style={{ color: "var(--gold)" }}>Línea de beneficio</span>
           <h1>{linea.nombre}</h1>
           <p>{linea.texto}</p>
         </div>

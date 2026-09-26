@@ -1,16 +1,18 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { useCart } from "@/lib/cart-context";
-import { ENVIO_GRATIS_ZONA_MOCK } from "@/lib/mock-data";
 import { formatPrecio } from "@/lib/format";
+import { useSitio } from "@/lib/sitio-context";
 
 export default function CarritoPage() {
   const { items, setQty, removeItem, subtotal, getProducto, getCombo } = useCart();
+  const { textos: t, ajustes } = useSitio();
 
-  const falta = Math.max(0, ENVIO_GRATIS_ZONA_MOCK - subtotal);
-  const progreso = Math.min(100, (subtotal / ENVIO_GRATIS_ZONA_MOCK) * 100);
+  const falta = Math.max(0, ajustes.envioGratisDesde - subtotal);
+  const progreso = ajustes.envioGratisDesde > 0 ? Math.min(100, (subtotal / ajustes.envioGratisDesde) * 100) : 100;
 
   return (
     <>
@@ -26,7 +28,7 @@ export default function CarritoPage() {
 
           {items.length === 0 ? (
             <div className="cart-empty">
-              <p>Todavía no agregaste nada. Es un buen momento para armar tu ritual.</p>
+              <p>{t["carrito.vacio"]}</p>
               <Link href="/comprar-por-beneficio" className="btn btn-solid">Ir a la tienda</Link>
             </div>
           ) : (
@@ -35,9 +37,10 @@ export default function CarritoPage() {
                 {items.map((item) => {
                   const data = item.tipo === "producto" ? getProducto(item.slug) : getCombo(item.slug);
                   if (!data) return null;
+                  const foto = data.imagenes?.[0];
                   return (
                     <div className="cart-item" key={`${item.tipo}-${item.slug}`}>
-                      <div className="cart-item-media"><span className="ph" style={{ fontSize: 8, padding: 2 }}>Foto</span></div>
+                      <div className="cart-item-media" style={{ position: "relative" }}>{foto && <Image src={foto.url} alt="" fill sizes="76px" style={{ objectFit: "cover" }} />}</div>
                       <div>
                         <span className="cart-item-tag">{item.tipo === "combo" ? "Combo sinérgico" : "Producto"}</span>
                         <Link
@@ -73,11 +76,7 @@ export default function CarritoPage() {
                 </div>
 
                 <div className="shipping-progress">
-                  {falta > 0 ? (
-                    <span>Te faltan {formatPrecio(falta)} para el envío sin cargo en tu zona (mock).</span>
-                  ) : (
-                    <span>Listo: tu envío en zona es sin cargo.</span>
-                  )}
+                  <span>{falta > 0 ? t["carrito.falta"].replaceAll("{falta}", formatPrecio(falta)) : t["carrito.listo"]}</span>
                   <div className="shipping-progress-bar">
                     <div className="shipping-progress-fill" style={{ width: `${progreso}%` }} />
                   </div>

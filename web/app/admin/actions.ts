@@ -96,6 +96,52 @@ export async function guardarContenido(
   return { ok: true };
 }
 
+/** Guarda los textos y valores que Cintia cambió en Textos / Envíos y pagos (solo los que cambiaron). */
+export async function guardarTextos(valores: Record<string, string>) {
+  const res = await adminApiFetch("/contenido/textos", { method: "PUT", body: JSON.stringify({ valores }) });
+  if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
+  updateTag("contenido");
+  revalidatePath("/admin/textos");
+  revalidatePath("/admin/envios-y-pagos");
+  return { ok: true };
+}
+
+/** Sube la foto de un campo de imagen (pilares, banner). Se aplica al instante, sin esperar «Guardar». */
+export async function subirImagenTexto(clave: string, formData: FormData) {
+  const res = await adminApiFetch(`/contenido/textos/imagen/${encodeURIComponent(clave)}`, { method: "POST", body: formData });
+  if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
+  updateTag("contenido");
+  revalidatePath("/admin/textos");
+  return { ok: true };
+}
+
+export async function quitarImagenTexto(clave: string) {
+  const res = await adminApiFetch(`/contenido/textos/imagen/${encodeURIComponent(clave)}`, { method: "DELETE" });
+  if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
+  updateTag("contenido");
+  revalidatePath("/admin/textos");
+  return { ok: true };
+}
+
+export async function guardarPagina(slug: string, data: { titulo: string; cuerpo: string }) {
+  const res = await adminApiFetch(`/contenido/paginas/${slug}`, { method: "PUT", body: JSON.stringify(data) });
+  if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
+  updateTag("contenido");
+  revalidatePath("/admin/paginas");
+  revalidatePath(`/admin/paginas/${slug}`);
+  return { ok: true };
+}
+
+/** Deja la página con el texto con el que venía el sitio. */
+export async function restaurarPagina(slug: string) {
+  const res = await adminApiFetch(`/contenido/paginas/${slug}`, { method: "DELETE" });
+  if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
+  updateTag("contenido");
+  revalidatePath("/admin/paginas");
+  revalidatePath(`/admin/paginas/${slug}`);
+  return { ok: true };
+}
+
 export async function subirImagenHero(formData: FormData) {
   const res = await adminApiFetch("/contenido/hero-imagenes", { method: "POST", body: formData });
   if (!res.ok) return { ok: false, error: await mensajeDeError(res) };

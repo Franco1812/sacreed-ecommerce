@@ -479,3 +479,33 @@ tr.admin-stock-bajo td:first-child { box-shadow: inset 3px 0 0 var(--burgundy); 
 .pf-mas summary { cursor: pointer; font-size: 14.5px; font-weight: 500; color: var(--forest); padding: 4px 0 14px; }
 .pf-mas summary:hover { color: var(--gold); }
 @media (max-width: 760px) { .pf .admin-block, .pf .admin-block:last-of-type { padding: 22px 20px; } }
+
+/* ---------- textos del sitio / páginas ---------- */
+.ce-tabs-wrap { flex-wrap: wrap; }
+.ce-tab-punto { color: var(--gold-soft); font-size: 10px; vertical-align: middle; }
+.ce-restaurar {
+  align-self: flex-start; margin-top: 6px; padding: 0; background: none; border: 0; cursor: pointer;
+  font-size: 13px; color: var(--forest); text-decoration: underline; text-underline-offset: 3px;
+}
+.ce-restaurar:hover { color: var(--gold); }
+.ce-restaurar-bloque { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 22px; padding-top: 18px; border-top: 1px dashed var(--hair); font-size: 14px; }
+.ce-cuerpo { min-height: 320px; line-height: 1.55; }
+.ce-ayuda { margin-top: 6px; font-size: 14px; }
+.ce-ayuda summary { cursor: pointer; color: var(--forest); }
+.ce-ayuda ul { margin: 12px 0 0 18px; display: grid; gap: 6px; opacity: 0.85; }
+.ce-ayuda code { background: var(--paper); padding: 1px 6px; font-size: 13px; }
+.ce-campo-foto-fila { display: flex; gap: 18px; align-items: flex-start; flex-wrap: wrap; }
+.ce-campo-foto-img { width: 132px; aspect-ratio: 1 / 1; background: var(--paper); border: 1px solid var(--hair); display: grid; place-items: center; overflow: hidden; font-size: 13px; opacity: 0.9; }
+.ce-campo-foto-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ce-campo-foto-acciones { display: grid; gap: 10px; min-width: 0; }
+.ce-campo-foto-botones { display: flex; gap: 14px; align-items: center; }
+.ce-pagina-preview { background: #fafaf7; border: 1px solid var(--hair); padding: 26px 26px 10px; font-size: 14.5px; line-height: 1.7; max-height: 78vh; overflow: auto; }
+.ce-pagina-preview h3 { font-size: 22px; font-weight: 500; margin-bottom: 14px; }
+.ce-pagina-preview h2 { font-size: 17px; font-weight: 500; margin: 22px 0 8px; }
+.ce-pagina-preview p, .ce-pagina-preview ul { margin-bottom: 14px; }
+.ce-pagina-preview ul { margin-left: 18px; }
+.ce-pagina-preview blockquote { font-size: 19px; font-weight: 500; margin: 20px 0; text-align: center; }
+.ce-pagina-preview mark { background: none; color: var(--forest); }
+.ce-pagina-preview p.lead, .ce-pagina-preview p.close { font-weight: 500; }
+.ce-pagina-preview .faq-item { border-top: 1px solid var(--hair); padding: 14px 0 2px; }
+.ce-pagina-preview .faq-item h3 { font-size: 16px; margin-bottom: 6px; }

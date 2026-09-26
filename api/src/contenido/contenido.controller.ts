@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, Put, UploadedFile, U
 import { FileInterceptor } from '@nestjs/platform-express';
 import { InternalApiKeyGuard } from '../common/internal-api-key.guard.js';
 import { ContenidoService } from './contenido.service.js';
-import { ContenidoHomeDto, LineaDto, MasVendidosDto, OrdenHeroImagenesDto } from './dto/contenido.dto.js';
+import { ContenidoHomeDto, LineaDto, MasVendidosDto, OrdenHeroImagenesDto, PaginaDto, TextosDto } from './dto/contenido.dto.js';
 
 @Controller('contenido')
 export class ContenidoController {
@@ -39,6 +39,62 @@ export class ContenidoController {
   @UseGuards(InternalApiKeyGuard)
   reemplazarMasVendidos(@Body() dto: MasVendidosDto) {
     return this.contenidoService.reemplazarMasVendidos(dto);
+  }
+
+  @Get('textos')
+  getTextos() {
+    return this.contenidoService.getTextos();
+  }
+
+  @Get('textos/campos')
+  getCampos() {
+    return this.contenidoService.getCampos();
+  }
+
+  @Put('textos')
+  @UseGuards(InternalApiKeyGuard)
+  actualizarTextos(@Body() dto: TextosDto) {
+    return this.contenidoService.actualizarTextos(dto.valores);
+  }
+
+  @Post('textos/imagen/:clave')
+  @UseGuards(InternalApiKeyGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  subirImagenTexto(@Param('clave') clave: string, @UploadedFile() file: Express.Multer.File) {
+    return this.contenidoService.subirImagenTexto(clave, file);
+  }
+
+  @Delete('textos/imagen/:clave')
+  @UseGuards(InternalApiKeyGuard)
+  quitarImagenTexto(@Param('clave') clave: string) {
+    return this.contenidoService.quitarImagenTexto(clave);
+  }
+
+  @Get('ajustes')
+  getAjustes() {
+    return this.contenidoService.getAjustes();
+  }
+
+  @Get('paginas')
+  getPaginas() {
+    return this.contenidoService.getPaginas();
+  }
+
+  @Get('paginas/:slug')
+  getPagina(@Param('slug') slug: string) {
+    return this.contenidoService.getPagina(slug);
+  }
+
+  @Put('paginas/:slug')
+  @UseGuards(InternalApiKeyGuard)
+  guardarPagina(@Param('slug') slug: string, @Body() dto: PaginaDto) {
+    return this.contenidoService.guardarPagina(slug, dto);
+  }
+
+  @Delete('paginas/:slug')
+  @UseGuards(InternalApiKeyGuard)
+  restaurarPagina(@Param('slug') slug: string) {
+    return this.contenidoService.restaurarPagina(slug);
   }
 
   @Get('hero-imagenes')

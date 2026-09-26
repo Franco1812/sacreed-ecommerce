@@ -14,7 +14,6 @@ export default async function ComprarPorBeneficioPage() {
         <div className="wrap">
           <div className="section-head">
             <div>
-              <span className="eyebrow">{contenido.beneficiosEyebrow}</span>
               <h2 className="h-section">{contenido.beneficiosTitulo}</h2>
             </div>
           </div>
