@@ -96,7 +96,7 @@ export async function guardarContenido(
   return { ok: true };
 }
 
-/** Guarda los textos y valores que Cintia cambió en Textos / Envíos y pagos (solo los que cambiaron). */
+/** Guarda los textos y valores que Cintia cambió en Contenido / Tienda y compra / Envíos y pagos (solo los que cambiaron). */
 export async function guardarTextos(valores: Record<string, string>) {
   const res = await adminApiFetch("/contenido/textos", { method: "PUT", body: JSON.stringify({ valores }) });
   if (!res.ok) return { ok: false, error: await mensajeDeError(res) };

@@ -56,9 +56,7 @@ export default async function PedidoConfirmadoPage({ params }: { params: Promise
       <div className="confirm-page">
         <span className="eyebrow">Pedido #{pedido.numero} · Pendiente de pago</span>
         <h1>Gracias, {pedido.nombre}.</h1>
-        <p className="lead">
-          Tu pedido quedó registrado. En cuanto confirmemos el pago te avisamos por email o WhatsApp y lo pasamos a preparación.
-        </p>
+        {t["pedido.gracias"] && <p className="lead">{t["pedido.gracias"]}</p>}
 
         <div className="confirm-block">
           <h2>Cómo pagar</h2>
@@ -74,7 +72,7 @@ export default async function PedidoConfirmadoPage({ params }: { params: Promise
                 {t["pago.instrucciones"] && <p>{t["pago.instrucciones"]}</p>}
               </>
             ) : (
-              <p>Te contactamos por email o WhatsApp con los datos para transferir y coordinar el pago.</p>
+              <p>{t["pedido.sin-datos"]}</p>
             )
           ) : (
             <p>Pagás en efectivo al momento de {pedido.metodoEntrega === "RETIRO" ? "retirar" : "recibir"} tu pedido.</p>

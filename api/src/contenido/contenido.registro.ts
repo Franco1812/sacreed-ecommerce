@@ -29,23 +29,24 @@ export interface Grupo {
   titulo: string;
   descripcion: string;
   /** Qué pantalla del admin lo muestra. */
-  pantalla: 'textos' | 'envios';
+  pantalla: 'portada' | 'tienda' | 'envios';
 }
 
 const MARCAS = 'Podés usar {envioGratis} para que se escriba solo el monto de envío gratis.';
 
 export const GRUPOS: Grupo[] = [
-  { id: 'anuncios', titulo: 'Barra de anuncios', descripcion: 'Los mensajes que rotan arriba de todo el sitio, uno por vez. Dejá un renglón vacío para no mostrarlo.', pantalla: 'textos' },
-  { id: 'franja', titulo: 'Franja de atributos', descripcion: 'La cinta que se desplaza debajo de la portada y de cada producto. Cada renglón lleva su ícono; dejá uno vacío para no mostrarlo.', pantalla: 'textos' },
-  { id: 'combos-home', titulo: 'Combos en la portada', descripcion: 'El título de la sección de combos de la portada.', pantalla: 'textos' },
-  { id: 'pilares', titulo: 'Nuestro Origen en la portada', descripcion: 'El bloque con los tres pilares de la marca. Cada uno puede llevar una foto cuadrada; sin foto se muestra solo el texto.', pantalla: 'textos' },
-  { id: 'banner', titulo: 'Banner «Armá tu ritual»', descripcion: 'El banner de la portada que lleva al selector de rituales. Sin foto se muestra de color liso.', pantalla: 'textos' },
-  { id: 'pie', titulo: 'Pie de página', descripcion: 'Lo que se lee al final de todas las páginas.', pantalla: 'textos' },
-  { id: 'ficha', titulo: 'Ficha de producto', descripcion: 'Los textos fijos que acompañan a cada producto (la caja de opciones de compra, los íconos y los títulos de las secciones).', pantalla: 'textos' },
-  { id: 'combos', titulo: 'Combos', descripcion: 'Textos de la lista de combos y de la página de cada combo.', pantalla: 'textos' },
-  { id: 'rituales', titulo: 'Rituales AM / PM', descripcion: 'Los textos de las páginas de rituales.', pantalla: 'textos' },
-  { id: 'carrito', titulo: 'Carrito', descripcion: 'Los textos del carrito lateral.', pantalla: 'textos' },
-  { id: 'checkout', titulo: 'Finalizar compra', descripcion: 'Los avisos que se leen mientras la persona completa el pedido.', pantalla: 'textos' },
+  { id: 'anuncios', titulo: 'Barra de anuncios', descripcion: 'Los mensajes que rotan arriba de todo el sitio, uno por vez. Dejá un renglón vacío para no mostrarlo.', pantalla: 'portada' },
+  { id: 'franja', titulo: 'Franja de atributos', descripcion: 'La cinta que se desplaza debajo de la portada y de cada producto. Cada renglón lleva su ícono; dejá uno vacío para no mostrarlo.', pantalla: 'portada' },
+  { id: 'combos-home', titulo: 'Combos en la portada', descripcion: 'El título de la sección de combos de la portada.', pantalla: 'portada' },
+  { id: 'pilares', titulo: 'Nuestro Origen en la portada', descripcion: 'El bloque con los tres pilares de la marca. Cada uno puede llevar una foto cuadrada; sin foto se muestra solo el texto.', pantalla: 'portada' },
+  { id: 'banner', titulo: 'Banner «Armá tu ritual»', descripcion: 'El banner de la portada que lleva al selector de rituales. Sin foto se muestra de color liso.', pantalla: 'portada' },
+  { id: 'pie', titulo: 'Pie de página', descripcion: 'Lo que se lee al final de todas las páginas.', pantalla: 'portada' },
+  { id: 'ficha', titulo: 'Ficha de producto', descripcion: 'Los textos fijos que acompañan a cada producto (la caja de opciones de compra, los íconos y los títulos de las secciones).', pantalla: 'tienda' },
+  { id: 'combos', titulo: 'Combos', descripcion: 'Textos de la lista de combos y de la página de cada combo.', pantalla: 'tienda' },
+  { id: 'rituales', titulo: 'Rituales AM / PM', descripcion: 'Los textos de las páginas de rituales.', pantalla: 'tienda' },
+  { id: 'carrito', titulo: 'Carrito', descripcion: 'Los textos del carrito lateral.', pantalla: 'tienda' },
+  { id: 'checkout', titulo: 'Finalizar compra', descripcion: 'Los avisos que se leen mientras la persona completa el pedido.', pantalla: 'tienda' },
+  { id: 'pedido', titulo: 'Pedido confirmado', descripcion: 'La página que ve la persona apenas termina de comprar.', pantalla: 'tienda' },
   { id: 'envio', titulo: 'Envíos', descripcion: 'El monto para envío gratis, el costo del reparto y los barrios de la zona. Lo que pongas acá es también lo que se le cobra a quien compra.', pantalla: 'envios' },
   { id: 'pago', titulo: 'Datos para transferir', descripcion: 'Lo que ve la persona al terminar el pedido para pagar por transferencia. Lo que dejes vacío no se muestra.', pantalla: 'envios' },
 ];
@@ -217,6 +218,23 @@ export const CAMPOS: Campo[] = [
     etiqueta: 'Segundo aviso en «Pago»',
     tipo: 'largo',
     porDefecto: 'El pago se confirma a mano una vez que lo recibimos — tu pedido queda «Pendiente de pago» hasta entonces.',
+  },
+
+  // ---- Pedido confirmado
+  {
+    clave: 'pedido.gracias',
+    grupo: 'pedido',
+    etiqueta: 'Texto debajo del «Gracias»',
+    tipo: 'largo',
+    porDefecto: 'Tu pedido quedó registrado. En cuanto confirmemos el pago te avisamos por email o WhatsApp y lo pasamos a preparación.',
+  },
+  {
+    clave: 'pedido.sin-datos',
+    grupo: 'pedido',
+    etiqueta: 'Cómo pagar, si no cargaste los datos de la cuenta',
+    ayuda: 'Se muestra solo mientras los datos para transferir (en «Envíos y pagos») estén vacíos.',
+    tipo: 'largo',
+    porDefecto: 'Te contactamos por email o WhatsApp con los datos para transferir y coordinar el pago.',
   },
 
   // ---- Envíos (valores que también usa el servidor para cobrar)
