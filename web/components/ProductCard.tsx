@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import CardFotos from "@/components/CardFotos";
 import { formatPrecio } from "@/lib/format";
 import type { Producto } from "@/lib/types";
 
@@ -15,15 +15,12 @@ export default function ProductCard({
   /** Pisa producto.destacado — útil para etiquetas contextuales (ej. "Más vendido") que no son un dato del producto. */
   badge?: string;
 }) {
-  const foto = producto.imagenes?.[0];
+  const fotos = producto.imagenes ?? [];
   const badgeTexto = badge ?? producto.destacado;
   const href = `/producto/${producto.slug}`;
   return (
     <article className="card">
-      <Link href={href} className="card-media" tabIndex={-1} aria-hidden="true">
-        {badgeTexto && <span className="badge">{badgeTexto}</span>}
-        {foto && <Image src={foto.url} alt={foto.alt} fill sizes="(max-width: 680px) 45vw, (max-width: 1000px) 30vw, 220px" style={{ objectFit: "cover" }} />}
-      </Link>
+      <CardFotos fotos={fotos} href={href} badge={badgeTexto} />
       <div className="card-body">
         <h3><Link href={href}>{producto.nombre}</Link></h3>
         {producto.formulaSubtitulo && <p className="card-benefit">{producto.formulaSubtitulo}</p>}

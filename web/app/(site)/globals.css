@@ -219,6 +219,17 @@ section,.section-block{padding:clamp(48px,6vw,72px) 0}
 .rail.cols-3{grid-template-columns:repeat(3,1fr)}
 .card{display:flex;flex-direction:column;text-align:center}
 .card-media{position:relative;display:block;aspect-ratio:1/1;background:var(--band);overflow:hidden}
+.card-media-link{position:absolute;inset:0;display:block}
+.card-media-link img{opacity:0;transition:opacity .3s}
+.card-media-link img.on{opacity:1}
+.card-foto-arrow{position:absolute;top:50%;z-index:2;display:grid;place-items:center;width:34px;height:34px;margin-top:-17px;background:rgba(255,255,255,.85);color:var(--ink);opacity:0;transition:opacity .2s}
+.card-foto-arrow.prev{left:6px}
+.card-foto-arrow.next{right:6px}
+.card-media:hover .card-foto-arrow,.card-foto-arrow:focus-visible{opacity:1}
+@media (hover:none){.card-foto-arrow{opacity:1;width:28px;height:28px;margin-top:-14px}}
+.card-foto-dots{position:absolute;bottom:8px;left:0;right:0;z-index:2;display:flex;justify-content:center;gap:5px;pointer-events:none}
+.card-foto-dots i{width:6px;height:6px;border-radius:50%;background:rgba(0,0,0,.25)}
+.card-foto-dots i.on{background:var(--ink)}
 /* etiqueta "Más vendido": bloque de acento, mono, arriba a la izquierda de la foto */
 .badge{position:absolute;top:0;left:0;z-index:2;font-family:var(--mono);font-size:12px;line-height:1;text-transform:uppercase;background:var(--accent);color:var(--ink);padding:6px 10px}
 .card-body{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;padding:16px 4px}
