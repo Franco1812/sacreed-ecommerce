@@ -9,7 +9,10 @@ import type { ContenidoHomeDto, LineaDto, MasVendidosDto, PaginaDto } from './dt
 /** Cuántos productos entran en la sección: más que eso ya no cabe bien en la fila de la portada. */
 export const MAS_VENDIDOS_MAX = 8;
 
-const LINEAS_VALIDAS = new Set<string>(LINEAS_DEFAULT.map((l) => l.id));
+/** El DTO trae en undefined lo que el admin no mandó; al crear la fila eso no tiene que pisar el texto original. */
+function definidos<T extends object>(dto: T): Partial<T> {
+  return Object.fromEntries(Object.entries(dto).filter(([, valor]) => valor !== undefined)) as Partial<T>;
+}
 
 @Injectable()
 export class ContenidoService {
@@ -30,9 +33,8 @@ export class ContenidoService {
     return this.prisma.contenidoHome.create({ data: { id: 'home', ...HOME_DEFAULT } });
   }
 
-  async actualizarHome(dto: ContenidoHomeDto) {
-    await this.getHome();
-    return this.prisma.contenidoHome.update({ where: { id: 'home' }, data: dto });
+  actualizarHome(dto: ContenidoHomeDto) {
+    return this.prisma.contenidoHome.upsert({ where: { id: 'home' }, create: { id: 'home', ...HOME_DEFAULT, ...definidos(dto) }, update: dto });
   }
 
   async getLineas() {
@@ -48,10 +50,10 @@ export class ContenidoService {
     return this.prisma.linea.findMany({ orderBy: { orden: 'asc' } });
   }
 
-  async actualizarLinea(id: string, dto: LineaDto) {
-    if (!LINEAS_VALIDAS.has(id)) throw new NotFoundException();
-    await this.getLineas();
-    return this.prisma.linea.update({ where: { id: id as LineaBeneficio }, data: dto });
+  actualizarLinea(id: string, dto: LineaDto) {
+    const original = LINEAS_DEFAULT.find((l) => l.id === id);
+    if (!original) throw new NotFoundException();
+    return this.prisma.linea.upsert({ where: { id: id as LineaBeneficio }, create: { ...original, ...definidos(dto) }, update: dto });
   }
 
   /** Público: lo lee la portada. Devuelve solo slug + número, la ficha completa ya la tiene el catálogo. */
