@@ -1,22 +1,27 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { logout } from "../actions";
 import { adminApiFetch } from "@/lib/admin-api";
 import { AdminNav } from "./AdminNav";
 
-async function getPedidosPendientes(): Promise<number | undefined> {
+/** El numerito de pedidos pendientes. Va aparte, en un Suspense, para que el menú no espere a la API. */
+async function getPedidosPendientes(): Promise<number> {
   try {
-    const res = await adminApiFetch("/pedidos");
-    if (!res.ok) return undefined;
-    const pedidos: { estado: string }[] = await res.json();
-    return pedidos.filter((p) => p.estado === "PENDIENTE_PAGO").length;
+    const res = await adminApiFetch("/pedidos/pendientes");
+    if (!res.ok) return 0;
+    const { pendientes }: { pendientes: number } = await res.json();
+    return pendientes;
   } catch {
-    return undefined;
+    return 0;
   }
 }
 
-export default async function AdminProtectedLayout({ children }: { children: React.ReactNode }) {
-  const pedidosPendientes = await getPedidosPendientes();
+async function PedidosPendientes() {
+  const pendientes = await getPedidosPendientes();
+  return pendientes > 0 ? <span className="admin-nav-badge">{pendientes}</span> : null;
+}
 
+export default function AdminProtectedLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="admin-shell">
       <nav className="admin-nav">
@@ -28,7 +33,13 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
           <span>Sacred</span>
         </Link>
 
-        <AdminNav pedidosPendientes={pedidosPendientes} />
+        <AdminNav
+          pedidosPendientes={
+            <Suspense fallback={null}>
+              <PedidosPendientes />
+            </Suspense>
+          }
+        />
 
         <form action={logout} className="admin-logout">
           <button type="submit">Cerrar sesión</button>

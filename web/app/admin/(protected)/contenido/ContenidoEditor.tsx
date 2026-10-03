@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { guardarContenido, guardarTextos } from "../../actions";
+import { guardarPortada } from "../../actions";
 import type { CampoTexto, GrupoTexto } from "../textos/campos";
 import {
   BarraGuardar,
@@ -266,26 +266,22 @@ export default function ContenidoEditor({
     }
     setError(null);
     startTransition(async () => {
-      if (contenidoCambiado) {
-        const res = await guardarContenido(
-          home,
-          lineas,
-          masVendidos.map((m) => ({ slug: m.slug, vendidos: m.vendidos.trim() === "" ? null : Number(m.vendidos) }))
-        );
-        if (!res.ok) {
-          setError(res.error ?? "No se pudo guardar.");
-          return;
-        }
-        setGuardado(JSON.stringify({ home, lineas, masVendidos }));
+      // Solo lo que cambió: tocar un texto del hero no vuelve a guardar las líneas ni los más vendidos.
+      const res = await guardarPortada({
+        home: JSON.stringify(home) !== JSON.stringify(inicial.home) ? home : undefined,
+        lineas: lineas.filter((l, i) => JSON.stringify(l) !== JSON.stringify(inicial.lineas[i])),
+        masVendidos:
+          JSON.stringify(masVendidos) !== JSON.stringify(inicial.masVendidos)
+            ? masVendidos.map((m) => ({ slug: m.slug, vendidos: m.vendidos.trim() === "" ? null : Number(m.vendidos) }))
+            : undefined,
+        textos: textos.cambiadas.length > 0 ? textos.aGuardar() : undefined,
+      });
+      if (!res.ok) {
+        setError(res.error ?? "No se pudo guardar.");
+        return;
       }
-      if (textos.cambiadas.length > 0) {
-        const res = await guardarTextos(textos.aGuardar());
-        if (!res.ok) {
-          setError(res.error ?? "No se pudo guardar.");
-          return;
-        }
-        textos.marcarGuardado();
-      }
+      setGuardado(JSON.stringify({ home, lineas, masVendidos }));
+      textos.marcarGuardado();
       setRecienGuardado(true);
       router.refresh();
     });

@@ -73,26 +73,40 @@ export async function actualizarEstadoPedido(numero: number, estado: string) {
   return { ok: true };
 }
 
-/** Guarda de una vez los textos de la portada, las 4 líneas y la lista de más vendidos; corta en el primer error. */
-export async function guardarContenido(
-  home: Record<string, string>,
-  lineas: { id: string; nombre: string; texto: string }[],
-  masVendidos: { slug: string; vendidos: number | null }[]
-) {
-  const resHome = await adminApiFetch("/contenido/home", { method: "PATCH", body: JSON.stringify(home) });
-  if (!resHome.ok) return { ok: false, error: await mensajeDeError(resHome) };
+/**
+ * El «Guardar cambios» de Contenido: manda solo lo que cambió (textos de la portada, líneas, más
+ * vendidos y textos del registro), todo a la vez y en una sola acción, así la pantalla se vuelve a
+ * armar una vez. Si algo falla devuelve el primer error; volver a guardar es seguro.
+ */
+export async function guardarPortada(cambios: {
+  home?: Record<string, string>;
+  lineas?: { id: string; nombre: string; texto: string }[];
+  masVendidos?: { slug: string; vendidos: number | null }[];
+  textos?: Record<string, string>;
+}) {
+  const { home, lineas = [], masVendidos, textos } = cambios;
+  const pedidos = [
+    home && adminApiFetch("/contenido/home", { method: "PATCH", body: JSON.stringify(home) }),
+    ...lineas.map(({ id, nombre, texto }) =>
+      adminApiFetch(`/contenido/lineas/${id}`, { method: "PATCH", body: JSON.stringify({ nombre, texto }) })
+    ),
+    masVendidos && adminApiFetch("/contenido/mas-vendidos", { method: "PUT", body: JSON.stringify({ items: masVendidos }) }),
+    textos && adminApiFetch("/contenido/textos", { method: "PUT", body: JSON.stringify({ valores: textos }) }),
+  ].filter((p): p is Promise<Response> => Boolean(p));
 
-  for (const { id, nombre, texto } of lineas) {
-    const res = await adminApiFetch(`/contenido/lineas/${id}`, { method: "PATCH", body: JSON.stringify({ nombre, texto }) });
-    if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
+  let respuestas: Response[];
+  try {
+    respuestas = await Promise.all(pedidos);
+  } catch {
+    return { ok: false, error: "No se pudo guardar." };
+  } finally {
+    // Aunque una falle, las otras pueden haber guardado: el sitio tiene que mostrarlo.
+    updateTag("contenido");
+    if (masVendidos) updateTag("productos");
+    revalidatePath("/admin/contenido");
   }
-
-  const resMasVendidos = await adminApiFetch("/contenido/mas-vendidos", { method: "PUT", body: JSON.stringify({ items: masVendidos }) });
-  if (!resMasVendidos.ok) return { ok: false, error: await mensajeDeError(resMasVendidos) };
-
-  updateTag("contenido");
-  updateTag("productos");
-  revalidatePath("/admin/contenido");
+  const fallida = respuestas.find((r) => !r.ok);
+  if (fallida) return { ok: false, error: await mensajeDeError(fallida) };
   return { ok: true };
 }
 

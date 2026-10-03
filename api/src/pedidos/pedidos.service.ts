@@ -103,11 +103,14 @@ export class PedidosService {
     return pedido;
   }
 
+  /** Sin los items: el listado y el panel del admin no los muestran (el detalle va por findByNumero). */
   findAll() {
-    return this.prisma.order.findMany({
-      orderBy: { numero: 'desc' },
-      include: { items: true },
-    });
+    return this.prisma.order.findMany({ orderBy: { numero: 'desc' } });
+  }
+
+  /** Para el numerito del menú del admin: un count en vez de traer todos los pedidos. */
+  async contarPendientes() {
+    return { pendientes: await this.prisma.order.count({ where: { estado: 'PENDIENTE_PAGO' } }) };
   }
 
   /**

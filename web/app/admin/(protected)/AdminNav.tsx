@@ -14,7 +14,7 @@ const ITEMS = [
   { href: "/admin/envios-y-pagos", label: "Envíos y pagos" },
 ];
 
-export function AdminNav({ pedidosPendientes }: { pedidosPendientes?: number }) {
+export function AdminNav({ pedidosPendientes }: { pedidosPendientes?: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
@@ -24,9 +24,7 @@ export function AdminNav({ pedidosPendientes }: { pedidosPendientes?: number }) 
         return (
           <Link key={item.href} href={item.href} data-active={active}>
             <span>{item.label}</span>
-            {item.href === "/admin/pedidos" && !!pedidosPendientes && (
-              <span className="admin-nav-badge">{pedidosPendientes}</span>
-            )}
+            {item.href === "/admin/pedidos" && pedidosPendientes}
           </Link>
         );
       })}

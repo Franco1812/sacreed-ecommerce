@@ -20,6 +20,13 @@ export class PedidosController {
     return this.pedidosService.findAll();
   }
 
+  // Antes que ':numero': si no, Nest lo toma como un número de pedido.
+  @Get('pendientes')
+  @UseGuards(InternalApiKeyGuard)
+  contarPendientes() {
+    return this.pedidosService.contarPendientes();
+  }
+
   @Get(':numero')
   findByNumero(@Param('numero', ParseIntPipe) numero: number) {
     return this.pedidosService.findByNumero(numero);
