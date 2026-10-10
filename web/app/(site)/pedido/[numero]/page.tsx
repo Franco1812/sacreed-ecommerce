@@ -29,6 +29,27 @@ interface PedidoDb {
   items: PedidoItemDb[];
 }
 
+/** El pedido en texto plano, para que la persona se lo mande a SACRED por WhatsApp (los *asteriscos* son negrita ahí). */
+function mensajeWhatsapp(pedido: PedidoDb): string {
+  const entrega =
+    pedido.metodoEntrega === "RETIRO"
+      ? "Retiro"
+      : `Envío a ${pedido.calle} ${pedido.numeroDom}${pedido.piso ? `, ${pedido.piso}` : ""}, ${pedido.localidad}, ${pedido.provincia} (CP ${pedido.codigoPostal})`;
+  const pago = { TRANSFERENCIA: "Transferencia", EFECTIVO: "Efectivo", MERCADO_PAGO: "Mercado Pago" }[pedido.metodoPago];
+
+  return [
+    `¡Hola! Soy ${pedido.nombre} y acabo de hacer el *pedido #${pedido.numero}*:`,
+    "",
+    ...pedido.items.map((item) => `• ${item.nombre} × ${item.cantidad} — ${formatPrecio(item.precioUnitario * item.cantidad)}`),
+    "",
+    `Envío: ${pedido.costoEnvio === 0 ? "Sin cargo" : formatPrecio(pedido.costoEnvio)}`,
+    `*Total: ${formatPrecio(pedido.total)}*`,
+    "",
+    `Pago: ${pago}`,
+    `Entrega: ${entrega}`,
+  ].join("\n");
+}
+
 export default async function PedidoConfirmadoPage({ params }: { params: Promise<{ numero: string }> }) {
   const { numero } = await params;
   const numeroInt = Number(numero);
@@ -49,6 +70,10 @@ export default async function PedidoConfirmadoPage({ params }: { params: Promise
     ["CUIT / CUIL", t["pago.cuit"]],
   ].filter(([, valor]) => valor?.trim());
 
+  // wa.me solo acepta dígitos; sin número cargado en el admin no hay botón.
+  const whatsapp = (t["pedido.whatsapp"] ?? "").replace(/\D/g, "");
+  const whatsappHref = whatsapp ? `https://wa.me/${whatsapp}?text=${encodeURIComponent(mensajeWhatsapp(pedido))}` : null;
+
   return (
     <>
       <Breadcrumbs items={[{ label: "Inicio", href: "/" }, { label: `Pedido #${pedido.numero}` }]} />
@@ -57,6 +82,15 @@ export default async function PedidoConfirmadoPage({ params }: { params: Promise
         <span className="eyebrow">Pedido #{pedido.numero} · Pendiente de pago</span>
         <h1>Gracias, {pedido.nombre}.</h1>
         {t["pedido.gracias"] && <p className="lead">{t["pedido.gracias"]}</p>}
+
+        {whatsappHref && (
+          <div className="confirm-whatsapp">
+            <a className="btn btn-solid" href={whatsappHref} target="_blank" rel="noreferrer">
+              {t["pedido.whatsapp-boton"] || "Enviar mi pedido por WhatsApp"}
+            </a>
+            {t["pedido.whatsapp-ayuda"] && <p>{t["pedido.whatsapp-ayuda"]}</p>}
+          </div>
+        )}
 
         <div className="confirm-block">
           <h2>Cómo pagar</h2>

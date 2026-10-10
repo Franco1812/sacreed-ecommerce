@@ -55,13 +55,26 @@ export class ProductosService {
   }
 
   async agregarImagen(slug: string, file: Express.Multer.File, alt: string) {
-    const producto = await this.prisma.producto.findUnique({ where: { slug }, include: { imagenes: true } });
+    const producto = await this.prisma.producto.findUnique({ where: { slug } });
     if (!producto) throw new NotFoundException();
 
+    const { _max } = await this.prisma.imagen.aggregate({ where: { productoId: producto.id }, _max: { orden: true } });
     const url = await this.storage.upload(slug, file);
+    // max+1 y no count: después de borrar una del medio, count repetiría un orden.
     return this.prisma.imagen.create({
-      data: { url, alt, orden: producto.imagenes.length, productoId: producto.id },
+      data: { url, alt, orden: (_max.orden ?? -1) + 1, productoId: producto.id },
     });
+  }
+
+  async ordenarImagenes(slug: string, ids: string[]) {
+    const existentes = await this.prisma.imagen.findMany({ where: { producto: { slug } }, select: { id: true } });
+    const mismasFotos = ids.length === existentes.length && new Set(ids).size === ids.length && existentes.every((e) => ids.includes(e.id));
+    if (!mismasFotos) throw new BadRequestException('La lista de fotos no coincide con las del producto.');
+
+    await this.prisma.$transaction(
+      ids.map((id, orden) => this.prisma.imagen.update({ where: { id }, data: { orden } }))
+    );
+    return this.prisma.imagen.findMany({ where: { producto: { slug } }, orderBy: { orden: 'asc' } });
   }
 
   async eliminarImagen(slug: string, imagenId: string) {

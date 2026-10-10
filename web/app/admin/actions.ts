@@ -269,6 +269,14 @@ export async function eliminarImagenProducto(slug: string, imagenId: string) {
   return { ok: true };
 }
 
+export async function ordenarImagenesProducto(slug: string, ids: string[]) {
+  const res = await adminApiFetch(`/productos/${slug}/imagenes/orden`, { method: "PATCH", body: JSON.stringify({ ids }) });
+  if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
+  updateTag("productos");
+  revalidatePath(`/admin/productos/${slug}/editar`);
+  return { ok: true };
+}
+
 function toComboDto(data: ComboFormValues) {
   return {
     slug: data.slug,
