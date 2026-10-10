@@ -65,6 +65,7 @@ export function ProductoForm({
   onGuardar,
   onSubirImagen,
   onEliminarImagen,
+  onOrdenarImagenes,
 }: {
   initial: ProductoFormValues;
   modoEdicion: boolean;
@@ -72,6 +73,7 @@ export function ProductoForm({
   onGuardar: (data: ProductoFormValues) => Promise<{ ok: boolean; error?: string; slug?: string }>;
   onSubirImagen?: (formData: FormData) => Promise<{ ok: boolean; error?: string }>;
   onEliminarImagen?: (imagenId: string) => Promise<{ ok: boolean; error?: string }>;
+  onOrdenarImagenes?: (ids: string[]) => Promise<{ ok: boolean; error?: string }>;
 }) {
   const [values, setValues] = useState(initial);
   const [slugTocado, setSlugTocado] = useState(modoEdicion);
@@ -150,6 +152,22 @@ export function ProductoForm({
     });
   }
 
+  function moverImagen(indice: number, delta: -1 | 1) {
+    if (!onOrdenarImagenes || !imagenes) return;
+    const ids = imagenes.map((i) => i.id);
+    const destino = indice + delta;
+    [ids[indice], ids[destino]] = [ids[destino], ids[indice]];
+    setError(null);
+    startTransition(async () => {
+      const res = await onOrdenarImagenes(ids);
+      if (!res.ok) {
+        setError(res.error ?? "No se pudo cambiar el orden.");
+        return;
+      }
+      router.refresh();
+    });
+  }
+
   return (
     <div className="pf">
       {modoEdicion ? (
@@ -158,7 +176,7 @@ export function ProductoForm({
             <h2>Fotos</h2>
             <span className="ce-tag">Se aplican al instante</span>
           </div>
-          <p className="ce-card-sub">La primera es la que se ve en las tarjetas del sitio. Conviene tener al menos 3.</p>
+          <p className="ce-card-sub">La primera es la que se ve en las tarjetas del sitio; con las flechas cambiás el orden. Conviene tener al menos 3.</p>
           {imagenes && imagenes.length > 0 ? (
             <div className="ce-fotos">
               {imagenes.map((img, i) => (
@@ -169,7 +187,10 @@ export function ProductoForm({
                     {i === 0 && <span className="ce-foto-badge">Principal</span>}
                   </div>
                   <div className="ce-foto-actions">
-                    <button type="button" className="ce-foto-quitar" style={{ marginLeft: 0 }} onClick={() => eliminarImagen(img.id)} disabled={pending}>Quitar</button>
+                    <button type="button" onClick={() => moverImagen(i, -1)} disabled={pending || i === 0} aria-label={`Mover la foto ${i + 1} antes`} title="Mover antes">←</button>
+                    <span>{i + 1}</span>
+                    <button type="button" onClick={() => moverImagen(i, 1)} disabled={pending || i === imagenes.length - 1} aria-label={`Mover la foto ${i + 1} después`} title="Mover después">→</button>
+                    <button type="button" className="ce-foto-quitar" onClick={() => eliminarImagen(img.id)} disabled={pending}>Quitar</button>
                   </div>
                 </figure>
               ))}

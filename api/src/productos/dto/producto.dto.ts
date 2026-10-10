@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import {
+  ArrayNotEmpty,
   IsArray,
   IsBoolean,
   IsIn,
@@ -138,4 +139,12 @@ export class ProductoDto {
   @IsInt()
   @Min(0)
   vendidos?: number;
+}
+
+/** Orden completo de la galería: todos los ids de las fotos del producto, en el orden en que deben mostrarse. */
+export class OrdenImagenesDto {
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsString({ each: true })
+  ids!: string[];
 }

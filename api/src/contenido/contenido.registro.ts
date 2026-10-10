@@ -236,6 +236,28 @@ export const CAMPOS: Campo[] = [
     tipo: 'largo',
     porDefecto: 'Te contactamos por email o WhatsApp con los datos para transferir y coordinar el pago.',
   },
+  {
+    clave: 'pedido.whatsapp',
+    grupo: 'pedido',
+    etiqueta: 'WhatsApp que recibe los pedidos',
+    ayuda: 'Con código de país y de área, sin el 0 ni el 15. Por ejemplo: 5491123456789. Si lo dejás vacío, el botón de WhatsApp no se muestra.',
+    tipo: 'texto',
+    porDefecto: '',
+  },
+  {
+    clave: 'pedido.whatsapp-boton',
+    grupo: 'pedido',
+    etiqueta: 'Texto del botón de WhatsApp',
+    tipo: 'texto',
+    porDefecto: 'Enviar mi pedido por WhatsApp',
+  },
+  {
+    clave: 'pedido.whatsapp-ayuda',
+    grupo: 'pedido',
+    etiqueta: 'Aclaración debajo del botón de WhatsApp',
+    tipo: 'largo',
+    porDefecto: 'Se abre tu WhatsApp con el pedido ya escrito: solo tenés que tocar enviar. Así te queda una copia y coordinamos el pago por ahí.',
+  },
 
   // ---- Envíos (valores que también usa el servidor para cobrar)
   { clave: 'envio.gratisDesde', grupo: 'envio', etiqueta: 'Envío sin cargo desde (en pesos)', ayuda: 'Si la compra llega a este monto, el reparto en zona no se cobra.', tipo: 'numero', porDefecto: '60000' },

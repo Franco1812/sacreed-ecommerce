@@ -289,6 +289,12 @@ function PedidoConfirmado({ v }: CtxPrevia) {
       <span className="pv-marco">Pedido #1024 · Pendiente de pago</span>
       <h4 className="pv-h">Gracias, María.</h4>
       {lleno(v("pedido.gracias")) && <p className="pv-p">{v("pedido.gracias")}</p>}
+      {lleno(v("pedido.whatsapp")) && (
+        <>
+          <span className="pv-btn pv-btn-solid">{v("pedido.whatsapp-boton")}</span>
+          {lleno(v("pedido.whatsapp-ayuda")) && <p className="pv-nota">{v("pedido.whatsapp-ayuda")}</p>}
+        </>
+      )}
       <div className="pv-seccion">
         <b>Cómo pagar</b>
         {datos.length > 0 ? (

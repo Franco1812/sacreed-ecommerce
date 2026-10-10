@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { InternalApiKeyGuard } from '../common/internal-api-key.guard.js';
-import { ProductoDto } from './dto/producto.dto.js';
+import { OrdenImagenesDto, ProductoDto } from './dto/producto.dto.js';
 import { ProductosService } from './productos.service.js';
 
 @Controller('productos')
@@ -34,6 +34,12 @@ export class ProductosController {
     @Body('alt') alt: string
   ) {
     return this.productosService.agregarImagen(slug, file, alt ?? '');
+  }
+
+  @Patch(':slug/imagenes/orden')
+  @UseGuards(InternalApiKeyGuard)
+  ordenarImagenes(@Param('slug') slug: string, @Body() dto: OrdenImagenesDto) {
+    return this.productosService.ordenarImagenes(slug, dto.ids);
   }
 
   @Delete(':slug/imagenes/:id')
