@@ -201,15 +201,7 @@ export const CAMPOS: Campo[] = [
     grupo: 'checkout',
     etiqueta: 'Aviso en «Entrega»',
     tipo: 'largo',
-    porDefecto: 'Envío a domicilio — reparto propio en zona los viernes, o Correo Argentino/Andreani fuera de zona.',
-  },
-  {
-    clave: 'checkout.fuera-de-zona',
-    grupo: 'checkout',
-    etiqueta: 'Aviso para quien vive fuera de la zona',
-    tipo: 'largo',
-    porDefecto:
-      'Fuera de la zona de reparto propio despachamos por Correo Argentino o Andreani. El costo se cotiza por código postal y te lo confirmamos por email antes de coordinar el pago.',
+    porDefecto: 'Envío a domicilio — reparto propio en zona, todos los viernes.',
   },
   { clave: 'checkout.pago', grupo: 'checkout', etiqueta: 'Aviso en «Pago»', tipo: 'largo', porDefecto: 'Transferencia bancaria — te enviamos los datos por email o WhatsApp para coordinarlo.' },
   {

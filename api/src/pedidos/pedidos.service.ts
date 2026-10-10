@@ -7,6 +7,15 @@ import type { CrearPedidoDto } from './dto/crear-pedido.dto.js';
 
 export type CrearPedidoResult = { ok: true; numero: number } | { ok: false; error: string };
 
+/** Toda la zona de reparto propio (Canning, Ezeiza, San Vicente…) está en esta provincia. */
+const PROVINCIA_ZONA = 'Buenos Aires';
+
+/** "Canning, Ezeiza y San Vicente" */
+function listaLegible(items: string[]): string {
+  if (items.length <= 1) return items.join('');
+  return `${items.slice(0, -1).join(', ')} y ${items[items.length - 1]}`;
+}
+
 @Injectable()
 export class PedidosService {
   constructor(
@@ -23,12 +32,20 @@ export class PedidosService {
    * bloquee stock real.
    */
   async crearPedido(input: CrearPedidoDto): Promise<CrearPedidoResult> {
-    if (
-      input.metodoEntrega === 'ENVIO_DOMICILIO' &&
-      (!input.calle || !input.numeroDom || !input.localidad || !input.provincia || !input.codigoPostal)
-    ) {
+    // Monto de envío gratis, costo y barrios los edita Cintia desde el admin (Envíos y pagos).
+    const ajustes = await this.contenido.getAjustes();
+    const esEnvio = input.metodoEntrega === 'ENVIO_DOMICILIO';
+
+    // Solo se entrega en la zona de reparto propio: la localidad ES el barrio elegido,
+    // no un campo aparte (antes se podía elegir Canning y escribir otra localidad).
+    if (esEnvio && !ajustes.barriosZona.includes(input.barrioZona ?? '')) {
+      return { ok: false, error: `Por ahora solo entregamos en ${listaLegible(ajustes.barriosZona)}.` };
+    }
+    if (esEnvio && (!input.calle || !input.numeroDom || !input.codigoPostal)) {
       return { ok: false, error: 'Completá la dirección de envío.' };
     }
+    const localidad = esEnvio ? input.barrioZona : input.localidad;
+    const provincia = esEnvio ? PROVINCIA_ZONA : input.provincia;
 
     const productoSlugs = input.items.filter((i) => i.tipo === 'producto').map((i) => i.slug);
     const comboSlugs = input.items.filter((i) => i.tipo === 'combo').map((i) => i.slug);
@@ -57,14 +74,7 @@ export class PedidosService {
       }
     }
 
-    // Monto de envío gratis, costo y barrios los edita Cintia desde el admin (Envíos y pagos).
-    const ajustes = await this.contenido.getAjustes();
-    let costoEnvio = 0;
-    if (input.metodoEntrega === 'ENVIO_DOMICILIO' && subtotal < ajustes.envioGratisDesde) {
-      const enZona = ajustes.barriosZona.includes(input.barrioZona ?? '');
-      // fuera de la zona de reparto: costo pendiente de cotización real por CP (§6.4.2) — se aclara en la confirmación.
-      if (enZona) costoEnvio = ajustes.costoEnvioZona;
-    }
+    const costoEnvio = esEnvio && subtotal < ajustes.envioGratisDesde ? ajustes.costoEnvioZona : 0;
 
     const order = await this.prisma.order.create({
       data: {
@@ -79,8 +89,8 @@ export class PedidosService {
         calle: input.calle || null,
         numeroDom: input.numeroDom || null,
         piso: input.piso || null,
-        localidad: input.localidad || null,
-        provincia: input.provincia || null,
+        localidad: localidad || null,
+        provincia: provincia || null,
         codigoPostal: input.codigoPostal || null,
         barrioZona: input.barrioZona || null,
         notas: input.notas || null,
