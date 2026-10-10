@@ -24,8 +24,6 @@ const CAMPOS_INICIALES = {
   calle: "",
   numeroDom: "",
   piso: "",
-  localidad: "",
-  provincia: "",
   codigoPostal: "",
   barrioZona: "",
   notas: "",
@@ -52,9 +50,7 @@ export default function CheckoutPage() {
   );
 
   // Mismo cálculo que hace el servidor al crear el pedido (api/ PedidosService), con los valores que edita Cintia.
-  const enZona = ajustes.barriosZona.includes(campos.barrioZona);
-  const costoEnvio = subtotal >= ajustes.envioGratisDesde ? 0 : enZona ? ajustes.costoEnvioZona : 0;
-  const fueraDeZona = campos.barrioZona !== "" && !enZona;
+  const costoEnvio = subtotal >= ajustes.envioGratisDesde || campos.barrioZona === "" ? 0 : ajustes.costoEnvioZona;
   const total = subtotal + costoEnvio;
 
   function campo(nombre: keyof typeof CAMPOS_INICIALES) {
@@ -74,7 +70,9 @@ export default function CheckoutPage() {
     const resultado = await crearPedido({
       items: items.map(({ slug, tipo, cantidad }) => ({ slug, tipo, cantidad })),
       ...campos,
-      barrioZona: campos.barrioZona === "fuera-de-zona" ? "" : campos.barrioZona,
+      // Solo se entrega en la zona de reparto: la localidad es el barrio elegido (el servidor lo vuelve a validar).
+      localidad: campos.barrioZona,
+      provincia: "Buenos Aires",
       metodoEntrega: METODO_ENTREGA,
       metodoPago: METODO_PAGO,
     });
@@ -130,23 +128,17 @@ export default function CheckoutPage() {
                 {t["checkout.entrega"] && <p className="field-note" style={{ marginBottom: 20 }}>{t["checkout.entrega"]}</p>}
                 <div className="field-grid">
                   <div className="field span-2">
-                    <label htmlFor="barrioZona">Barrio (zona de reparto propio)</label>
-                    <select id="barrioZona" {...campo("barrioZona")}>
-                      <option value="">Elegí tu barrio…</option>
+                    <label htmlFor="barrioZona">Localidad (zona de reparto)</label>
+                    <select id="barrioZona" required {...campo("barrioZona")}>
+                      <option value="">Elegí tu localidad…</option>
                       {ajustes.barriosZona.map((b) => <option key={b} value={b}>{b}</option>)}
-                      <option value="fuera-de-zona">Fuera de esta zona (resto del país)</option>
                     </select>
                   </div>
                   <div className="field"><label htmlFor="calle">Calle</label><input id="calle" required {...campo("calle")} /></div>
                   <div className="field"><label htmlFor="numeroDom">Número</label><input id="numeroDom" required {...campo("numeroDom")} /></div>
                   <div className="field"><label htmlFor="piso">Piso / depto (opcional)</label><input id="piso" {...campo("piso")} /></div>
-                  <div className="field"><label htmlFor="localidad">Localidad</label><input id="localidad" required {...campo("localidad")} /></div>
-                  <div className="field"><label htmlFor="provincia">Provincia</label><input id="provincia" required {...campo("provincia")} /></div>
                   <div className="field"><label htmlFor="codigoPostal">Código postal</label><input id="codigoPostal" required {...campo("codigoPostal")} /></div>
                 </div>
-                {fueraDeZona && t["checkout.fuera-de-zona"] && (
-                  <p className="field-note" style={{ marginTop: 14 }}>{t["checkout.fuera-de-zona"]}</p>
-                )}
               </div>
 
               <div className="form-section">

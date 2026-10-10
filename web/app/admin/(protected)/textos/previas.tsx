@@ -242,11 +242,10 @@ function Barrios({ v }: CtxPrevia) {
   const barrios = v("envio.barrios").split("\n").map((b) => b.trim()).filter(Boolean);
   return (
     <div className="pv-select">
-      <span>Barrio (zona de reparto propio)</span>
+      <span>Localidad (zona de reparto)</span>
       <ul>
-        <li className="pv-suave">Elegí tu barrio…</li>
+        <li className="pv-suave">Elegí tu localidad…</li>
         {barrios.map((b) => <li key={b}>{b}</li>)}
-        <li className="pv-suave">Fuera de esta zona (resto del país)</li>
       </ul>
     </div>
   );
@@ -261,9 +260,6 @@ function Checkout(ctx: CtxPrevia) {
         <b>Entrega</b>
         {lleno(v("checkout.entrega")) && <p className="pv-nota-campo">{v("checkout.entrega")}</p>}
         <Barrios {...ctx} />
-        {lleno(v("checkout.fuera-de-zona")) && (
-          <p className="pv-nota-campo"><em>Si elige «fuera de esta zona»:</em> {v("checkout.fuera-de-zona")}</p>
-        )}
       </div>
       <div className="pv-seccion">
         <b>Pago</b>
