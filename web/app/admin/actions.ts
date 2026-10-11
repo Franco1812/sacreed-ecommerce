@@ -221,6 +221,7 @@ function toProductoDto(data: ProductoFormValues) {
     ritualDeUso: data.ritualDeUso,
     ingredientes: strOrUndefined(data.ingredientes),
     notaDePureza: strOrUndefined(data.notaDePureza),
+    empaqueConservacion: strOrUndefined(data.empaqueConservacion),
     origen: strOrUndefined(data.origen),
     precio: numOrUndefined(data.precio),
     formato: strOrUndefined(data.formato),
@@ -244,8 +245,29 @@ export async function crearProducto(data: ProductoFormValues) {
   return { ok: true, slug: data.slug };
 }
 
+// Campos opcionales de texto/número: al editar, uno vaciado viaja como null. Si no viajara,
+// la API lo dejaría como estaba y no habría forma de borrarlo desde el admin.
+const CAMPOS_BORRABLES = [
+  "formulaSubtitulo",
+  "momentoSugerido",
+  "ingredientes",
+  "notaDePureza",
+  "empaqueConservacion",
+  "origen",
+  "formato",
+  "pesoNetoGramos",
+  "paqueteAltoCm",
+  "paqueteAnchoCm",
+  "paqueteProfundidadCm",
+  "destacado",
+  "seoTitulo",
+  "seoDescripcion",
+] as const;
+
 export async function actualizarProductoCompleto(slug: string, data: ProductoFormValues) {
-  const res = await adminApiFetch(`/productos/${slug}`, { method: "PATCH", body: JSON.stringify(toProductoDto(data)) });
+  const dto = toProductoDto(data);
+  const vaciados = Object.fromEntries(CAMPOS_BORRABLES.filter((campo) => dto[campo] === undefined).map((campo) => [campo, null]));
+  const res = await adminApiFetch(`/productos/${slug}`, { method: "PATCH", body: JSON.stringify({ ...dto, ...vaciados }) });
   if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
   updateTag("productos");
   revalidatePath("/admin/productos");

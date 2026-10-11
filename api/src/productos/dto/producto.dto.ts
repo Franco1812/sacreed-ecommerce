@@ -87,6 +87,10 @@ export class ProductoDto {
 
   @IsOptional()
   @IsString()
+  empaqueConservacion?: string;
+
+  @IsOptional()
+  @IsString()
   origen?: string;
 
   @IsOptional()

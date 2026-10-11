@@ -22,6 +22,7 @@ export interface ProductoFormValues {
   ritualDeUso: string;
   ingredientes: string;
   notaDePureza: string;
+  empaqueConservacion: string;
   origen: string;
   precio: string;
   formato: string;
@@ -292,6 +293,10 @@ export function ProductoForm({
         <div className="admin-field">
           <label>Nota de pureza (opcional)</label>
           <textarea value={values.notaDePureza} onChange={(e) => set("notaDePureza", e.target.value)} />
+        </div>
+        <div className="admin-field">
+          <label>Empaque y conservación (opcional)</label>
+          <textarea value={values.empaqueConservacion} onChange={(e) => set("empaqueConservacion", e.target.value)} />
         </div>
         <div className="admin-field">
           <label>Origen (opcional)</label>

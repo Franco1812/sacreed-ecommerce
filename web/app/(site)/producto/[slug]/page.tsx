@@ -5,9 +5,11 @@ import { AddToCartButtonProducto, AgregarMini } from "@/components/AddToCartButt
 import AttributeStrip from "@/components/AttributeStrip";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import Carousel from "@/components/Carousel";
+import FotoZoom from "@/components/FotoZoom";
 import Icon from "@/components/Icons";
 import PdpBlock from "@/components/PdpBlock";
 import ProductCard from "@/components/ProductCard";
+import Prosa from "@/components/Prosa";
 import { getLineas } from "@/lib/data";
 import { combosParaProducto, getProducto, relacionadosMismaLinea } from "@/lib/helpers";
 import { formatPrecio } from "@/lib/format";
@@ -45,17 +47,16 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
 
       <div className="pdp">
         <div className="wrap pdp-grid">
-          {/* Izquierda (55%): foto principal grande + grilla de 2 columnas con el resto. En mobile es una galería deslizable. */}
+          {/* Izquierda (55%): foto principal grande + grilla de 2 columnas con el resto; con el mouse encima se amplían. En mobile es una galería deslizable. */}
           <div className="pdp-photos">
             {fotos.length > 0 ? (
               fotos.map((foto, i) => (
                 <div className="pdp-photo" key={foto.url}>
-                  <Image
+                  <FotoZoom
                     src={foto.url}
                     alt={foto.alt}
-                    fill
                     sizes={i === 0 ? "(max-width: 1000px) 100vw, 55vw" : "(max-width: 1000px) 100vw, 27vw"}
-                    style={{ objectFit: "cover" }}
+                    sizesZoom={i === 0 ? "1400px" : "700px"}
                     priority={i === 0}
                   />
                 </div>
@@ -103,7 +104,7 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
 
             <div className="pdp-blocks">
               <PdpBlock title="Descripción" defaultOpen>
-                <p>{p.descripcion}</p>
+                <Prosa texto={p.descripcion} />
               </PdpBlock>
 
               <PdpBlock title="Beneficios">
@@ -113,7 +114,7 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
               </PdpBlock>
 
               <PdpBlock title="Cómo usarlo">
-                <p>{p.ritualDeUso}</p>
+                <Prosa texto={p.ritualDeUso} />
               </PdpBlock>
 
               {(tieneIngredientes || p.notaDePureza) && (
@@ -124,14 +125,24 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
                       {ing.texto}
                     </div>
                   ))}
-                  {p.ingredientes && <p>{p.ingredientes}</p>}
-                  {p.notaDePureza && <p className="pdp-nota-pureza">Nota de pureza: {p.notaDePureza}</p>}
+                  {p.ingredientes && <Prosa texto={p.ingredientes} />}
+                  {p.notaDePureza && (
+                    <div className="pdp-nota-pureza">
+                      <Prosa texto={`Nota de pureza: ${p.notaDePureza}`} />
+                    </div>
+                  )}
+                </PdpBlock>
+              )}
+
+              {p.empaqueConservacion && (
+                <PdpBlock title="Empaque y conservación">
+                  <Prosa texto={p.empaqueConservacion} />
                 </PdpBlock>
               )}
 
               {p.origen && (
                 <PdpBlock title="Origen">
-                  <p>{p.origen}</p>
+                  <Prosa texto={p.origen} />
                 </PdpBlock>
               )}
             </div>

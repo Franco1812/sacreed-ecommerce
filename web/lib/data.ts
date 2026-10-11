@@ -47,6 +47,7 @@ interface ProductoDb {
   ritualDeUso: string;
   ingredientes: string | null;
   notaDePureza: string | null;
+  empaqueConservacion: string | null;
   origen: string | null;
   precio: number;
   formato: string | null;
@@ -98,6 +99,7 @@ function mapProducto(p: ProductoDb): Producto {
     ritualDeUso: p.ritualDeUso,
     ingredientes: p.ingredientes ?? undefined,
     notaDePureza: p.notaDePureza ?? undefined,
+    empaqueConservacion: p.empaqueConservacion ?? undefined,
     origen: p.origen ?? undefined,
     precio: p.precio,
     formato: p.formato ?? "PENDIENTE",

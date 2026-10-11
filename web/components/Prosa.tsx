@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Fragment, type ReactNode } from "react";
 
 /**
- * Renderiza el texto de las páginas editables desde el admin (Páginas). Formato simple, pensado para
+ * Renderiza los textos largos que se editan desde el admin (Páginas, y las fichas de productos y combos). Formato simple, pensado para
  * que Cintia no necesite saber nada de código:
  *   ## Subtítulo          ### Pregunta          - ítem de lista          > cita
  *   **negrita**           ==resaltado==         [texto del link](/pagina)

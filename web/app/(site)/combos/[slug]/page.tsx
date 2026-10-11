@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import ProductCard from "@/components/ProductCard";
+import Prosa from "@/components/Prosa";
 import { comboProductos, getCombo } from "@/lib/helpers";
 import { formatPrecio } from "@/lib/format";
 import { getTextos } from "@/lib/textos";
@@ -34,7 +35,7 @@ export default async function ComboPage({ params }: { params: Promise<{ slug: st
           </div>
           <div>
             <h1>{combo.nombre}</h1>
-            <p className="bundle-bajada">{combo.bajada}</p>
+            <div className="bundle-bajada"><Prosa texto={combo.bajada} /></div>
             {!combo.copyAprobado && (
               <p style={{ fontSize: 12, opacity: 0.6, marginTop: 8 }}>Copy propuesto — pendiente de aprobación de marca (§5.9)</p>
             )}
@@ -60,7 +61,7 @@ export default async function ComboPage({ params }: { params: Promise<{ slug: st
       <div className="combo-why">
         <div className="wrap">
           <h2>{t["combo.porque"]}</h2>
-          <p>{combo.porQueSePotencian}</p>
+          <Prosa texto={combo.porQueSePotencian} />
         </div>
       </div>
 
