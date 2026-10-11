@@ -25,6 +25,12 @@ export class ProductosController {
     return this.productosService.actualizar(slug, dto);
   }
 
+  @Delete(':slug')
+  @UseGuards(InternalApiKeyGuard)
+  eliminar(@Param('slug') slug: string) {
+    return this.productosService.eliminar(slug);
+  }
+
   @Post(':slug/imagenes')
   @UseGuards(InternalApiKeyGuard)
   @UseInterceptors(FileInterceptor('file'))

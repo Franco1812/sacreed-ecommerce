@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { ProductoForm, type FormulaItem, type ProductoFormValues } from "../../ProductoForm";
-import { actualizarProductoCompleto, eliminarImagenProducto, ordenarImagenesProducto, subirImagenProducto } from "../../../../actions";
+import { actualizarProductoCompleto, eliminarImagenProducto, eliminarProducto, ordenarImagenesProducto, subirImagenProducto } from "../../../../actions";
 
 const API_URL = process.env.API_URL ?? "http://localhost:4000";
 
@@ -97,6 +97,7 @@ export default async function EditarProductoPage({ params }: { params: Promise<{
         onSubirImagen={subirImagenProducto.bind(null, slug)}
         onEliminarImagen={eliminarImagenProducto.bind(null, slug)}
         onOrdenarImagenes={ordenarImagenesProducto.bind(null, slug)}
+        onEliminar={eliminarProducto.bind(null, slug)}
       />
     </>
   );

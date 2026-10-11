@@ -565,6 +565,13 @@ tr.admin-stock-bajo td:first-child { box-shadow: inset 3px 0 0 var(--burgundy); 
 .pf-mas { margin-top: 6px; border-top: 1px dashed var(--hair); padding-top: 14px; }
 .pf-mas summary { cursor: pointer; font-size: 14.5px; font-weight: 500; color: var(--forest); padding: 4px 0 14px; }
 .pf-mas summary:hover { color: var(--gold); }
+.pf-eliminar .ce-card-sub { margin-bottom: 16px; }
+.pf-eliminar-btn, .pf-eliminar-btn:hover { color: var(--burgundy); border-color: var(--burgundy); }
+.pf-eliminar-btn:hover { background: rgba(107, 34, 41, 0.08); }
+.pf-eliminar-confirmar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.pf-eliminar-confirmar span { font-weight: 500; }
+.admin-btn.pf-eliminar-si, .admin-btn.pf-eliminar-si:hover, .admin-btn.pf-eliminar-si:disabled { background: var(--burgundy); border-color: var(--burgundy); }
+.pf-eliminar-error { color: var(--burgundy); font-weight: 500; margin-bottom: 14px; max-width: 60ch; }
 @media (max-width: 760px) { .pf .admin-block, .pf .admin-block:last-of-type { padding: 22px 20px; } }
 
 /* ---------- textos del sitio / páginas ---------- */
