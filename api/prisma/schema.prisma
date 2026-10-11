@@ -70,6 +70,8 @@ model Producto {
   ritualDeUso   String  @db.Text
   ingredientes  String? @db.Text
   notaDePureza  String? @db.Text
+  /// Bloque "Empaque y conservación" de la ficha (va debajo de Ingredientes); null = no se muestra.
+  empaqueConservacion String? @db.Text
 
   origen  String?
   precio  Int

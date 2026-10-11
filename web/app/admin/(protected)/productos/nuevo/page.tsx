@@ -15,6 +15,7 @@ const inicial: ProductoFormValues = {
   ritualDeUso: "",
   ingredientes: "",
   notaDePureza: "",
+  empaqueConservacion: "",
   origen: "",
   precio: "",
   formato: "",

@@ -106,6 +106,17 @@ header{position:sticky;top:0;z-index:60;background:var(--bg)}
 .mobile-menu{display:flex;flex-direction:column;background:var(--bg);border-top:1px solid var(--hair);padding:8px var(--gutter) 16px}
 .mobile-menu a{padding:14px 0;font-size:16px;font-weight:500;border-bottom:1px solid var(--hair)}
 
+/* buscador: panel a ancho completo pegado al header, con el resto de la página oscurecido */
+.search-root{position:absolute;top:100%;left:0;right:0}
+.search-overlay{position:absolute;top:0;left:0;right:0;height:100vh;background:rgba(0,0,0,.4)}
+.search-panel{position:relative;background:var(--surface);padding:18px 0 26px;max-height:calc(100dvh - 130px);overflow-y:auto}
+.search-form{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--hair-strong);padding-bottom:8px}
+.search-form:focus-within{border-bottom-color:var(--ink)}
+.search-input{flex:1;min-width:0;font-family:var(--sans);font-size:18px;color:var(--ink);background:none;border:0;outline:none;appearance:none;padding:8px 0}
+.search-input::-webkit-search-cancel-button{display:none}
+.search-results{list-style:none;display:grid;grid-template-columns:repeat(2,1fr);column-gap:32px;margin-top:6px}
+.search-empty,.search-more{font-size:14px;color:rgba(26,28,24,.65);margin-top:18px}
+
 /* megamenú: panel blanco a ancho completo pegado al header, aparece sin animación */
 .has-mega{display:flex;align-items:center;height:var(--header-h)}
 .mega{
@@ -290,6 +301,13 @@ section,.section-block{padding:clamp(48px,6vw,72px) 0}
 .pdp-photos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .pdp-photo{position:relative;aspect-ratio:1/1;background:var(--band);overflow:hidden}
 .pdp-photo:first-child{grid-column:1/-1}
+/* lupa: la foto se amplía siguiendo al cursor (solo con mouse) */
+.pdp-zoom,.pdp-zoom-inner{position:absolute;inset:0}
+.pdp-zoom-inner{transition:transform .2s ease-out}
+@media (hover:hover) and (pointer:fine){
+  .pdp-zoom{cursor:zoom-in}
+  .pdp-zoom.on .pdp-zoom-inner{transform:scale(2.2)}
+}
 .pdp-info{position:sticky;top:calc(var(--header-h) + 24px)}
 .pdp-info .tag-accent{margin-bottom:14px}
 .pdp-info h1{font-size:32px;line-height:35px;font-weight:500;margin:0 0 10px}
@@ -326,6 +344,8 @@ section,.section-block{padding:clamp(48px,6vw,72px) 0}
 .pdp-block h2{font-size:16px;line-height:1.2}
 .pdp-block h2 button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:18px 0;font:inherit;font-weight:500;text-align:left}
 .pdp-block-content{padding:0 0 20px;font-size:14px;line-height:1.7}
+/* los textos de la ficha respetan los párrafos tal como se escriben en el admin */
+.pdp-block-content p+p,.pdp-block-content p+ul,.pdp-block-content ul+p,.bundle-bajada p+p,.combo-why p+p{margin-top:12px}
 .pdp-block ul{list-style:none}
 .pdp-block ul li{position:relative;padding:4px 0 4px 20px;font-size:14px;line-height:1.6}
 .pdp-block ul li::before{content:"";position:absolute;left:0;top:14px;width:10px;height:1px;background:var(--hair-strong)}
@@ -521,6 +541,9 @@ footer ul a:hover{text-decoration:underline;text-underline-offset:4px}
   .nav-left .nav-link,.nav-left .has-mega{display:none}
   .burger{display:flex}
   .navbar{height:62px}
+  .nav-right{gap:12px}
+  .search-results{grid-template-columns:1fr}
+  .search-input{font-size:16px}
   .brand-badge{height:40px}
   .hero{min-height:480px;align-items:flex-end}
   .hero-copy{max-width:none;width:100%}

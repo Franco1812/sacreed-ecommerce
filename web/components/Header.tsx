@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import Buscador from "@/components/Buscador";
 import Icon from "@/components/Icons";
 import { useCart } from "@/lib/cart-context";
 import type { Combo, Linea, Producto } from "@/lib/types";
@@ -39,6 +40,8 @@ export default function Header({
   const { totalItems, abrir } = useCart();
   const [menuAbierto, setMenuAbierto] = useState(false);
   const cerrar = () => setMenuAbierto(false);
+  const [buscando, setBuscando] = useState(false);
+  const cerrarBuscador = useCallback(() => setBuscando(false), []);
 
   return (
     <>
@@ -52,7 +55,10 @@ export default function Header({
               className="burger"
               aria-label={menuAbierto ? "Cerrar menú" : "Abrir menú"}
               aria-expanded={menuAbierto}
-              onClick={() => setMenuAbierto((v) => !v)}
+              onClick={() => {
+                setBuscando(false);
+                setMenuAbierto((v) => !v);
+              }}
             >
               <i></i><i></i><i></i>
             </button>
@@ -105,6 +111,18 @@ export default function Header({
           </Link>
 
           <div className="nav-right">
+            <button
+              type="button"
+              className="icon-btn"
+              aria-label="Buscar productos"
+              aria-expanded={buscando}
+              onClick={() => {
+                cerrar();
+                setBuscando((v) => !v);
+              }}
+            >
+              <Icon name="search" />
+            </button>
             <Link href="/admin/login" className="icon-btn" aria-label="Mi cuenta">
               <Icon name="user" />
             </Link>
@@ -119,6 +137,8 @@ export default function Header({
             </button>
           </div>
         </div>
+
+        {buscando && <Buscador combos={combos} onCerrar={cerrarBuscador} />}
 
         {menuAbierto && (
           <nav className="mobile-menu" aria-label="Menú">

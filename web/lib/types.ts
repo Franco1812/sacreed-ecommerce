@@ -58,6 +58,8 @@ export interface Producto {
   /** undefined = bloque pendiente de redactar por la marca (ver obs. §8.4 del brief) */
   ingredientes?: string;
   notaDePureza?: string;
+  /** Bloque "Empaque y conservación" de la ficha; undefined = no se muestra */
+  empaqueConservacion?: string;
   origen?: string;
   /** MOCK — precio real pendiente (§7) */
   precio: number;

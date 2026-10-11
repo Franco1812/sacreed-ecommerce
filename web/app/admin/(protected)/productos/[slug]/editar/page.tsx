@@ -24,6 +24,7 @@ interface ProductoDb {
   ritualDeUso: string;
   ingredientes: string | null;
   notaDePureza: string | null;
+  empaqueConservacion: string | null;
   origen: string | null;
   precio: number;
   formato: string | null;
@@ -62,6 +63,7 @@ function toFormValues(p: ProductoDb): ProductoFormValues {
     ritualDeUso: p.ritualDeUso,
     ingredientes: p.ingredientes ?? "",
     notaDePureza: p.notaDePureza ?? "",
+    empaqueConservacion: p.empaqueConservacion ?? "",
     origen: p.origen ?? "",
     precio: String(p.precio),
     formato: p.formato ?? "",
