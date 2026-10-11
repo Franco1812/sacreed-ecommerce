@@ -67,6 +67,7 @@ export function ProductoForm({
   onSubirImagen,
   onEliminarImagen,
   onOrdenarImagenes,
+  onEliminar,
 }: {
   initial: ProductoFormValues;
   modoEdicion: boolean;
@@ -75,6 +76,7 @@ export function ProductoForm({
   onSubirImagen?: (formData: FormData) => Promise<{ ok: boolean; error?: string }>;
   onEliminarImagen?: (imagenId: string) => Promise<{ ok: boolean; error?: string }>;
   onOrdenarImagenes?: (ids: string[]) => Promise<{ ok: boolean; error?: string }>;
+  onEliminar?: () => Promise<{ ok: boolean; error?: string }>;
 }) {
   const [values, setValues] = useState(initial);
   const [slugTocado, setSlugTocado] = useState(modoEdicion);
@@ -86,6 +88,8 @@ export function ProductoForm({
   const [guardado, setGuardado] = useState(() => JSON.stringify(initial));
   const [recienGuardado, setRecienGuardado] = useState(false);
   const sinGuardar = JSON.stringify(values) !== guardado;
+  const [confirmandoEliminar, setConfirmandoEliminar] = useState(false);
+  const [errorEliminar, setErrorEliminar] = useState<string | null>(null);
 
   // Avisa antes de cerrar la pestaña si hay cambios sin guardar.
   useEffect(() => {
@@ -150,6 +154,20 @@ export function ProductoForm({
     startTransition(async () => {
       await onEliminarImagen(id);
       router.refresh();
+    });
+  }
+
+  function eliminarProducto() {
+    if (!onEliminar) return;
+    setErrorEliminar(null);
+    startTransition(async () => {
+      const res = await onEliminar();
+      if (!res.ok) {
+        setErrorEliminar(res.error ?? "No se pudo eliminar.");
+        setConfirmandoEliminar(false);
+        return;
+      }
+      router.push("/admin/productos");
     });
   }
 
@@ -407,6 +425,28 @@ export function ProductoForm({
         </div>
       </div>
 
+      {modoEdicion && onEliminar && (
+        <div className="admin-block pf-eliminar">
+          <h2>Eliminar producto</h2>
+          <p className="ce-card-sub">
+            Lo saca de la tienda junto con sus fotos y no se puede deshacer. Los pedidos ya hechos no cambian. Si solo querés frenar la venta por ahora, poné el stock en 0: se sigue viendo en la tienda, pero no se puede comprar.
+          </p>
+          {errorEliminar && <p className="pf-eliminar-error" role="alert">{errorEliminar}</p>}
+          {confirmandoEliminar ? (
+            <div className="pf-eliminar-confirmar">
+              <span>¿Eliminar «{initial.nombre}» para siempre?</span>
+              <button type="button" className="admin-btn pf-eliminar-si" onClick={eliminarProducto} disabled={pending}>
+                {pending ? "Eliminando…" : "Sí, eliminar"}
+              </button>
+              <button type="button" className="admin-btn-ghost" onClick={() => setConfirmandoEliminar(false)} disabled={pending}>Cancelar</button>
+            </div>
+          ) : (
+            <button type="button" className="admin-btn-ghost pf-eliminar-btn" onClick={() => { setErrorEliminar(null); setConfirmandoEliminar(true); }} disabled={pending}>
+              Eliminar producto
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="ce-savebar">
         <span className="ce-estado" data-tono={pending ? "info" : error ? "error" : modoEdicion && sinGuardar ? "aviso" : recienGuardado && !sinGuardar ? "ok" : "info"} role="status" aria-live="polite">

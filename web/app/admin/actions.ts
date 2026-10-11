@@ -275,6 +275,16 @@ export async function actualizarProductoCompleto(slug: string, data: ProductoFor
   return { ok: true, slug };
 }
 
+export async function eliminarProducto(slug: string) {
+  const res = await adminApiFetch(`/productos/${slug}`, { method: "DELETE" });
+  if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
+  updateTag("productos");
+  // "Más vendidos" (tag contenido) puede haber perdido un producto.
+  updateTag("contenido");
+  revalidatePath("/admin/productos");
+  return { ok: true };
+}
+
 export async function subirImagenProducto(slug: string, formData: FormData) {
   const res = await adminApiFetch(`/productos/${slug}/imagenes`, { method: "POST", body: formData });
   if (!res.ok) return { ok: false, error: await mensajeDeError(res) };

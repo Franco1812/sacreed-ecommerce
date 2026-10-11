@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { SupabaseStorageService } from '../storage/supabase-storage.service.js';
 import type { LineaBeneficio, Prisma, Ritual } from '../generated/prisma/client.js';
@@ -52,6 +52,28 @@ export class ProductosService {
         laFormula: laFormula !== undefined ? (laFormula as unknown as Prisma.InputJsonValue) : undefined,
       },
     });
+  }
+
+  /**
+   * Borra el producto con sus fotos (filas y archivos) y lo saca de "Más vendidos". Los pedidos
+   * viejos no cambian: cada ítem guarda su propio nombre y precio. Si integra algún combo no se
+   * borra, para no dejar un combo incompleto sin que nadie lo note.
+   */
+  async eliminar(slug: string) {
+    const producto = await this.prisma.producto.findUnique({
+      where: { slug },
+      include: { imagenes: true, comboItems: { include: { combo: { select: { nombre: true } } } } },
+    });
+    if (!producto) throw new NotFoundException();
+
+    if (producto.comboItems.length > 0) {
+      const combos = producto.comboItems.map((ci) => `«${ci.combo.nombre}»`).join(', ');
+      throw new ConflictException(`Este producto forma parte de ${combos}. Sacalo de ahí primero (Admin → Combos) y después eliminalo.`);
+    }
+
+    await this.prisma.producto.delete({ where: { slug } });
+    // Después de borrar la fila: si falla el Storage queda un archivo huérfano, no un producto con fotos rotas.
+    await Promise.allSettled(producto.imagenes.map((img) => this.storage.remove(img.url)));
   }
 
   async agregarImagen(slug: string, file: Express.Multer.File, alt: string) {
