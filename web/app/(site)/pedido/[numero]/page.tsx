@@ -24,6 +24,7 @@ interface PedidoDb {
   provincia: string | null;
   codigoPostal: string | null;
   barrioZona: string | null;
+  puntoRetiro: string | null;
   costoEnvio: number;
   total: number;
   items: PedidoItemDb[];
@@ -33,7 +34,7 @@ interface PedidoDb {
 function mensajeWhatsapp(pedido: PedidoDb): string {
   const entrega =
     pedido.metodoEntrega === "RETIRO"
-      ? "Retiro"
+      ? `Retiro${pedido.puntoRetiro ? ` en ${pedido.puntoRetiro}` : ""}`
       : `Envío a ${pedido.calle} ${pedido.numeroDom}${pedido.piso ? `, ${pedido.piso}` : ""}, ${pedido.localidad}, ${pedido.provincia} (CP ${pedido.codigoPostal})`;
   const pago = { TRANSFERENCIA: "Transferencia", EFECTIVO: "Efectivo", MERCADO_PAGO: "Mercado Pago" }[pedido.metodoPago];
 
@@ -42,7 +43,7 @@ function mensajeWhatsapp(pedido: PedidoDb): string {
     "",
     ...pedido.items.map((item) => `• ${item.nombre} × ${item.cantidad} — ${formatPrecio(item.precioUnitario * item.cantidad)}`),
     "",
-    `Envío: ${pedido.costoEnvio === 0 ? "Sin cargo" : formatPrecio(pedido.costoEnvio)}`,
+    `${pedido.metodoEntrega === "RETIRO" ? "Retiro" : "Envío"}: ${pedido.costoEnvio === 0 ? "Sin cargo" : formatPrecio(pedido.costoEnvio)}`,
     `*Total: ${formatPrecio(pedido.total)}*`,
     "",
     `Pago: ${pago}`,
@@ -116,7 +117,14 @@ export default async function PedidoConfirmadoPage({ params }: { params: Promise
         <div className="confirm-block">
           <h2>Entrega</h2>
           {pedido.metodoEntrega === "RETIRO" ? (
-            <p>Retiro — te contactamos para coordinar punto y horario.</p>
+            pedido.puntoRetiro ? (
+              <>
+                <p>Retiro en {pedido.puntoRetiro}</p>
+                <p>Te avisamos cuando tu pedido esté listo para retirar.</p>
+              </>
+            ) : (
+              <p>Retiro — te contactamos para coordinar punto y horario.</p>
+            )
           ) : (
             <>
               <p>{pedido.calle} {pedido.numeroDom}{pedido.piso ? `, ${pedido.piso}` : ""}</p>
@@ -135,7 +143,7 @@ export default async function PedidoConfirmadoPage({ params }: { params: Promise
             </div>
           ))}
           <div className="confirm-item">
-            <span>Envío</span>
+            <span>{pedido.metodoEntrega === "RETIRO" ? "Retiro" : "Envío"}</span>
             <span>{pedido.costoEnvio === 0 ? "Sin cargo" : formatPrecio(pedido.costoEnvio)}</span>
           </div>
           <div className="confirm-total">

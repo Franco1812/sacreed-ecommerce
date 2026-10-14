@@ -200,11 +200,13 @@ export const getMasVendidos = cache(
   )
 );
 
-/** Valores editables que también cobra el servidor: envío gratis, costo del reparto y barrios de la zona. */
+/** Valores editables que también cobra el servidor: envío gratis, costos de envío y retiro, y puntos pickup. */
 export interface Ajustes {
   envioGratisDesde: number;
-  costoEnvioZona: number;
-  barriosZona: string[];
+  costoEnvio: number;
+  costoPickup: number;
+  /** Vacío = todavía no hay puntos y el checkout no ofrece retirar. */
+  puntosPickup: string[];
 }
 
 export const getAjustes = cache(

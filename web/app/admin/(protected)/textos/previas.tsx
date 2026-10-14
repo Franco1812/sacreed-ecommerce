@@ -238,16 +238,23 @@ function Carrito(ctx: CtxPrevia) {
   );
 }
 
-function Barrios({ v }: CtxPrevia) {
-  const barrios = v("envio.barrios").split("\n").map((b) => b.trim()).filter(Boolean);
+/** La parte «Entrega» del checkout: envío a todo el país y, si hay puntos pickup cargados, la opción de retirar. */
+function Entrega({ v }: CtxPrevia) {
+  const puntos = v("envio.puntosPickup").split("\n").map((p) => p.trim()).filter(Boolean);
+  if (puntos.length === 0) {
+    return <p className="pv-nota">Envío a domicilio a todo el país (dirección, localidad y provincia). Para ofrecer retiro, cargá al menos un punto pickup.</p>;
+  }
   return (
-    <div className="pv-select">
-      <span>Localidad (zona de reparto)</span>
-      <ul>
-        <li className="pv-suave">Elegí tu localidad…</li>
-        {barrios.map((b) => <li key={b}>{b}</li>)}
-      </ul>
-    </div>
+    <>
+      <p className="pv-nota">Elige entre «Envío a domicilio» y «Retiro en punto pickup». Si retira:</p>
+      <div className="pv-select">
+        <span>Punto pickup</span>
+        <ul>
+          <li className="pv-suave">Elegí dónde retirar…</li>
+          {puntos.map((p) => <li key={p}>{p}</li>)}
+        </ul>
+      </div>
+    </>
   );
 }
 
@@ -259,7 +266,7 @@ function Checkout(ctx: CtxPrevia) {
       <div className="pv-seccion">
         <b>Entrega</b>
         {lleno(v("checkout.entrega")) && <p className="pv-nota-campo">{v("checkout.entrega")}</p>}
-        <Barrios {...ctx} />
+        <Entrega {...ctx} />
       </div>
       <div className="pv-seccion">
         <b>Pago</b>
@@ -314,10 +321,11 @@ function Envio(ctx: CtxPrevia) {
   return (
     <div className="pv-pila">
       <div className="pv">
-        <span className="pv-marco">Lo que se cobra en la zona</span>
+        <span className="pv-marco">Lo que se cobra</span>
         <ul className="pv-cuenta">
-          <li><span>Compra de menos de {formatPrecio(ajustes.envioGratis)}</span><strong>Envío {formatPrecio(ajustes.costoEnvio)}</strong></li>
-          <li><span>Compra de {formatPrecio(ajustes.envioGratis)} o más</span><strong>Envío sin cargo</strong></li>
+          <li><span>Envío a domicilio, compra de menos de {formatPrecio(ajustes.envioGratis)}</span><strong>{formatPrecio(ajustes.costoEnvio)}</strong></li>
+          <li><span>Retiro en punto pickup, compra de menos de {formatPrecio(ajustes.envioGratis)}</span><strong>{ajustes.costoPickup === 0 ? "Sin cargo" : formatPrecio(ajustes.costoPickup)}</strong></li>
+          <li><span>Compra de {formatPrecio(ajustes.envioGratis)} o más</span><strong>Sin cargo</strong></li>
         </ul>
       </div>
       <div className="pv">
@@ -326,7 +334,7 @@ function Envio(ctx: CtxPrevia) {
       </div>
       <div className="pv">
         <span className="pv-marco">Al finalizar la compra</span>
-        <Barrios {...ctx} />
+        <Entrega {...ctx} />
       </div>
     </div>
   );

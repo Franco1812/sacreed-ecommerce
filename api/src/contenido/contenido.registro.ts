@@ -9,8 +9,8 @@
  * una línea a CAMPOS y leerlo en el frontend con la misma clave.
  *
  * En los textos se pueden usar estas marcas, que el frontend reemplaza:
- *   {envioGratis}  monto desde el que el envío en zona es sin cargo
- *   {costoEnvio}   costo fijo del envío en zona
+ *   {envioGratis}  monto desde el que el envío es sin cargo
+ *   {costoEnvio}   costo fijo del envío a domicilio
  */
 
 export type TipoCampo = 'texto' | 'largo' | 'numero' | 'lista' | 'imagen';
@@ -47,7 +47,7 @@ export const GRUPOS: Grupo[] = [
   { id: 'carrito', titulo: 'Carrito', descripcion: 'Los textos del carrito lateral.', pantalla: 'tienda' },
   { id: 'checkout', titulo: 'Finalizar compra', descripcion: 'Los avisos que se leen mientras la persona completa el pedido.', pantalla: 'tienda' },
   { id: 'pedido', titulo: 'Pedido confirmado', descripcion: 'La página que ve la persona apenas termina de comprar.', pantalla: 'tienda' },
-  { id: 'envio', titulo: 'Envíos', descripcion: 'El monto para envío gratis, el costo del reparto y los barrios de la zona. Lo que pongas acá es también lo que se le cobra a quien compra.', pantalla: 'envios' },
+  { id: 'envio', titulo: 'Envíos', descripcion: 'El monto para envío gratis, cuánto cuesta el envío a domicilio y el retiro, y los puntos pickup. Lo que pongas acá es también lo que se le cobra a quien compra.', pantalla: 'envios' },
   { id: 'pago', titulo: 'Datos para transferir', descripcion: 'Lo que ve la persona al terminar el pedido para pagar por transferencia. Lo que dejes vacío no se muestra.', pantalla: 'envios' },
 ];
 
@@ -76,9 +76,9 @@ const pilar = (n: number, titulo: string, texto: string): Campo[] => [
 
 export const CAMPOS: Campo[] = [
   // ---- Barra de anuncios
-  anuncio(1, 'Reparto propio en la zona todos los viernes'),
+  anuncio(1, 'Envíos a todo el país'),
   anuncio(2, 'Envío sin cargo desde {envioGratis}'),
-  anuncio(3, 'Entrega en Canning y zona sur'),
+  anuncio(3, ''),
   anuncio(4, '15% de descuento pagando por transferencia'),
   anuncio(5, ''),
 
@@ -130,8 +130,8 @@ export const CAMPOS: Campo[] = [
   // ---- Ficha de producto
   { clave: 'ficha.opciones.titulo', grupo: 'ficha', etiqueta: 'Caja de compra — encabezado', tipo: 'texto', porDefecto: 'Pago por transferencia -15%' },
   { clave: 'ficha.opciones.1', grupo: 'ficha', etiqueta: 'Caja de compra — punto 1', ayuda: MARCAS, tipo: 'texto', porDefecto: '15% de descuento pagando por transferencia' },
-  { clave: 'ficha.opciones.2', grupo: 'ficha', etiqueta: 'Caja de compra — punto 2', tipo: 'texto', porDefecto: 'Reparto propio en la zona los viernes' },
-  { clave: 'ficha.opciones.3', grupo: 'ficha', etiqueta: 'Caja de compra — punto 3', ayuda: MARCAS, tipo: 'texto', porDefecto: 'Envío sin cargo desde {envioGratis} en tu zona' },
+  { clave: 'ficha.opciones.2', grupo: 'ficha', etiqueta: 'Caja de compra — punto 2', tipo: 'texto', porDefecto: 'Envíos a todo el país' },
+  { clave: 'ficha.opciones.3', grupo: 'ficha', etiqueta: 'Caja de compra — punto 3', ayuda: MARCAS, tipo: 'texto', porDefecto: 'Envío sin cargo desde {envioGratis}' },
   { clave: 'ficha.confianza.1', grupo: 'ficha', etiqueta: 'Ícono del camión', tipo: 'texto', porDefecto: 'Envíos a todo el país' },
   { clave: 'ficha.confianza.2', grupo: 'ficha', etiqueta: 'Ícono de la tarjeta', tipo: 'texto', porDefecto: 'Pagás por transferencia' },
   { clave: 'ficha.confianza.3', grupo: 'ficha', etiqueta: 'Ícono de cambios', ayuda: 'Lleva a la página «Cambios y devoluciones».', tipo: 'texto', porDefecto: 'Cambios y devoluciones' },
@@ -150,7 +150,7 @@ export const CAMPOS: Campo[] = [
       'Propuestas de combinaciones alquímicas de productos para potenciar resultados nutricionales y sensoriales. Cuando dos o tres alimentos se consumen juntos, la absorción y el efecto bioactivo se multiplican, eso es la sinergia.',
   },
   { clave: 'combo.porque', grupo: 'combos', etiqueta: 'Página del combo — título de «por qué se potencian»', tipo: 'texto', porDefecto: 'Por qué se potencian' },
-  { clave: 'combo.envio', grupo: 'combos', etiqueta: 'Página del combo — nota de envío', ayuda: MARCAS, tipo: 'texto', porDefecto: 'Reparto en zona los viernes · Envío sin cargo desde {envioGratis}' },
+  { clave: 'combo.envio', grupo: 'combos', etiqueta: 'Página del combo — nota de envío', ayuda: MARCAS, tipo: 'texto', porDefecto: 'Envíos a todo el país · Envío sin cargo desde {envioGratis}' },
   { clave: 'combo.piezas', grupo: 'combos', etiqueta: 'Página del combo — título de las piezas', tipo: 'texto', porDefecto: 'Cada pieza, con su propia ficha' },
 
   // ---- Rituales
@@ -190,9 +190,9 @@ export const CAMPOS: Campo[] = [
     etiqueta: 'Aviso de lo que falta para el envío gratis',
     ayuda: 'Escribí {falta} donde va el monto que le falta a la persona.',
     tipo: 'texto',
-    porDefecto: 'Te faltan {falta} para el envío sin cargo en tu zona.',
+    porDefecto: 'Te faltan {falta} para el envío sin cargo.',
   },
-  { clave: 'carrito.listo', grupo: 'carrito', etiqueta: 'Aviso cuando ya llegó al envío gratis', tipo: 'texto', porDefecto: 'Listo: tu envío en zona es sin cargo.' },
+  { clave: 'carrito.listo', grupo: 'carrito', etiqueta: 'Aviso cuando ya llegó al envío gratis', tipo: 'texto', porDefecto: 'Listo: tu envío es sin cargo.' },
   { clave: 'carrito.sugeridos', grupo: 'carrito', etiqueta: 'Título de las sugerencias', tipo: 'texto', porDefecto: 'Completalo con' },
 
   // ---- Finalizar compra
@@ -201,7 +201,7 @@ export const CAMPOS: Campo[] = [
     grupo: 'checkout',
     etiqueta: 'Aviso en «Entrega»',
     tipo: 'largo',
-    porDefecto: 'Envío a domicilio — reparto propio en zona, todos los viernes.',
+    porDefecto: 'Enviamos a todo el país. Te pasamos el seguimiento cuando despachamos tu pedido.',
   },
   { clave: 'checkout.pago', grupo: 'checkout', etiqueta: 'Aviso en «Pago»', tipo: 'largo', porDefecto: 'Transferencia bancaria — te enviamos los datos por email o WhatsApp para coordinarlo.' },
   {
@@ -252,9 +252,18 @@ export const CAMPOS: Campo[] = [
   },
 
   // ---- Envíos (valores que también usa el servidor para cobrar)
-  { clave: 'envio.gratisDesde', grupo: 'envio', etiqueta: 'Envío sin cargo desde (en pesos)', ayuda: 'Si la compra llega a este monto, el reparto en zona no se cobra.', tipo: 'numero', porDefecto: '60000' },
-  { clave: 'envio.costoZona', grupo: 'envio', etiqueta: 'Costo del reparto en zona (en pesos)', ayuda: 'Se cobra cuando la compra no llega al monto de envío gratis.', tipo: 'numero', porDefecto: '3500' },
-  { clave: 'envio.barrios', grupo: 'envio', etiqueta: 'Barrios de la zona de reparto', ayuda: 'Uno por renglón. Es la lista que se ofrece al finalizar la compra.', tipo: 'lista', porDefecto: 'Canning\nEzeiza\nSan Vicente' },
+  { clave: 'envio.gratisDesde', grupo: 'envio', etiqueta: 'Envío sin cargo desde (en pesos)', ayuda: 'Si la compra llega a este monto, no se cobra ni el envío ni el retiro.', tipo: 'numero', porDefecto: '60000' },
+  // La clave quedó de cuando el envío era solo reparto en zona: se mantiene para no perder el valor que ya cargó Cintia.
+  { clave: 'envio.costoZona', grupo: 'envio', etiqueta: 'Costo del envío a domicilio (en pesos)', ayuda: 'Un solo precio para todo el país. Se cobra cuando la compra no llega al monto de envío gratis.', tipo: 'numero', porDefecto: '3500' },
+  { clave: 'envio.costoPickup', grupo: 'envio', etiqueta: 'Costo del retiro en punto pickup (en pesos)', ayuda: 'Poné 0 si retirar no tiene costo.', tipo: 'numero', porDefecto: '0' },
+  {
+    clave: 'envio.puntosPickup',
+    grupo: 'envio',
+    etiqueta: 'Puntos pickup',
+    ayuda: 'Uno por renglón, con la dirección (ej.: «Canning — Av. Castex 1234»). Mientras la lista esté vacía, al comprar no se ofrece retirar.',
+    tipo: 'lista',
+    porDefecto: '',
+  },
 
   // ---- Datos para transferir
   { clave: 'pago.titular', grupo: 'pago', etiqueta: 'Titular de la cuenta', tipo: 'texto', porDefecto: '' },
@@ -306,18 +315,14 @@ export const PAGINAS: PaginaRegistro[] = [
     ruta: '/envios',
     titulo: 'Envíos y entregas',
     cuerpo: [
-      '## Reparto propio en zona — todos los viernes',
-      'Recorremos la zona barrio por barrio, todos los viernes. Superando el mínimo de compra, el envío corre por nuestra cuenta. Si estás fuera del radio, despachamos a todo el país.',
+      '## Envíos a todo el país',
+      'Llevamos tu pedido a tu domicilio, en cualquier punto del país.',
       [
         '- Envío sin cargo superando {envioGratis} de compra.',
-        '- Por debajo del mínimo, costo fijo de reparto.',
-        '- Elegís tu barrio de una lista cerrada al finalizar la compra.',
-        '- Corte de pedidos: miércoles 23:59 (propuesta) para entrar en el reparto del viernes. Un pedido posterior pasa al viernes siguiente.',
-        '- Te avisamos por correo o WhatsApp el jueves, confirmando que tu pedido sale al día siguiente.',
+        '- Por debajo del mínimo, el envío a domicilio cuesta {costoEnvio}.',
+        '- Despachamos una vez confirmado el pago.',
+        '- Te enviamos el número de seguimiento por correo o WhatsApp al despachar.',
       ].join('\n'),
-      '## Fuera de zona — resto del país',
-      'Despachamos a todo el país por Correo Argentino y Andreani. Cotización automática por código postal. Envío sin cargo a partir de un monto mayor, a definir.',
-      'Te enviamos el número de seguimiento por correo al despachar.',
     ].join('\n\n'),
   },
   {
@@ -326,7 +331,7 @@ export const PAGINAS: PaginaRegistro[] = [
     titulo: 'Preguntas frecuentes',
     cuerpo: [
       '### ¿Cómo se calcula el envío?',
-      'En la zona de reparto propio, entregamos los viernes y el envío es sin cargo superando {envioGratis}. Fuera de zona, despachamos por Correo Argentino o Andreani con cotización por código postal.',
+      'Enviamos a todo el país. El envío a domicilio cuesta {costoEnvio} y es sin cargo superando {envioGratis} de compra.',
       '### ¿Qué medios de pago aceptan?',
       'Por ahora, transferencia bancaria. Al finalizar tu pedido te mostramos los datos para pagar y lo confirmamos a mano apenas recibimos el pago.',
       '### ¿Puedo devolver un producto si no me convenció?',
