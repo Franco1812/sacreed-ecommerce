@@ -12,7 +12,7 @@ export default function ComboCard({ combo }: { combo: Combo }) {
     <article className="card">
       <Link href={href} className="card-media" tabIndex={-1} aria-hidden="true">
         <span className="badge">Combo</span>
-        {foto && <Image src={foto.url} alt={foto.alt} fill sizes="(max-width: 680px) 45vw, (max-width: 1000px) 30vw, 220px" style={{ objectFit: "cover" }} />}
+        {foto && <Image src={foto.url} alt={foto.alt} fill sizes="(max-width: 1000px) 48vw, 360px" style={{ objectFit: "cover" }} />}
       </Link>
       <div className="card-body">
         <h3><Link href={href}>{combo.nombre}</Link></h3>
