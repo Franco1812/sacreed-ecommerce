@@ -26,7 +26,7 @@ export default function CardFotos({ fotos, href, badge }: { fotos: Foto[]; href:
             src={f.url}
             alt={f.alt}
             fill
-            sizes="(max-width: 680px) 45vw, (max-width: 1000px) 30vw, 220px"
+            sizes="(max-width: 1000px) 48vw, 360px"
             className={k === i ? "on" : undefined}
             style={{ objectFit: "cover" }}
           />
