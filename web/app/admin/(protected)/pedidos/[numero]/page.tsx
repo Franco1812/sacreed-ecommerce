@@ -73,6 +73,7 @@ interface PedidoDb {
   provincia: string | null;
   codigoPostal: string | null;
   barrioZona: string | null;
+  puntoRetiro: string | null;
   notas: string | null;
   subtotal: number;
   costoEnvio: number;
@@ -160,7 +161,7 @@ export default async function AdminPedidoDetallePage({ params }: { params: Promi
       <section className="admin-block">
         <h2>Entrega</h2>
         {pedido.metodoEntrega === "RETIRO" ? (
-          <p>Retiro</p>
+          <p>Retiro{pedido.puntoRetiro ? ` en ${pedido.puntoRetiro}` : ""}</p>
         ) : (
           <>
             <p>{pedido.calle} {pedido.numeroDom}{pedido.piso ? `, ${pedido.piso}` : ""}</p>
@@ -181,7 +182,7 @@ export default async function AdminPedidoDetallePage({ params }: { params: Promi
           </div>
         ))}
         <div className="admin-item-row">
-          <span>Envío</span>
+          <span>{pedido.metodoEntrega === "RETIRO" ? "Retiro" : "Envío"}</span>
           <span>{pedido.costoEnvio === 0 ? "Sin cargo" : formatPrecio(pedido.costoEnvio)}</span>
         </div>
         <div className="admin-item-row admin-total">

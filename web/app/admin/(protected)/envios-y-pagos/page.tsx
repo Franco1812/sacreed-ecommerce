@@ -14,8 +14,8 @@ export default async function AdminEnviosYPagosPage() {
         <h1>Envíos y pagos</h1>
       </div>
       <p className="ce-intro">
-        Cuánto cuesta el envío, desde qué monto es gratis, qué barrios entran en el reparto propio y a qué cuenta transfieren tus clientes.
-        Los montos y los barrios son los mismos que se usan para cobrar el pedido.
+        Cuánto cuesta el envío a todo el país y el retiro, desde qué monto es gratis, dónde se puede retirar y a qué cuenta transfieren tus clientes.
+        Los montos y los puntos pickup son los mismos que se usan para cobrar el pedido.
       </p>
       <EditorTextos
         grupos={gruposEnvios}

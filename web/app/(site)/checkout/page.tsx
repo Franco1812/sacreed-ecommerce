@@ -9,11 +9,36 @@ import { formatPrecio } from "@/lib/format";
 import { useSitio } from "@/lib/sitio-context";
 import { crearPedido } from "./actions";
 
-// Única opción habilitada hoy en el checkout (§ decisión 2026-09-19: se sacaron
-// retiro personal y pago en efectivo — quedan solo en pedidos históricos, ver
-// app/(site)/pedido/[numero]/page.tsx, que todavía los sabe mostrar).
-const METODO_ENTREGA = "ENVIO_DOMICILIO" as const;
+// Único medio de pago habilitado hoy (§ decisión 2026-09-19: se sacó el efectivo —
+// queda solo en pedidos históricos, ver app/(site)/pedido/[numero]/page.tsx).
 const METODO_PAGO = "TRANSFERENCIA" as const;
+
+const PROVINCIAS = [
+  "Buenos Aires",
+  "Ciudad Autónoma de Buenos Aires",
+  "Catamarca",
+  "Chaco",
+  "Chubut",
+  "Córdoba",
+  "Corrientes",
+  "Entre Ríos",
+  "Formosa",
+  "Jujuy",
+  "La Pampa",
+  "La Rioja",
+  "Mendoza",
+  "Misiones",
+  "Neuquén",
+  "Río Negro",
+  "Salta",
+  "San Juan",
+  "San Luis",
+  "Santa Cruz",
+  "Santa Fe",
+  "Santiago del Estero",
+  "Tierra del Fuego",
+  "Tucumán",
+];
 
 const CAMPOS_INICIALES = {
   nombre: "",
@@ -24,8 +49,10 @@ const CAMPOS_INICIALES = {
   calle: "",
   numeroDom: "",
   piso: "",
+  localidad: "",
+  provincia: "",
   codigoPostal: "",
-  barrioZona: "",
+  puntoRetiro: "",
   notas: "",
 };
 
@@ -34,6 +61,7 @@ export default function CheckoutPage() {
   const { items, subtotal, getProducto, getCombo, clear } = useCart();
   const { textos: t, ajustes } = useSitio();
   const [campos, setCampos] = useState(CAMPOS_INICIALES);
+  const [metodoEntrega, setMetodoEntrega] = useState<"ENVIO_DOMICILIO" | "RETIRO">("ENVIO_DOMICILIO");
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,7 +78,9 @@ export default function CheckoutPage() {
   );
 
   // Mismo cálculo que hace el servidor al crear el pedido (api/ PedidosService), con los valores que edita Cintia.
-  const costoEnvio = subtotal >= ajustes.envioGratisDesde || campos.barrioZona === "" ? 0 : ajustes.costoEnvioZona;
+  // El retiro solo se ofrece cuando Cintia cargó algún punto pickup.
+  const retiro = metodoEntrega === "RETIRO" && ajustes.puntosPickup.length > 0;
+  const costoEnvio = subtotal >= ajustes.envioGratisDesde ? 0 : retiro ? ajustes.costoPickup : ajustes.costoEnvio;
   const total = subtotal + costoEnvio;
 
   function campo(nombre: keyof typeof CAMPOS_INICIALES) {
@@ -70,10 +100,7 @@ export default function CheckoutPage() {
     const resultado = await crearPedido({
       items: items.map(({ slug, tipo, cantidad }) => ({ slug, tipo, cantidad })),
       ...campos,
-      // Solo se entrega en la zona de reparto: la localidad es el barrio elegido (el servidor lo vuelve a validar).
-      localidad: campos.barrioZona,
-      provincia: "Buenos Aires",
-      metodoEntrega: METODO_ENTREGA,
+      metodoEntrega: retiro ? "RETIRO" : "ENVIO_DOMICILIO",
       metodoPago: METODO_PAGO,
     });
 
@@ -126,19 +153,44 @@ export default function CheckoutPage() {
               <div className="form-section">
                 <h2>Entrega</h2>
                 {t["checkout.entrega"] && <p className="field-note" style={{ marginBottom: 20 }}>{t["checkout.entrega"]}</p>}
-                <div className="field-grid">
-                  <div className="field span-2">
-                    <label htmlFor="barrioZona">Localidad (zona de reparto)</label>
-                    <select id="barrioZona" required {...campo("barrioZona")}>
-                      <option value="">Elegí tu localidad…</option>
-                      {ajustes.barriosZona.map((b) => <option key={b} value={b}>{b}</option>)}
-                    </select>
+                {ajustes.puntosPickup.length > 0 && (
+                  <div className="radio-cards" style={{ marginBottom: 20 }}>
+                    <label className="radio-card">
+                      <input type="radio" name="metodoEntrega" checked={!retiro} onChange={() => setMetodoEntrega("ENVIO_DOMICILIO")} />
+                      Envío a domicilio
+                    </label>
+                    <label className="radio-card">
+                      <input type="radio" name="metodoEntrega" checked={retiro} onChange={() => setMetodoEntrega("RETIRO")} />
+                      Retiro en punto pickup
+                    </label>
                   </div>
-                  <div className="field"><label htmlFor="calle">Calle</label><input id="calle" required {...campo("calle")} /></div>
-                  <div className="field"><label htmlFor="numeroDom">Número</label><input id="numeroDom" required {...campo("numeroDom")} /></div>
-                  <div className="field"><label htmlFor="piso">Piso / depto (opcional)</label><input id="piso" {...campo("piso")} /></div>
-                  <div className="field"><label htmlFor="codigoPostal">Código postal</label><input id="codigoPostal" required {...campo("codigoPostal")} /></div>
-                </div>
+                )}
+                {retiro ? (
+                  <div className="field-grid">
+                    <div className="field span-2">
+                      <label htmlFor="puntoRetiro">Punto pickup</label>
+                      <select id="puntoRetiro" required {...campo("puntoRetiro")}>
+                        <option value="">Elegí dónde retirar…</option>
+                        {ajustes.puntosPickup.map((p) => <option key={p} value={p}>{p}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="field-grid">
+                    <div className="field"><label htmlFor="calle">Calle</label><input id="calle" required {...campo("calle")} /></div>
+                    <div className="field"><label htmlFor="numeroDom">Número</label><input id="numeroDom" required {...campo("numeroDom")} /></div>
+                    <div className="field"><label htmlFor="piso">Piso / depto (opcional)</label><input id="piso" {...campo("piso")} /></div>
+                    <div className="field"><label htmlFor="codigoPostal">Código postal</label><input id="codigoPostal" required {...campo("codigoPostal")} /></div>
+                    <div className="field"><label htmlFor="localidad">Localidad</label><input id="localidad" required {...campo("localidad")} /></div>
+                    <div className="field">
+                      <label htmlFor="provincia">Provincia</label>
+                      <select id="provincia" required {...campo("provincia")}>
+                        <option value="">Elegí tu provincia…</option>
+                        {PROVINCIAS.map((p) => <option key={p} value={p}>{p}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="form-section">
@@ -172,7 +224,7 @@ export default function CheckoutPage() {
                 <span>{formatPrecio(subtotal)}</span>
               </div>
               <div className="checkout-summary-row">
-                <span>Envío</span>
+                <span>{retiro ? "Retiro" : "Envío"}</span>
                 <span>{costoEnvio === 0 ? "Sin cargo" : formatPrecio(costoEnvio)}</span>
               </div>
               <div className="checkout-summary-total">

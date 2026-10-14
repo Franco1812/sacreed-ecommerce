@@ -4,7 +4,7 @@
  *
  * Los textos pueden llevar marcas que se reemplazan acá:
  *   {envioGratis}  monto mínimo de envío gratis, ya formateado ($60.000)
- *   {costoEnvio}   costo fijo del reparto en zona
+ *   {costoEnvio}   costo fijo del envío a domicilio
  * ({falta}, la de "te faltan…" del carrito, la resuelve el propio carrito porque depende de la compra.)
  */
 import { cache } from "react";
@@ -16,7 +16,7 @@ export type Textos = Record<string, string>;
 export function conMarcas(texto: string, ajustes: Ajustes): string {
   return texto
     .replaceAll("{envioGratis}", formatPrecio(ajustes.envioGratisDesde))
-    .replaceAll("{costoEnvio}", formatPrecio(ajustes.costoEnvioZona));
+    .replaceAll("{costoEnvio}", formatPrecio(ajustes.costoEnvio));
 }
 
 export const getTextos = cache(async (): Promise<Textos> => {

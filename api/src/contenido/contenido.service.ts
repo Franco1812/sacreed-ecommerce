@@ -157,8 +157,9 @@ export class ContenidoService {
     };
     return {
       envioGratisDesde: numero('envio.gratisDesde'),
-      costoEnvioZona: numero('envio.costoZona'),
-      barriosZona: t['envio.barrios'].split('\n').map((b) => b.trim()).filter(Boolean),
+      costoEnvio: numero('envio.costoZona'),
+      costoPickup: numero('envio.costoPickup'),
+      puntosPickup: t['envio.puntosPickup'].split('\n').map((p) => p.trim()).filter(Boolean),
     };
   }
 

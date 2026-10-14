@@ -79,7 +79,7 @@ export class CrearPedidoDto {
 
   @IsOptional()
   @IsString()
-  barrioZona?: string;
+  puntoRetiro?: string;
 
   @IsIn(['TRANSFERENCIA', 'EFECTIVO'])
   metodoPago!: 'TRANSFERENCIA' | 'EFECTIVO';

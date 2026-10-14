@@ -15,14 +15,14 @@ export interface CrearPedidoInput {
   email: string;
   telefono: string;
   dni: string;
-  metodoEntrega: "ENVIO_DOMICILIO";
+  metodoEntrega: "ENVIO_DOMICILIO" | "RETIRO";
   calle: string;
   numeroDom: string;
   piso: string;
   localidad: string;
   provincia: string;
   codigoPostal: string;
-  barrioZona: string;
+  puntoRetiro: string;
   metodoPago: "TRANSFERENCIA";
   notas: string;
 }

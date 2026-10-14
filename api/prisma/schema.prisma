@@ -187,8 +187,11 @@ model Order {
   localidad    String?
   provincia    String?
   codigoPostal String?
-  /// Para la zona de reparto propio: barrio elegido de lista cerrada (§6.4.1)
+  /// Solo pedidos viejos: el barrio de la zona de reparto propio, cuando se
+  /// entregaba nada más en Canning/Ezeiza/San Vicente (se dejó de usar 2026-10-14).
   barrioZona   String?
+  /// Para RETIRO: el punto pickup elegido, tal cual figura en la lista que carga Cintia.
+  puntoRetiro  String?
   notas        String?
 
   subtotal   Int

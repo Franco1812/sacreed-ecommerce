@@ -9,7 +9,7 @@ import type { CampoTexto, GrupoTexto } from "./campos";
 export interface CtxPrevia {
   /** Valor actual (con lo que se está escribiendo) y con {envioGratis}/{costoEnvio} ya reemplazados. */
   v: (clave: string) => string;
-  ajustes: { envioGratis: number; costoEnvio: number };
+  ajustes: { envioGratis: number; costoEnvio: number; costoPickup: number };
   /** Nombres de las líneas de beneficio (el pie las lista en «Comprar»). */
   lineas?: string[];
 }
@@ -28,7 +28,11 @@ export function useTextosEditables(campos: CampoTexto[], base: Record<string, st
   // Las fotos se suben al instante: su valor vigente viene siempre en `campos` (se refresca tras subir).
   const fotos = Object.fromEntries(campos.filter((c) => c.tipo === "imagen").map((c) => [c.clave, c.valor]));
   const crudo = (clave: string) => valores[clave] ?? fotos[clave] ?? base[clave] ?? "";
-  const ajustes = { envioGratis: Number(crudo("envio.gratisDesde")) || 0, costoEnvio: Number(crudo("envio.costoZona")) || 0 };
+  const ajustes = {
+    envioGratis: Number(crudo("envio.gratisDesde")) || 0,
+    costoEnvio: Number(crudo("envio.costoZona")) || 0,
+    costoPickup: Number(crudo("envio.costoPickup")) || 0,
+  };
   const v = (clave: string) =>
     crudo(clave).replaceAll("{envioGratis}", formatPrecio(ajustes.envioGratis)).replaceAll("{costoEnvio}", formatPrecio(ajustes.costoEnvio));
 

@@ -7,15 +7,6 @@ import type { CrearPedidoDto } from './dto/crear-pedido.dto.js';
 
 export type CrearPedidoResult = { ok: true; numero: number } | { ok: false; error: string };
 
-/** Toda la zona de reparto propio (Canning, Ezeiza, San Vicente…) está en esta provincia. */
-const PROVINCIA_ZONA = 'Buenos Aires';
-
-/** "Canning, Ezeiza y San Vicente" */
-function listaLegible(items: string[]): string {
-  if (items.length <= 1) return items.join('');
-  return `${items.slice(0, -1).join(', ')} y ${items[items.length - 1]}`;
-}
-
 @Injectable()
 export class PedidosService {
   constructor(
@@ -32,20 +23,17 @@ export class PedidosService {
    * bloquee stock real.
    */
   async crearPedido(input: CrearPedidoDto): Promise<CrearPedidoResult> {
-    // Monto de envío gratis, costo y barrios los edita Cintia desde el admin (Envíos y pagos).
+    // Monto de envío gratis, costos y puntos pickup los edita Cintia desde el admin (Envíos y pagos).
     const ajustes = await this.contenido.getAjustes();
     const esEnvio = input.metodoEntrega === 'ENVIO_DOMICILIO';
 
-    // Solo se entrega en la zona de reparto propio: la localidad ES el barrio elegido,
-    // no un campo aparte (antes se podía elegir Canning y escribir otra localidad).
-    if (esEnvio && !ajustes.barriosZona.includes(input.barrioZona ?? '')) {
-      return { ok: false, error: `Por ahora solo entregamos en ${listaLegible(ajustes.barriosZona)}.` };
-    }
-    if (esEnvio && (!input.calle || !input.numeroDom || !input.codigoPostal)) {
+    // Envío a domicilio a todo el país; el retiro solo en uno de los puntos pickup cargados.
+    if (esEnvio && (!input.calle || !input.numeroDom || !input.localidad || !input.provincia || !input.codigoPostal)) {
       return { ok: false, error: 'Completá la dirección de envío.' };
     }
-    const localidad = esEnvio ? input.barrioZona : input.localidad;
-    const provincia = esEnvio ? PROVINCIA_ZONA : input.provincia;
+    if (!esEnvio && !ajustes.puntosPickup.includes(input.puntoRetiro ?? '')) {
+      return { ok: false, error: 'Elegí uno de los puntos de retiro.' };
+    }
 
     const productoSlugs = input.items.filter((i) => i.tipo === 'producto').map((i) => i.slug);
     const comboSlugs = input.items.filter((i) => i.tipo === 'combo').map((i) => i.slug);
@@ -74,7 +62,7 @@ export class PedidosService {
       }
     }
 
-    const costoEnvio = esEnvio && subtotal < ajustes.envioGratisDesde ? ajustes.costoEnvioZona : 0;
+    const costoEnvio = subtotal >= ajustes.envioGratisDesde ? 0 : esEnvio ? ajustes.costoEnvio : ajustes.costoPickup;
 
     const order = await this.prisma.order.create({
       data: {
@@ -86,13 +74,14 @@ export class PedidosService {
         email: input.email,
         telefono: input.telefono,
         dni: input.dni || null,
-        calle: input.calle || null,
-        numeroDom: input.numeroDom || null,
-        piso: input.piso || null,
-        localidad: localidad || null,
-        provincia: provincia || null,
-        codigoPostal: input.codigoPostal || null,
-        barrioZona: input.barrioZona || null,
+        // Con retiro no se guarda dirección: el pedido va al punto pickup.
+        calle: (esEnvio && input.calle) || null,
+        numeroDom: (esEnvio && input.numeroDom) || null,
+        piso: (esEnvio && input.piso) || null,
+        localidad: (esEnvio && input.localidad) || null,
+        provincia: (esEnvio && input.provincia) || null,
+        codigoPostal: (esEnvio && input.codigoPostal) || null,
+        puntoRetiro: esEnvio ? null : input.puntoRetiro,
         notas: input.notas || null,
         subtotal,
         costoEnvio,
