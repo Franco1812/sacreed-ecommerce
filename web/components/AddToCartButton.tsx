@@ -55,11 +55,12 @@ export function AddToCartButtonProducto({ slug, nombre, precio }: { slug: string
   );
 }
 
-export function AddToCartButtonCombo({ slug }: { slug: string }) {
+/** Agrega al carrito, sueltos, los productos del combo que tienen stock. */
+export function AddToCartButtonCombo({ slug, disponible = true }: { slug: string; disponible?: boolean }) {
   const { addItem } = useCart();
   return (
-    <button type="button" className="btn btn-solid" onClick={() => addItem(slug, "combo", 1)}>
-      Agregar el combo al carrito
+    <button type="button" className="btn btn-solid" disabled={!disponible} onClick={() => addItem(slug, "combo", 1)}>
+      {disponible ? "Agregar el combo al carrito" : "Sin stock"}
     </button>
   );
 }

@@ -290,7 +290,9 @@ section,.section-block{padding:clamp(48px,6vw,72px) 0}
 .combo-hero .bundle-bajada{font-size:17px;margin:12px 0 24px}
 .combo-media-big{position:relative;aspect-ratio:4/5;overflow:hidden;background:#E6E4DC}
 .combo-integrantes{display:flex;gap:14px;margin:24px 0}
-.combo-mini{width:64px;height:64px;background:var(--surface);color:var(--forest);border:1px solid var(--hair);display:grid;place-items:center;font-size:9.5px;text-align:center;padding:4px}
+.combo-mini{width:64px;height:64px;background:var(--surface);color:var(--forest);border:1px solid var(--hair);display:grid;place-items:center;align-content:center;gap:3px;font-size:9.5px;text-align:center;padding:4px}
+.combo-mini.sin-stock{color:rgba(0,0,0,.4);border-style:dashed}
+.combo-mini-stock{display:block;font-size:8px;letter-spacing:.06em;text-transform:uppercase;color:var(--burgundy);font-weight:600}
 .combo-why{background:var(--paper);color:var(--americano);padding:clamp(58px,7.5vw,92px) 0}
 .combo-why h2{font-size:32px;font-weight:500;margin-bottom:20px}
 .combo-why p{max-width:70ch;font-size:16.5px;line-height:1.75}

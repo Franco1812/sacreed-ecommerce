@@ -340,6 +340,14 @@ export async function actualizarComboCompleto(slug: string, data: ComboFormValue
   return { ok: true, slug };
 }
 
+export async function eliminarCombo(slug: string) {
+  const res = await adminApiFetch(`/combos/${slug}`, { method: "DELETE" });
+  if (!res.ok) return { ok: false, error: await mensajeDeError(res) };
+  updateTag("combos");
+  revalidatePath("/admin/combos");
+  return { ok: true };
+}
+
 export async function subirImagenCombo(slug: string, formData: FormData) {
   const res = await adminApiFetch(`/combos/${slug}/imagenes`, { method: "POST", body: formData });
   if (!res.ok) return { ok: false, error: await mensajeDeError(res) };

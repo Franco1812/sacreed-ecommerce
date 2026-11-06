@@ -142,18 +142,33 @@ export const getAllProductos = cache(
   )
 );
 
-export const getAllCombos = cache(
-  unstable_cache(
-    async (): Promise<Combo[]> => {
-      const res = await fetch(`${API_URL}/combos`);
-      if (!res.ok) throw new Error(`GET /combos: ${res.status}`);
-      const rows: ComboDb[] = await res.json();
-      return rows.map(mapCombo);
-    },
-    ["combos"],
-    { tags: ["combos"], revalidate: CACHE_REVALIDATE_SEGUNDOS }
-  )
+const getCombosCrudos = unstable_cache(
+  async (): Promise<Combo[]> => {
+    const res = await fetch(`${API_URL}/combos`);
+    if (!res.ok) throw new Error(`GET /combos: ${res.status}`);
+    const rows: ComboDb[] = await res.json();
+    return rows.map(mapCombo);
+  },
+  ["combos"],
+  { tags: ["combos"], revalidate: CACHE_REVALIDATE_SEGUNDOS }
 );
+
+/**
+ * El precio del combo NO es el cargado en el admin: es la suma de los productos
+ * que lo integran y tienen stock (al comprarlo se agregan esos productos sueltos
+ * al carrito). Se calcula fuera del cache de combos para que siga al stock y
+ * precio actuales de los productos.
+ */
+export const getAllCombos = cache(async (): Promise<Combo[]> => {
+  const [combos, productos] = await Promise.all([getCombosCrudos(), getAllProductos()]);
+  return combos.map((c) => ({
+    ...c,
+    precio: c.productos.reduce((acc, slug) => {
+      const p = productos.find((x) => x.slug === slug);
+      return p && p.stock > 0 ? acc + p.precio : acc;
+    }, 0),
+  }));
+});
 
 interface LineaDb {
   id: LineaBeneficioDb;

@@ -49,12 +49,28 @@ export function CartProvider({
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage doesn't exist during SSR; this mount-only effect hydrates client state from it without a hydration mismatch (SSR/first paint render an empty cart on purpose)
-      if (raw) setItems(JSON.parse(raw));
+      if (raw) {
+        // Carritos viejos pueden tener combos como ítem propio: los abrimos en sus productos.
+        const guardados: CartItem[] = JSON.parse(raw);
+        const abiertos = guardados.flatMap((i) =>
+          i.tipo === "combo"
+            ? (combos.find((c) => c.slug === i.slug)?.productos ?? []).map((s) => ({ slug: s, tipo: "producto" as const, cantidad: i.cantidad }))
+            : [i]
+        );
+        const unidos = abiertos.reduce<CartItem[]>((acc, i) => {
+          const e = acc.find((x) => x.slug === i.slug);
+          if (e) e.cantidad += i.cantidad;
+          else acc.push({ ...i });
+          return acc;
+        }, []);
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage doesn't exist during SSR; this mount-only effect hydrates client state from it without a hydration mismatch (SSR/first paint render an empty cart on purpose)
+        setItems(unidos);
+      }
     } catch {
       // localStorage puede fallar (modo privado, etc.) — arrancamos con carrito vacío
     }
     setHydrated(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- solo al montar; `combos` viene del server y no cambia
   }, []);
 
   useEffect(() => {
@@ -66,16 +82,32 @@ export function CartProvider({
     }
   }, [items, hydrated]);
 
-  const addItem = useCallback((slug: string, tipo: "producto" | "combo", cantidad = 1) => {
-    setAbierto(true);
-    setItems((prev) => {
-      const existe = prev.find((i) => i.slug === slug && i.tipo === tipo);
-      if (existe) {
-        return prev.map((i) => (i.slug === slug && i.tipo === tipo ? { ...i, cantidad: i.cantidad + cantidad } : i));
-      }
-      return [...prev, { slug, tipo, cantidad }];
-    });
-  }, []);
+  /** Slugs de los productos del combo que hoy tienen stock (los faltantes se omiten). */
+  const productosDisponibles = useCallback(
+    (comboSlug: string) =>
+      (combos.find((c) => c.slug === comboSlug)?.productos ?? []).filter((s) => (productos.find((p) => p.slug === s)?.stock ?? 0) > 0),
+    [combos, productos]
+  );
+
+  const addItem = useCallback(
+    (slug: string, tipo: "producto" | "combo", cantidad = 1) => {
+      // Un combo no entra como ítem propio: se agregan sus productos con stock, cada uno suelto.
+      const aAgregar = tipo === "combo" ? productosDisponibles(slug) : [slug];
+      if (aAgregar.length === 0) return;
+      setAbierto(true);
+      setItems((prev) => {
+        let next = prev;
+        for (const s of aAgregar) {
+          const existe = next.some((i) => i.slug === s && i.tipo === "producto");
+          next = existe
+            ? next.map((i) => (i.slug === s && i.tipo === "producto" ? { ...i, cantidad: i.cantidad + cantidad } : i))
+            : [...next, { slug: s, tipo: "producto", cantidad }];
+        }
+        return next;
+      });
+    },
+    [productosDisponibles]
+  );
 
   const removeItem = useCallback((slug: string, tipo: "producto" | "combo") => {
     setItems((prev) => prev.filter((i) => !(i.slug === slug && i.tipo === tipo)));
