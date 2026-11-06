@@ -62,6 +62,19 @@ export class CombosService {
     });
   }
 
+  /**
+   * Borra el combo con sus fotos (filas y archivos). Los productos que lo integraban no se tocan,
+   * y los pedidos viejos tampoco: cada ítem guarda su propio nombre y precio.
+   */
+  async eliminar(slug: string) {
+    const combo = await this.prisma.combo.findUnique({ where: { slug }, include: { imagenes: true } });
+    if (!combo) throw new NotFoundException();
+
+    await this.prisma.combo.delete({ where: { slug } });
+    // Después de borrar la fila: si falla el Storage queda un archivo huérfano, no un combo con fotos rotas.
+    await Promise.allSettled(combo.imagenes.map((img) => this.storage.remove(img.url)));
+  }
+
   async agregarImagen(slug: string, file: Express.Multer.File, alt: string) {
     const combo = await this.prisma.combo.findUnique({ where: { slug }, include: { imagenes: true } });
     if (!combo) throw new NotFoundException();

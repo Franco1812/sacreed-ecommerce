@@ -25,6 +25,12 @@ export class CombosController {
     return this.combosService.actualizar(slug, dto);
   }
 
+  @Delete(':slug')
+  @UseGuards(InternalApiKeyGuard)
+  eliminar(@Param('slug') slug: string) {
+    return this.combosService.eliminar(slug);
+  }
+
   @Post(':slug/imagenes')
   @UseGuards(InternalApiKeyGuard)
   @UseInterceptors(FileInterceptor('file'))

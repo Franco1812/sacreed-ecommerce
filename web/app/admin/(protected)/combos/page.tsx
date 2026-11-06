@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { actualizarCombo } from "../../actions";
+import EliminarComboBoton from "./EliminarComboBoton";
 
 const API_URL = process.env.API_URL ?? "http://localhost:4000";
 const STOCK_BAJO_UMBRAL = 5;
@@ -41,6 +42,7 @@ export default async function AdminCombosPage() {
             <th>Stock</th>
             <th></th>
             <th></th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -61,6 +63,9 @@ export default async function AdminCombosPage() {
                 </td>
                 <td>
                   <Link href={`/admin/combos/${c.slug}/editar`} className="admin-btn-ghost">Editar</Link>
+                </td>
+                <td>
+                  <EliminarComboBoton slug={c.slug} nombre={c.nombre} />
                 </td>
               </tr>
             );

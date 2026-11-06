@@ -15,7 +15,8 @@ export default async function ComboPage({ params }: { params: Promise<{ slug: st
   if (!combo) notFound();
 
   const [comps, t] = await Promise.all([comboProductos(combo), getTextos()]);
-  const suma = comps.reduce((acc, p) => acc + p.precio, 0);
+  const disponibles = comps.filter((p) => p.stock > 0).length;
+  const faltantes = comps.length - disponibles;
   const foto = combo.imagenes?.[0];
 
   return (
@@ -42,17 +43,27 @@ export default async function ComboPage({ params }: { params: Promise<{ slug: st
 
             <div className="combo-integrantes">
               {comps.map((cp) => (
-                <Link href={`/producto/${cp.slug}`} className="combo-mini" key={cp.slug} title={cp.nombre}>
+                <Link
+                  href={`/producto/${cp.slug}`}
+                  className={`combo-mini${cp.stock > 0 ? "" : " sin-stock"}`}
+                  key={cp.slug}
+                  title={cp.nombre}
+                >
                   {cp.nombre}
+                  {cp.stock <= 0 && <span className="combo-mini-stock">Sin stock</span>}
                 </Link>
               ))}
             </div>
 
             <div className="bundle-price" style={{ margin: "22px 0" }}>
               {formatPrecio(combo.precio)}
-              <span style={{ fontSize: 12, opacity: 0.6 }}>vs. {formatPrecio(suma)} comprando cada producto por separado</span>
+              {faltantes > 0 && disponibles > 0 && (
+                <span style={{ fontSize: 12, opacity: 0.6 }}>
+                  Total de los {disponibles} productos disponibles
+                </span>
+              )}
             </div>
-            <AddToCartButtonCombo slug={combo.slug} />
+            <AddToCartButtonCombo slug={combo.slug} disponible={disponibles > 0} />
             {t["combo.envio"] && <p className="pdp-shipnote">{t["combo.envio"]}</p>}
           </div>
         </div>

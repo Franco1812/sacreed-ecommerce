@@ -84,7 +84,7 @@ export interface Combo {
   productos: string[];
   porQueSePotencian: string;
   ritual: RitualModo[];
-  /** MOCK — precio real pendiente (§7) */
+  /** Suma de los productos del combo que tienen stock (calculado en lib/data.ts, no el precio del admin). */
   precio: number;
   /** MOCK — stock real pendiente (§7) */
   stock: number;
