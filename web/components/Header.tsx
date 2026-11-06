@@ -142,9 +142,9 @@ export default function Header({
 
         {menuAbierto && (
           <nav className="mobile-menu" aria-label="Menú">
-            <Link href="/comprar-por-beneficio" onClick={cerrar}>Comprar</Link>
-            <Link href="/rituales" onClick={cerrar}>Rituales</Link>
-            <Link href="/combos" onClick={cerrar}>Combos</Link>
+            <Link href="/comprar-por-beneficio" onClick={cerrar}>Comprar por beneficio</Link>
+            <Link href="/rituales" onClick={cerrar}>Comprar por ritual AM/PM</Link>
+            <Link href="/combos" onClick={cerrar}>Comprar por combo</Link>
             <Link href="/nuestro-origen" onClick={cerrar}>Nuestro Origen</Link>
           </nav>
         )}
